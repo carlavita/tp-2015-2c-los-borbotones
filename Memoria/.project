@@ -3,6 +3,7 @@
 	<name>Memoria</name>
 	<comment></comment>
 	<projects>
+		<project>LibreariCompartidaDeSockets</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

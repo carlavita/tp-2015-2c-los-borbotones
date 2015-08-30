@@ -1,0 +1,11 @@
+[INFO] 19:06:11:777 Administrador de memoria/(4007:4007): Inicio lectura de archivo de configuración
+[INFO] 19:06:16:916 Administrador de memoria/(4007:4007): Finalizo lectura de archivo de configuración
+[INFO] 19:08:19:149 Administrador de memoria/(4198:4198): Inicio lectura de archivo de configuración
+[INFO] 19:08:22:320 Administrador de memoria/(4198:4198): 5000
+[INFO] 19:08:23:527 Administrador de memoria/(4198:4198): Finalizo lectura de archivo de configuración
+[INFO] 19:17:51:608 Administrador de memoria/(4586:4586): Inicio lectura de archivo de configuración
+[INFO] 19:17:51:609 Administrador de memoria/(4586:4586): 5000
+[INFO] 19:17:51:609 Administrador de memoria/(4586:4586): Finalizo lectura de archivo de configuración
+[INFO] 19:19:41:145 Administrador de memoria/(4689:4689): Inicio lectura de archivo de configuración
+[INFO] 19:19:41:145 Administrador de memoria/(4689:4689): 5000
+[INFO] 19:19:41:145 Administrador de memoria/(4689:4689): Finalizo lectura de archivo de configuración

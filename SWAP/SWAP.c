@@ -15,9 +15,10 @@
 #include "ConfigSWAP.h"
 
 
-t_log * logueo;
-t_config_ProcesoSWAP* configuracionSWAP;
 
+
+t_log * logSWAP;
+t_config_ProcesoSWAP configuracionSWAP;
 
 
 void * LeerArchivoConfiguracion()
@@ -31,7 +32,7 @@ void * LeerArchivoConfiguracion()
 	configuracionSWAP.CantidadPaginas = config_get_int_value(cfgSWAP,"CANTIDAD_PAGINAS");
 	configuracionSWAP.TamanioPagina = config_get_int_value(cfgSWAP,"TAMANIO_PAGINA");
 	configuracionSWAP.RetardoCompactacion = config_get_int_value(cfgSWAP,"RETARDO_COMPACTACION");
-
+	log_info (logSWAP,"%d",configuracionSWAP.PuertoEscucha);
 	return NULL;
 }
 
@@ -39,12 +40,12 @@ void * LeerArchivoConfiguracion()
 
 int main ()  {
 	remove("ArchivoLogueoSWAP.txt");
-	logueo = log_create("ArchivoLogueoSWAP.txt","SWAP",true,LOG_LEVEL_INFO);
-	log_info(logueo,"Inicio Proceso SWAP");
+	logSWAP = log_create("ArchivoLogueoSWAP.txt","SWAP",true,LOG_LEVEL_INFO);
+	log_info(logSWAP,"Inicio Proceso SWAP");
 
-	log_info(logueo,"Leyendo Archivo de Configuracion");
+	log_info(logSWAP,"Leyendo Archivo de Configuracion");
 	LeerArchivoConfiguracion();
-	log_info(logueo,"Archivo de Configuracion Leido correctamente");
+	log_info(logSWAP,"Archivo de Configuracion Leido correctamente");
 
 
 

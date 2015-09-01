@@ -37,5 +37,6 @@ t_log *logger;
 void levantarConfiguracion();/*Levanta parametros de configuración*/
 void mostrar_consola( void *ptr );/*Fucnionalidad de consola*/
 void espera_enter ();/*Espera enter en la consola*/
+void servidor_CPU( void *ptr );//servidor de cpus
 
 #endif /* PLANIFICADOR_H_ */

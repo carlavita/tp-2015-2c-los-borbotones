@@ -13,6 +13,7 @@
 int main(void) {
 	pthread_t hilo_consola;
 //todo	pthread_t hilo_server;
+	pthread_t hilo_server;
 	/*Log*/
 	remove(PATH_LOG);
 	logger = log_create(PATH_LOG,"Planificador",true,LOG_LEVEL_INFO);
@@ -29,9 +30,11 @@ int main(void) {
 
 /*Hilo Server Planificador*/
 
+	pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
 
 	pthread_join(hilo_consola,NULL);
 	//todo pthread_join(hilo_servidor);
+	pthread_join(hilo_server,NULL);
 	return EXIT_SUCCESS;
 }
 
@@ -107,4 +110,8 @@ void espera_enter ()
        	}
 
 
+void servidor_CPU( void *ptr ){
 
+	 printf(" estoy en el hilo servidor de CPU\n");
+	 //todo crear servidor para un cliente cpu...despues multiplexamos a las distintas cpus
+}

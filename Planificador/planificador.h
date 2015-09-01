@@ -15,10 +15,21 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 
 #define PATH_CONFIG "Planificador.config"
 #define PATH_LOG "LOGPlanificador.config"
+
+//constantes de conexion
+#define PUERTO "6667"
+#define BACKLOG 5			// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
+#define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
+
 // constantes para algoritmos
 #define FIFO 1
 #define RR 2
@@ -38,5 +49,6 @@ void levantarConfiguracion();/*Levanta parametros de configuración*/
 void mostrar_consola( void *ptr );/*Fucnionalidad de consola*/
 void espera_enter ();/*Espera enter en la consola*/
 void servidor_CPU( void *ptr );//servidor de cpus
+
 
 #endif /* PLANIFICADOR_H_ */

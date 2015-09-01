@@ -5,8 +5,6 @@
  *      Author: carlavita
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
 #include "planificador.h"
 
 
@@ -29,7 +27,7 @@ int main(void) {
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
 
 /*Hilo Server Planificador*/
-//sincronizar estos hilos ya que el listen() es bloqueante y no deja seguir con el hilo de consola
+//todo sincronizar hilos consola y conexion cpu
 	pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
 
 	pthread_join(hilo_consola,NULL);
@@ -39,15 +37,17 @@ int main(void) {
 }
 
 void levantarConfiguracion(){
-	  log_info(logger,"Lectura de variables del archivo de configuracion");
+
+	log_info(logger,"Lectura de variables del archivo de configuracion");
 	  t_config * CONFIG = config_create(PATH_CONFIG);
-	  config_planificador.puertoEscucha = config_get_int_value(CONFIG,"PUERTO_ESCUCHA");
+	  config_planificador.puertoEscucha = config_get_string_value(CONFIG,"PUERTO_ESCUCHA");
 	  config_planificador.algoritmo = config_get_int_value(CONFIG,"ALGORITMO");
 	  config_planificador.quantum = config_get_int_value(CONFIG,"QUANTUM");
 
-	  printf(" puerto %d \n",config_planificador.puertoEscucha );
+	  printf(" puerto %s \n",config_planificador.puertoEscucha );
 	  printf(" algoritmo %d\n",config_planificador.algoritmo );
 	  printf(" quantum %d\n",config_planificador.quantum );
+
 }
 
 void mostrar_consola( void *ptr ){
@@ -103,7 +103,7 @@ void mostrar_consola( void *ptr ){
 
 void espera_enter ()
        	{
-       			printf("Presione ENTER para continuar");
+       			printf("Presione ENTER para continuar \n");
        			char enter='\0';
        			enter = getchar();
        			while(((enter = getchar()) != '\n'));
@@ -114,18 +114,19 @@ void servidor_CPU( void *ptr ){
 
 	 printf(" estoy en el hilo servidor de CPU\n");
 	 //todo crear servidor para un cliente cpu...despues multiplexamos a las distintas cpus
+	 log_info(logger,"Dentro del hilo conexion a cpu");
 
-/*	 struct addrinfo hints;
-	 struct addrinfo *serverInfo;
+	 	struct addrinfo hints;
+	 	struct addrinfo *serverInfo;
 
 	 	memset(&hints, 0, sizeof(hints));
 	 	hints.ai_family = AF_UNSPEC;		// No importa si uso IPv4 o IPv6
 	 	hints.ai_flags = AI_PASSIVE;		// Asigna el address del localhost: 127.0.0.1
 	 	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
 
-	 //	getaddrinfo(NULL, PUERTO, &hints, &serverInfo); // Notar que le pasamos NULL como IP, ya que le indicamos que use localhost en AI_PASSIVE
+	 	//getaddrinfo(NULL, PUERTO, &hints, &serverInfo); // Notar que le pasamos NULL como IP, ya que le indicamos que use localhost en AI_PASSIVE
 	 	//dejo la misma ip de la maquina porque el planificador y la cpu son la misma pc--sino cambiar por ip_planificador
-	 	getaddrinfo(NULL,(const char*)config_planificador.puertoEscucha, &hints, &serverInfo);
+	 	getaddrinfo(NULL,config_planificador.puertoEscucha, &hints, &serverInfo);
 
 	 	int listenningSocket;
 	 	listenningSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
@@ -142,7 +143,8 @@ void servidor_CPU( void *ptr ){
 	 	char package[PACKAGESIZE];
 	 	int status = 1;		// Estructura que manejea el status de los recieve.
 
-	 	printf("Cliente conectado. Esperando mensajes:\n");
+	 	printf("CPU conectado. Esperando mensajes:\n");
+	 	log_info(logger,"CPU conectado");
 
 	 	while (status != 0){
 	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
@@ -151,8 +153,9 @@ void servidor_CPU( void *ptr ){
 	 	}
 
 	 	close(socketCliente);
-	 	close(listenningSocket);*/
+	 	close(listenningSocket);
 	 	printf("Cierro conexion con cpu \n");
+	 	log_info(logger,"Cierro conexion con CPU");
 
 
 }

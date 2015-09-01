@@ -26,7 +26,7 @@
 #define PATH_LOG "LOGPlanificador.config"
 
 //constantes de conexion
-#define PUERTO "6667"
+#define PUERTO "6008"
 #define BACKLOG 5			// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
 
@@ -35,7 +35,7 @@
 #define RR 2
 typedef struct
 {
-	int puertoEscucha;
+	const char* puertoEscucha;
 	int algoritmo;
 	int quantum;
 

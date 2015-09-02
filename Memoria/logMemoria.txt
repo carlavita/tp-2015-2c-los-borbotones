@@ -1,3 +1,4 @@
-[INFO] 21:13:05:320 Administrador de memoria/(2664:2664): Inicio lectura de archivo de configuración
-[INFO] 21:13:05:321 Administrador de memoria/(2664:2664): 5000
-[INFO] 21:13:05:321 Administrador de memoria/(2664:2664): Finalizo lectura de archivo de configuración
+[INFO] 19:15:24:416 Administrador de memoria/(3554:3554): Inicio lectura de archivo de configuración
+[INFO] 19:15:29:172 Administrador de memoria/(3554:3554): 64000
+[INFO] 19:15:30:167 Administrador de memoria/(3554:3554): Finalizo lectura de archivo de configuración
+[INFO] 19:15:33:65 Administrador de memoria/(3554:3554): Puerto asignado: 64000

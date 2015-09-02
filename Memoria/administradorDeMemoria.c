@@ -34,24 +34,24 @@ typedef struct
 	int retardoMemoria;
 }t_config_memoria;
 
-t_config_memoria configMemoria;
+t_config_memoria * configMemoria;
 t_log * logMemoria;
 
 
-void leerConfiguracion(t_config_memoria configMemoria)
+void leerConfiguracion(t_config_memoria * configMemoria)
 {
   log_info(logMemoria,"Inicio lectura de archivo de configuración");
   t_config * configuracionMemoria = config_create("/home/utnso/tp-2015-2c-los-borbotones/Memoria/memoria.conf");
-  configMemoria.puertoEscucha = config_get_int_value(configuracionMemoria,"PUERTO_ESCUCHA");
-  configMemoria.ipSwap = config_get_string_value(configuracionMemoria,"IP_SWAP");
-  configMemoria.puertoSwap = config_get_int_value(configuracionMemoria,"PUERTO_SWAP");
-  configMemoria.maximoMarcosPorProceso  = config_get_int_value(configuracionMemoria,"MAXIMO_MARCOS_POR_PROCESO");
-  configMemoria.cantidadDeMarcos = config_get_int_value(configuracionMemoria,"CANTIDAD_MARCOS");
-  configMemoria.tamanioMarcos = config_get_int_value(configuracionMemoria,"TAMANIO_MARCOS");
-  configMemoria.entradasTLB = config_get_int_value(configuracionMemoria,"ENTRADAS_TLB");
-  configMemoria.tlbHabilitada = config_get_int_value(configuracionMemoria,"TLB_HABILITADA");
-  configMemoria.retardoMemoria = config_get_int_value(configuracionMemoria,"RETARDO_MEMORIA");
- log_info(logMemoria,"%d",configMemoria.puertoEscucha);
+  configMemoria->puertoEscucha = config_get_int_value(configuracionMemoria,"PUERTO_ESCUCHA");
+  configMemoria->ipSwap = config_get_string_value(configuracionMemoria,"IP_SWAP");
+  configMemoria->puertoSwap = config_get_int_value(configuracionMemoria,"PUERTO_SWAP");
+  configMemoria->maximoMarcosPorProceso  = config_get_int_value(configuracionMemoria,"MAXIMO_MARCOS_POR_PROCESO");
+  configMemoria->cantidadDeMarcos = config_get_int_value(configuracionMemoria,"CANTIDAD_MARCOS");
+  configMemoria->tamanioMarcos = config_get_int_value(configuracionMemoria,"TAMANIO_MARCOS");
+  configMemoria->entradasTLB = config_get_int_value(configuracionMemoria,"ENTRADAS_TLB");
+  configMemoria->tlbHabilitada = config_get_int_value(configuracionMemoria,"TLB_HABILITADA");
+  configMemoria->retardoMemoria = config_get_int_value(configuracionMemoria,"RETARDO_MEMORIA");
+ log_info(logMemoria,"%d",configMemoria->puertoEscucha);
   log_info(logMemoria,"Finalizo lectura de archivo de configuración");
 }
 
@@ -66,7 +66,7 @@ pthread_t hiloPrincipalDeMemoria;
 
 void * funcionServidor()
 {
-	crearServidores(configMemoria);
+	//crearServidores(configMemoria);
 
 	pthread_join(hiloPrincipalDeMemoria,NULL);
 
@@ -80,15 +80,19 @@ char mensaje[1024];
 int main()
 {
 	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
-	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
+	configMemoria = malloc(sizeof(t_config_memoria));
+	logMemoria = log_create("logMemoria.txt","Administrador de memoria",true,LOG_LEVEL_INFO);
 	leerConfiguracion(configMemoria);
 	//pthread_create(hiloServidor,NULL,&funcionServidor,NULL);
-	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
+	log_info(logMemoria,"Puerto asignado: %d",configMemoria->puertoEscucha);
+	int servidorCPU = servidorMultiplexor(configMemoria->puertoEscucha);
 	recibidoPorLaMemoria = datosRecibidos();
-    int clienteSwap = cliente(configMemoria.ipSwap,configMemoria.puertoSwap);
-	send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
-
+    int clienteSwap = cliente(configMemoria->ipSwap,configMemoria->puertoSwap);
+	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+	log_info(logMemoria,"%d",envioDeMensajes);
     pthread_join(*hiloServidor,NULL);
+    free(configMemoria);
     exit(0);
 }
 

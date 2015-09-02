@@ -40,7 +40,7 @@ int cliente(char* IP, int PUERTO){
 	 serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
 
 	connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
-	freeaddrinfo(serverInfo);
+//	freeaddrinfo(serverInfo);
 	printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes.\n");
 	return serverSocket;
 }
@@ -178,7 +178,7 @@ int servidorMultiplexor(int PUERTO){
 						else
 						{
 							printf("El socket %i escribio: %s con tamanio: %i \n", i, paquete, nbytes); // A partir de aca se recibe el dato y se comienza a utilizar
-							strncpy(buffer,paquete,sizeof(paquete));
+							return fdmax;
 						}
 					}
 				}

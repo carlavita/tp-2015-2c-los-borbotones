@@ -15,7 +15,11 @@
 #include <commons/log.h>
 #include <semaphore.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
 typedef struct
 {
@@ -69,16 +73,21 @@ void * funcionServidor()
 	return NULL;
 }
 char * recibidoPorLaMemoria;
+char mensaje[1024];
+
+
 
 int main()
 {
 	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
 	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
 	leerConfiguracion(configMemoria);
-	pthread_create(hiloServidor,NULL,funcionServidor,NULL);
+	//pthread_create(hiloServidor,NULL,&funcionServidor,NULL);
+	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
+	recibidoPorLaMemoria = datosRecibidos();
+    int clienteSwap = cliente(configMemoria.ipSwap,configMemoria.puertoSwap);
+	send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 
-
-    recibidoPorLaMemoria = datosRecibidos();
     pthread_join(*hiloServidor,NULL);
     exit(0);
 }

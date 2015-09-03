@@ -25,7 +25,7 @@ typedef struct
 {
 	int puertoEscucha;
 	char* ipSwap;
-	int puertoSwap;
+	char * puertoSwap;
 	int maximoMarcosPorProceso;
 	int cantidadDeMarcos;
 	int tamanioMarcos;
@@ -44,7 +44,7 @@ void leerConfiguracion()
   t_config * configuracionMemoria = config_create("/home/utnso/tp-2015-2c-los-borbotones/Memoria/memoria.conf");
   configMemoria.puertoEscucha = config_get_int_value(configuracionMemoria,"PUERTO_ESCUCHA");
   configMemoria.ipSwap = config_get_string_value(configuracionMemoria,"IP_SWAP");
-  configMemoria.puertoSwap = config_get_int_value(configuracionMemoria,"PUERTO_SWAP");
+  configMemoria.puertoSwap = config_get_string_value(configuracionMemoria,"PUERTO_SWAP");
   configMemoria.maximoMarcosPorProceso  = config_get_int_value(configuracionMemoria,"MAXIMO_MARCOS_POR_PROCESO");
   configMemoria.cantidadDeMarcos = config_get_int_value(configuracionMemoria,"CANTIDAD_MARCOS");
   configMemoria.tamanioMarcos = config_get_int_value(configuracionMemoria,"TAMANIO_MARCOS");
@@ -85,9 +85,11 @@ int main()
 	leerConfiguracion();
 	//pthread_create(hiloServidor,NULL,&funcionServidor,NULL);
 	log_info(logMemoria,"Puerto asignado: %d",configMemoria.puertoEscucha);
+
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
 	recibidoPorLaMemoria = datosRecibidos();
-    int clienteSwap = cliente(configMemoria.ipSwap,configMemoria.puertoSwap);
+	cliente(configMemoria.ipSwap,configMemoria.puertoSwap);
+	int clienteSwap = clienteSeleccion();
 	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	log_info(logMemoria,"%d",envioDeMensajes);

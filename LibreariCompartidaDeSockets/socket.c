@@ -9,9 +9,10 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#define PACKAGESIZE 1024
 char * buffer ;
 char * datosRecibidosPorElServidor;
-
+int clienteSeleccionado;
 void conexion_modo_cliente(int socket, struct sockaddr_in* socketInfo, int puerto, in_addr_t dir) {
 char  * datosRecibidos = malloc(sizeof(char*));
 
@@ -27,22 +28,34 @@ char  * datosRecibidos = malloc(sizeof(char*));
 
 }
 
-int cliente(char* IP, int PUERTO){
-	//struct addrinfo hints;
+int cliente(char* IP, char * PUERTO){
+	struct addrinfo hints;
 	struct addrinfo *serverInfo;
-	serverInfo = malloc(sizeof(struct addrinfo *));
 
-	(*serverInfo).ai_family = AF_UNSPEC;
-	//(*serverInfo).ai_socktype = SOCK_STREAM;
-	(*serverInfo).ai_protocol = 0;
-			int serverSocket = (int)malloc(sizeof(serverInfo));
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;		// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
+	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
 
-	 serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+
+	getaddrinfo(IP, PUERTO, &hints, &serverInfo);
+	int serverSocket;
+	serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
 
 	connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
-//	freeaddrinfo(serverInfo);
-	printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes.\n");
-	return serverSocket;
+	freeaddrinfo(serverInfo);	// No lo necesitamos mas
+
+	int enviar = 1;
+	char message[PACKAGESIZE];
+
+	printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
+
+	/*	while(enviar){
+			fgets(message, PACKAGESIZE, stdin);			// Lee una linea en el stdin (lo que escribimos en la consola) hasta encontrar un \n (y lo incluye) o llegar a PACKAGESIZE.
+			if (!strcmp(message,"exit\n")) enviar = 0;			// Chequeo que el usuario no quiera salir
+			if (enviar) send(serverSocket, message, strlen(message) + 1, 0); 	// Solo envio si el usuario no quiere salir.
+		}*/
+	clienteSeleccionado = serverSocket;
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +135,7 @@ int servidorMultiplexor(int PUERTO){
 	int i;
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
-
+	buffer = malloc(sizeof(paquete));
 	int socketservidor = servidor(PUERTO);
 
 	FD_SET(socketservidor, &master);
@@ -178,6 +191,8 @@ int servidorMultiplexor(int PUERTO){
 						else
 						{
 							printf("El socket %i escribio: %s con tamanio: %i \n", i, paquete, nbytes); // A partir de aca se recibe el dato y se comienza a utilizar
+							strncpy(buffer,paquete,sizeof(paquete));
+							free(buffer);
 							return fdmax;
 						}
 					}
@@ -192,8 +207,13 @@ char * datosRecibidos()
 	return buffer;
 }
 
-int main()
+int clienteSeleccion()
+{
+	return clienteSeleccionado;
+}
+
+/*int main()
 {
 	int servidor = servidorMultiplexor(5000);
 	return servidor;
-}
+}*/

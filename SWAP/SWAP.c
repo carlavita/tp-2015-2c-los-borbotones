@@ -102,9 +102,11 @@ int main ()  {
 
 
 	LeerArchivoConfiguracion();
-	servidor_Memoria();
+	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
+	printf("Mensaje recibido: %s",datosRecibidos());
+	//servidor_Memoria();
 
 
-
-	return 0; //CARLA AMOR Y PAZ POR MI 0 :D
+	exit(0);
+	//return 0; //CARLA AMOR Y PAZ POR MI 0 :D
 }

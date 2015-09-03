@@ -23,5 +23,6 @@ int cliente(char* IP, int PUERTO);
 int servidor(int PUERTO);
 int servidorMultiplexor(int PUERTO);
 char * datosRecibidos();
+int clienteSeleccion();
 
 #endif /* SOCKET_H_ */

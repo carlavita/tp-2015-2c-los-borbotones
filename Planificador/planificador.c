@@ -6,7 +6,10 @@
  */
 
 #include "planificador.h"
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 int main(void) {
 	pthread_t hilo_consola;
@@ -70,6 +73,10 @@ void mostrar_consola( void *ptr ){
 		case 1:
 //todo:descomentar			system("clear");
 //todo            correr_path();
+			printf("soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
+						int mensaje = CHECKPOINT;
+						send(servidor,&mensaje,sizeof(mensaje),0);
+
 			espera_enter();
 			break;
 
@@ -140,6 +147,7 @@ void servidor_CPU( void *ptr ){
 	 	socklen_t addrlen = sizeof(addr);
 
 	 	int socketCliente = accept(listenningSocket, (struct sockaddr *) &addr, &addrlen);
+	 	servidor = socketCliente;
 	 	char package[PACKAGESIZE];
 	 	int status = 1;		// Estructura que manejea el status de los recieve.
 

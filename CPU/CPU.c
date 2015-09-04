@@ -6,8 +6,13 @@
  */
 
 #include "CPU.h"
+#define CHECKPOINT 1// todo los mensajes van a ir al protocolo
 
+typedef struct
+{
+	int codMje;
 
+}t_mensaje_header; // todo, esto va a ir en el protocolo.h
 
 void  LeerArchivoConfiguracion()
 {
@@ -48,9 +53,17 @@ void Conexion_con_planificador(){
 
 		int enviar = 1;
 		char message[PACKAGESIZE];
-
+		int mensaje;
 		printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 
+		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
+			if (!status){
+				if (mensaje == CHECKPOINT){
+				printf("recibido el mensaje correr path desde el planificador");
+				}
+			}else{
+				printf("error al recibir");
+			}
 			while(enviar){
 				fgets(message, PACKAGESIZE, stdin);			// Lee una linea en el stdin (lo que escribimos en la consola) hasta encontrar un \n (y lo incluye) o llegar a PACKAGESIZE.
 				if (!strcmp(message,"exit\n")) enviar = 0;			// Chequeo que el usuario no quiera salir

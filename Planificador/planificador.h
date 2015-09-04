@@ -8,6 +8,7 @@
 #ifndef PLANIFICADOR_H_
 #define PLANIFICADOR_H_
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -16,10 +17,7 @@
 #include <commons/config.h>
 #include <commons/txt.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
+
 
 
 #define PATH_CONFIG "Planificador.config"
@@ -29,19 +27,25 @@
 #define PUERTO "6008"
 #define BACKLOG 5			// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
-
+#define CHECKPOINT 1  //mensaje de prueba todo al protocolo
 // constantes para algoritmos
 #define FIFO 1
 #define RR 2
 typedef struct
 {
-	const char* puertoEscucha;
+	int puertoEscucha;
 	int algoritmo;
 	int quantum;
 
 }t_config_planificador;
 
+typedef struct
+{
+	int codMje;
 
+}t_mensaje_header;
+
+int servidor = 0;//todo socket cpu, solo por pruebas
 t_config_planificador config_planificador;
 t_log *logger;
 

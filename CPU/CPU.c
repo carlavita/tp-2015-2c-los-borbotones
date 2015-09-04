@@ -47,7 +47,7 @@ void Conexion_con_planificador(){
 		getaddrinfo(configuracionCPU.IPPlanificador, configuracionCPU.PuertoPlanificador, &hints, &serverInfo);
 		int serverSocket;
 		serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-
+		printf("socket %d \n", serverSocket);
 		connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
 		freeaddrinfo(serverInfo);	// No lo necesitamos mas
 
@@ -55,7 +55,8 @@ void Conexion_con_planificador(){
 		char message[PACKAGESIZE];
 		int mensaje;
 		printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
-
+		while (enviar){
+			printf("recibir\n");
 		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
 			if (!status){
 				if (mensaje == CHECKPOINT){
@@ -64,11 +65,12 @@ void Conexion_con_planificador(){
 			}else{
 				printf("error al recibir");
 			}
-			while(enviar){
+		}
+			/*while(enviar){
 				fgets(message, PACKAGESIZE, stdin);			// Lee una linea en el stdin (lo que escribimos en la consola) hasta encontrar un \n (y lo incluye) o llegar a PACKAGESIZE.
 				if (!strcmp(message,"exit\n")) enviar = 0;			// Chequeo que el usuario no quiera salir
 				if (enviar) send(serverSocket, message, strlen(message) + 1, 0); 	// Solo envio si el usuario no quiere salir.
-			}
+			}*/
 
 		close(serverSocket);
 		printf("Conexion a planificador cerrada \n");

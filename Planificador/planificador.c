@@ -75,7 +75,8 @@ void mostrar_consola( void *ptr ){
 //todo            correr_path();
 			printf("soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
 						int mensaje = CHECKPOINT;
-						send(servidor,&mensaje,sizeof(mensaje),0);
+						printf("socket : %d \n", servidor);
+						send(servidor,&mensaje,sizeof(int),0);
 
 			espera_enter();
 			break;

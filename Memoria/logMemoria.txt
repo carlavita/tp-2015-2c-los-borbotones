@@ -1,4 +1,5 @@
-[INFO] 19:58:51:576 Administrador de memoria/(5581:5581): Inicio lectura de archivo de configuración
-[INFO] 19:58:53:553 Administrador de memoria/(5581:5581): 64000
-[INFO] 19:58:53:783 Administrador de memoria/(5581:5581): Finalizo lectura de archivo de configuración
-[INFO] 19:58:54:472 Administrador de memoria/(5581:5581): Puerto asignado: 64000
+[INFO] 13:17:07:184 Administrador de memoria/(10788:10788): Inicio lectura de archivo de configuración
+[INFO] 13:17:07:201 Administrador de memoria/(10788:10788): 64000
+[INFO] 13:17:07:206 Administrador de memoria/(10788:10788): Finalizo lectura de archivo de configuración
+[INFO] 13:17:07:210 Administrador de memoria/(10788:10788): Puerto asignado: 64000
+[INFO] 13:21:20:852 Administrador de memoria/(10788:10788): 4

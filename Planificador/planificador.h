@@ -27,6 +27,8 @@
 #define PUERTO "6008"
 #define BACKLOG 5			// Define cuantas conexiones vamos a mantener pendientes al mismo tiempo
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
+
+#define SALUDO 0
 #define CHECKPOINT 1  //mensaje de prueba todo al protocolo
 // constantes para algoritmos
 #define FIFO 1

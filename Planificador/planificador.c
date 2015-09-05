@@ -25,15 +25,16 @@ int main(void) {
 	log_info(logger,"Leyendo Archivo de Configuracion");
 	levantarConfiguracion();
 	log_info(logger,"Archivo de Configuracion Leido correctamente");
+	/*Hilo Server Planificador*/
+	//todo sincronizar hilos consola y conexion cpu
+		pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
 
-/*Hilo Consola*/
+		mostrar_consola(NULL);
+/*Hilo Consola
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
+*/
 
-/*Hilo Server Planificador*/
-//todo sincronizar hilos consola y conexion cpu
-	pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
-
-	pthread_join(hilo_consola,NULL);
+	//pthread_join(hilo_consola,NULL);
 
 	pthread_join(hilo_server,NULL);
 	return EXIT_SUCCESS;
@@ -76,8 +77,8 @@ void mostrar_consola( void *ptr ){
 			printf("soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
 						int mensaje = CHECKPOINT;
 						printf("socket : %d \n", servidor);
-						send(servidor,&mensaje,sizeof(int),0);
-
+						int status = send(servidor,&mensaje,sizeof(int),0);
+						printf("estado de envio : %d \n", status);
 			espera_enter();
 			break;
 
@@ -155,14 +156,20 @@ void servidor_CPU( void *ptr ){
 	 	printf("CPU conectado. Esperando mensajes:\n");
 	 	log_info(logger,"CPU conectado");
 
-	 	while (status != 0){
+	 	/*while (status != 0){
 	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
 	 			if (status != 0) printf("%s", package);
 
 	 	}
 
 	 	close(socketCliente);
-	 	close(listenningSocket);
+	 	close(listenningSocket);*/
+	 	//status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
+
+	 	//int mensaje = CHECKPOINT;
+	 	int mensaje = SALUDO;
+	 	status = send(socketCliente,&mensaje , sizeof(int), 0);
+	 	printf("status send inicial %d", status);
 	 	printf("Cierro conexion con cpu \n");
 	 	log_info(logger,"Cierro conexion con CPU");
 

@@ -41,7 +41,7 @@ t_log * logMemoria;
 void leerConfiguracion()
 {
   log_info(logMemoria,"Inicio lectura de archivo de configuración");
-  t_config * configuracionMemoria = config_create("/home/utnso/tp-2015-2c-los-borbotones/Memoria/memoria.conf");
+  t_config * configuracionMemoria = config_create("memoria.conf");
   configMemoria.puertoEscucha = config_get_int_value(configuracionMemoria,"PUERTO_ESCUCHA");
   configMemoria.ipSwap = config_get_string_value(configuracionMemoria,"IP_SWAP");
   configMemoria.puertoSwap = config_get_string_value(configuracionMemoria,"PUERTO_SWAP");

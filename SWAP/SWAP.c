@@ -31,7 +31,7 @@ void LeerArchivoConfiguracion()
 	t_config* cfgSWAP = malloc(sizeof(t_config));
 
 	log_info(logSWAP,"Leyendo Archivo de Configuracion");
-	cfgSWAP = config_create("/home/utnso/tp-2015-2c-los-borbotones/SWAP/archivoConfig.conf");
+	cfgSWAP = config_create("archivoConfig.conf");
 	configuracionSWAP.PuertoEscucha = config_get_int_value(cfgSWAP,"PUERTO_ESCUCHA");
 	configuracionSWAP.NombreSwap = config_get_string_value(cfgSWAP,"NOMBRE_SWAP");
 	configuracionSWAP.CantidadPaginas = config_get_int_value(cfgSWAP,"CANTIDAD_PAGINAS");

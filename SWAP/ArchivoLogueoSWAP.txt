@@ -1,4 +1,4 @@
-[INFO] 19:58:39:274 SWAP/(5548:5548): Inicio Proceso SWAP
-[INFO] 19:58:39:274 SWAP/(5548:5548): Leyendo Archivo de Configuracion
-[INFO] 19:58:39:274 SWAP/(5548:5548): 6000
-[INFO] 19:58:39:274 SWAP/(5548:5548): Archivo de Configuracion Leido correctamente
+[INFO] 13:16:46:513 SWAP/(10722:10722): Inicio Proceso SWAP
+[INFO] 13:16:46:519 SWAP/(10722:10722): Leyendo Archivo de Configuracion
+[INFO] 13:16:46:526 SWAP/(10722:10722): 6000
+[INFO] 13:16:46:529 SWAP/(10722:10722): Archivo de Configuracion Leido correctamente

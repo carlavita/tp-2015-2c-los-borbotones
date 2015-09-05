@@ -34,19 +34,20 @@ typedef struct
 	//int PuertoPlanificador;
 	char* PuertoPlanificador;
 	char* IPMemoria ;
-	int PuertoMemoria;
+	char* PuertoMemoria;
 	int CantidadHilos;
 	int Retardo;
 } t_config_ProcesoCPU;
 
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
-
+int serverMemoria = 0;
 
 
 //funciones de la cpu
 
 void LeerArchivoConfiguracion();
 void Conexion_con_planificador();
+int conexion_con_memoria();
 
 #endif /* CPU_H_ */

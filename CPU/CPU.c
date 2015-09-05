@@ -5,7 +5,10 @@
  *      Author: Fernando Sanchez
  */
 
+
 #include "CPU.h"
+
+#define SALUDO 0// todo los mensajes van a ir al protocolo
 #define CHECKPOINT 1// todo los mensajes van a ir al protocolo
 
 typedef struct
@@ -20,10 +23,10 @@ void  LeerArchivoConfiguracion()
 	log_info(logCPU,"Leyendo Archivo de Configuracion");
 	cfgCPU = config_create(PATH_CONFIG);
 	configuracionCPU.IPPlanificador = config_get_string_value(cfgCPU,"IP_PLANIFICADOR");
-	//configuracionCPU.PuertoPlanificador = config_get_int_value(cfgCPU,"PUERTO_PLANIFICADOR");
 	configuracionCPU.PuertoPlanificador = config_get_string_value(cfgCPU,"PUERTO_PLANIFICADOR");
 	configuracionCPU.IPMemoria = config_get_string_value(cfgCPU,"IP_MEMORIA");
-	configuracionCPU.PuertoMemoria = config_get_int_value(cfgCPU,"PUERTO_MEMORIA");
+	configuracionCPU.PuertoMemoria = config_get_string_value(cfgCPU,"PUERTO_MEMORIA");
+
 	configuracionCPU.CantidadHilos = config_get_int_value(cfgCPU,"CANTIDAD_HILOS");
 	configuracionCPU.Retardo = config_get_int_value(cfgCPU,"RETARDO");
 	log_info (logCPU,"%s",configuracionCPU.PuertoPlanificador);
@@ -31,6 +34,29 @@ void  LeerArchivoConfiguracion()
 
 	}
 
+int conexion_con_memoria(){
+	printf("Conectando a memoria \n");
+	log_info(logCPU,"Conectando a memoria\n");
+
+		struct addrinfo hints;
+		struct addrinfo *serverInfo;
+
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = AF_UNSPEC;		// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
+		hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
+
+
+	// conectando a memoria
+
+			getaddrinfo(configuracionCPU.IPMemoria, configuracionCPU.PuertoMemoria, &hints, &serverInfo);
+					int serverSocketMemoria;
+					serverSocketMemoria = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+					printf("socket memoria %d \n", serverSocketMemoria);
+					connect(serverSocketMemoria, serverInfo->ai_addr, serverInfo->ai_addrlen);
+					freeaddrinfo(serverInfo);	// No lo necesitamos mas
+
+	return serverSocketMemoria;
+}
 void Conexion_con_planificador(){
 
 	printf("Conectando a planificador \n");
@@ -58,10 +84,22 @@ void Conexion_con_planificador(){
 		while (enviar){
 			printf("recibir\n");
 		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
-			if (!status){
+			if (status > 0){
 				if (mensaje == CHECKPOINT){
-				printf("recibido el mensaje correr path desde el planificador");
+				printf("recibido el mensaje correr path desde el planificador\n");
+
+				printf("reenvío mensaje a memoria\n");
+
+				strcpy(message,"Correr path\n");
+
+				status = send(serverMemoria, message, strlen(message) + 1, 0);
 				}
+				else if (mensaje == SALUDO){
+						printf("recibido el mensaje saludo de planificador\n");
+
+
+					}
+
 			}else{
 				printf("error al recibir");
 			}
@@ -85,7 +123,7 @@ int main ()  {
 	log_info(logCPU,"Inicio Proceso CPU");
 
 	LeerArchivoConfiguracion();
-
+	serverMemoria = conexion_con_memoria();
 	Conexion_con_planificador();
 
 	return 0; //CARLA AMOR Y PAZ POR MI 0 :D

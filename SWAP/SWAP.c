@@ -24,6 +24,7 @@
 
 t_log * logSWAP;
 t_config_ProcesoSWAP configuracionSWAP;
+FILE * archivoDisco;
 
 
 void LeerArchivoConfiguracion()
@@ -92,6 +93,55 @@ void servidor_Memoria(){
 
 }
 
+void * CreacionDisco() {
+
+	remove(configuracionSWAP.NombreSwap);
+	char command[1000];
+	char * bytesCrear;
+	int tamanioArchivo = configuracionSWAP.CantidadPaginas * configuracionSWAP.TamanioPagina;
+	bytesCrear = string_itoa(tamanioArchivo);
+
+	log_info(logSWAP,"Creando archivo de tamanio: %d",tamanioArchivo);
+	/* ARMO COMANDO DD DE CREACION DE ARCHIVO DE TAMAÑO FIJO */
+	strcpy(command,"dd if=/dev/zero of=");
+	strcat(command,configuracionSWAP.NombreSwap);
+	strcat(command, " bs=");
+	strcat(command,bytesCrear);
+	strcat(command," count=1");
+
+	/* EJECUTO COMANDO*/
+	system(command);
+	log_info(logSWAP,"Archivo Creado correctamente");
+return NULL;
+}
+
+void * iniciar(int idProceso ,int cantidadPaginas){
+	int a = 0;
+	while (a <= cantidadPaginas) {
+	fseek(archivoDisco,(a*configuracionSWAP.TamanioPagina), SEEK_SET);
+	fputs("/0",archivoDisco);
+	a++;
+	}
+	return NULL;
+
+}
+
+int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar){
+
+if (listaDeArchivos[posicion]== '\0')
+	return -1; else if (listaDeArchivos[posicion]== valorABuscar)
+		return posicion;
+	else
+	return busquedaPosicionCaracter(posicion+1,listaDeArchivos,valorABuscar);
+}
+
+char *parsearLinea(char * lineaLeida){
+	int posicion = busquedaPosicionCaracter (0,lineaLeida,';');
+	char lineaParseada[100] = "";
+	strncpy(lineaParseada,&lineaLeida[0],posicion);
+	//printf("Linea leida1: %s\n", lineaParseada);
+	return lineaParseada;
+}
 
 
 
@@ -102,6 +152,7 @@ int main ()  {
 
 
 	LeerArchivoConfiguracion();
+	CreacionDisco();
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	printf("Mensaje recibido: %s",datosRecibidos());
 	//servidor_Memoria();

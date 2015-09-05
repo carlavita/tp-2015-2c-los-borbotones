@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lLibreariCompartidaDeSockets -lcommons -lpthread
+LIBS := -lLibreariCompartidaDeSockets -lpthread -lcommons
 

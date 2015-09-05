@@ -25,13 +25,13 @@ endif
 all: Memoria
 
 dependents:
-	-cd /home/utnso/workspace/LibreariCompartidaDeSockets/Debug && $(MAKE) all
+	-cd /home/utnso/tp-2015-2c-los-borbotones/LibreariCompartidaDeSockets/Debug && $(MAKE) all
 
 # Tool invocations
-Memoria: $(OBJS) $(USER_OBJS) /home/utnso/workspace/LibreariCompartidaDeSockets/Debug/libLibreariCompartidaDeSockets.so
+Memoria: $(OBJS) $(USER_OBJS) /home/utnso/tp-2015-2c-los-borbotones/LibreariCompartidaDeSockets/Debug/libLibreariCompartidaDeSockets.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc  -o "Memoria" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/tp-2015-2c-los-borbotones/LibreariCompartidaDeSockets/Debug" -o "Memoria" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -42,6 +42,6 @@ clean:
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/LibreariCompartidaDeSockets/Debug/libLibreariCompartidaDeSockets.so:
+/home/utnso/tp-2015-2c-los-borbotones/LibreariCompartidaDeSockets/Debug/libLibreariCompartidaDeSockets.so:
 
 -include ../makefile.targets

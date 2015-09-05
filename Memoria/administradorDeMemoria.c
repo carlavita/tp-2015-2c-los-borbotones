@@ -34,6 +34,19 @@ typedef struct
 	int retardoMemoria;
 }t_config_memoria;
 
+typedef struct
+{
+	int pid;
+	char * direccion;
+	int offset; //TAMAÑO QUE CARGO, PARA TODOS LOS CAMPOS DE LA TLB.
+}t_TLB;    //LA TLB VA A SER UN ARRAY DE N entradas.(por ahora)
+
+typedef struct
+{
+
+}t_tablaDePaginas;
+
+
 t_config_memoria  configMemoria;
 t_log * logMemoria;
 
@@ -51,7 +64,7 @@ void leerConfiguracion()
   configMemoria.entradasTLB = config_get_int_value(configuracionMemoria,"ENTRADAS_TLB");
   configMemoria.tlbHabilitada = config_get_int_value(configuracionMemoria,"TLB_HABILITADA");
   configMemoria.retardoMemoria = config_get_int_value(configuracionMemoria,"RETARDO_MEMORIA");
- log_info(logMemoria,"%d",configMemoria.puertoEscucha);
+  log_info(logMemoria,"%d",configMemoria.puertoEscucha);
   log_info(logMemoria,"Finalizo lectura de archivo de configuración");
 }
 
@@ -75,26 +88,80 @@ void * funcionServidor()
 char * recibidoPorLaMemoria;
 char mensaje[1024];
 
+t_TLB * generarTLB(int entradasTLB)
+{
+	t_TLB tlb[entradasTLB];
+	int entrada = 0;
+	while ( entrada < entradasTLB) {
+		tlb[entrada].direccion = '\0';
+		tlb[entrada].offset = 0; //por ahora cero, no encuentro donde esta definido el tamaño de las paginas.
+		tlb[entrada].pid = 0;//cuando vengan los procesos, ire cambiando ese pid.
+		 ++entrada;
+	}
+	return tlb;
+}
+t_TLB * tlb;
 
+void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB* tlb) {
+
+	if(configMemoria->tlbHabilitada == 1)
+	{
+		printf("La TLB esta habilitada, se procede a su creación");
+		log_info(logMemoria, "Inicio creacion de la TLB");
+		tlb = malloc(sizeof(t_TLB*));
+	    tlb = generarTLB(configMemoria->entradasTLB);
+	    log_info(logMemoria, "Finalizo existosamente la creacion de la TLB");
+	}
+	else
+	{
+		printf("La TLB no esta habilitada");
+		log_warning(logMemoria,"La TLB no esta activada por configuración");
+	}
+}
+
+int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
+	int intentosFallidosDeConexionASwap = 0;
+	log_trace(logMemoria,"Generando cliente al SWAP con estos parametros definidos, IP: %s, PUERTO: %d",configMemoria->ipSwap,configMemoria->puertoSwap);
+	cliente(configMemoria->ipSwap, configMemoria->puertoSwap);
+	int clienteSwap = clienteSeleccion();
+	while (clienteSwap == -1) {
+		log_error(logMemoria, "No se pudo conectar al SWAP, reintando");
+		if(intentosFallidosDeConexionASwap == 5)
+		{
+			printf("Luego de %d intentos de conexion fallidos,se espera 10seg,para reintarConexion",intentosFallidosDeConexionASwap);
+			log_info(logMemoria,"Luego de %d intentos de conexion fallidos,se espera 10seg para reintarConexion",intentosFallidosDeConexionASwap);
+			sleep(10);
+		}
+
+		cliente(configMemoria->ipSwap, configMemoria->puertoSwap);
+		clienteSwap = clienteSeleccion();
+		intentosFallidosDeConexionASwap++;
+	}
+	if (clienteSwap > 0) {
+		log_info(logMemoria,"La memoria se conecto satisfactoriamente al SWAP");
+	}
+	return clienteSwap;
+}
 
 int main()
 {
 	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
-//	configMemoria = malloc(sizeof(t_config_memoria));
-	logMemoria = log_create("logMemoria.txt","Administrador de memoria",true,LOG_LEVEL_INFO);
+	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
 	leerConfiguracion();
-	//pthread_create(hiloServidor,NULL,&funcionServidor,NULL);
-	log_info(logMemoria,"Puerto asignado: %d",configMemoria.puertoEscucha);
-
+	creacionTLB(&configMemoria, logMemoria, tlb);
+    //VA A IR UN WHILE INFINITO,NO NECESARIAMENTE SE NECESITA UN HILO
+	log_info(logMemoria,"Comienzo de las diferentes conexiones");
+	int clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
 	recibidoPorLaMemoria = datosRecibidos();
-	cliente(configMemoria.ipSwap,configMemoria.puertoSwap);
-	int clienteSwap = clienteSeleccion();
+
+	for(;;){
+		//ACA SE VA A PROCESAR TODO, DESPUES DE LA CREACION DE LAS DISTINTAS ESTRUCTURAS Y CONEXIONES
 	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	log_info(logMemoria,"%d",envioDeMensajes);
     pthread_join(*hiloServidor,NULL);
-
+	}
     exit(0);
 }
 

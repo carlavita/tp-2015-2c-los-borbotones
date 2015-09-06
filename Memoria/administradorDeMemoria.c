@@ -20,6 +20,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#define PACKAGESIZE 1024
 
 typedef struct
 {
@@ -162,7 +163,9 @@ int main()
 
 	for(;;){
 		//ACA SE VA A PROCESAR TODO, DESPUES DE LA CREACION DE LAS DISTINTAS ESTRUCTURAS Y CONEXIONES
-	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+	//int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+	int size = PACKAGESIZE;
+	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,PACKAGESIZE,0);
 	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	log_info(logMemoria,"%d",envioDeMensajes);
 

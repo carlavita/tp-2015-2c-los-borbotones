@@ -130,12 +130,14 @@ int servidorMultiplexor(int PUERTO){
 	struct sockaddr_in clientaddr;
 	int fdmax;
 	int newfd;
-	char paquete[1024];
+	//char paquete[1024];
+	char paquete [PACKAGESIZE];
 	int nbytes;
 	int i;
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
-	buffer = malloc(sizeof(paquete));
+	//buffer = malloc(sizeof(paquete));
+	buffer = malloc(PACKAGESIZE);
 	int socketservidor = servidor(PUERTO);
 
 	FD_SET(socketservidor, &master);

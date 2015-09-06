@@ -1,4 +1,6 @@
-[INFO] 13:16:46:513 SWAP/(10722:10722): Inicio Proceso SWAP
-[INFO] 13:16:46:519 SWAP/(10722:10722): Leyendo Archivo de Configuracion
-[INFO] 13:16:46:526 SWAP/(10722:10722): 6000
-[INFO] 13:16:46:529 SWAP/(10722:10722): Archivo de Configuracion Leido correctamente
+[INFO] 13:19:36:605 SWAP/(12580:12580): Inicio Proceso SWAP
+[INFO] 13:19:36:621 SWAP/(12580:12580): Leyendo Archivo de Configuracion
+[INFO] 13:19:36:626 SWAP/(12580:12580): 6000
+[INFO] 13:19:36:630 SWAP/(12580:12580): Archivo de Configuracion Leido correctamente
+[INFO] 13:19:36:644 SWAP/(12580:12580): Creando archivo de tamanio: 131072
+[INFO] 13:19:36:908 SWAP/(12580:12580): Archivo Creado correctamente

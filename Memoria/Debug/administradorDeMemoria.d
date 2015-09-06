@@ -1,1 +1,0 @@
-administradorDeMemoria.d: ../administradorDeMemoria.c

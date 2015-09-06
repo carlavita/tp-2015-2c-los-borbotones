@@ -74,17 +74,6 @@ void crearServidores()
 }
 
 
-pthread_t * hiloServidor;
-pthread_t hiloPrincipalDeMemoria;
-
-void * funcionServidor()
-{
-	//crearServidores(configMemoria);
-
-	pthread_join(hiloPrincipalDeMemoria,NULL);
-
-	return NULL;
-}
 char * recibidoPorLaMemoria;
 char mensaje[1024];
 
@@ -92,9 +81,10 @@ t_TLB * generarTLB(int entradasTLB)
 {
 	t_TLB tlb[entradasTLB];
 	int entrada = 0;
-	while ( entrada < entradasTLB) {
+	while ( entrada < entradasTLB)
+	{
 		tlb[entrada].direccion = '\0';
-		tlb[entrada].offset = 0; //por ahora cero, no encuentro donde esta definido el tamaño de las paginas.
+		tlb[entrada].offset = configMemoria.tamanioMarcos;
 		tlb[entrada].pid = 0;//cuando vengan los procesos, ire cambiando ese pid.
 		 ++entrada;
 	}
@@ -102,7 +92,8 @@ t_TLB * generarTLB(int entradasTLB)
 }
 t_TLB * tlb;
 
-void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB* tlb) {
+void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB* tlb)
+{
 
 	if(configMemoria->tlbHabilitada == 1)
 	{
@@ -119,7 +110,8 @@ void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB*
 	}
 }
 
-int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
+int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria)
+{
 	int intentosFallidosDeConexionASwap = 0;
 	log_trace(logMemoria,"Generando cliente al SWAP con estos parametros definidos, IP: %s, PUERTO: %d",configMemoria->ipSwap,configMemoria->puertoSwap);
 	cliente(configMemoria->ipSwap, configMemoria->puertoSwap);
@@ -143,13 +135,26 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
 	return clienteSwap;
 }
 
+void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
+{
+	int pagina = 0;
+   int cantidadDePaginas = *memoriaReservadaDeMemPpal / configMemoria.tamanioMarcos; //Esta formula no me gusta, estaria dando la cantidad de marcos totales
+   while(pagina < cantidadDePaginas)
+   {
+
+   }
+}
+
+
+int * memoriaReservadaDeMemPpal;
 int main()
 {
 	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
 	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
 	leerConfiguracion();
 	creacionTLB(&configMemoria, logMemoria, tlb);
-    //VA A IR UN WHILE INFINITO,NO NECESARIAMENTE SE NECESITA UN HILO
+	memoriaReservadaDeMemPpal = malloc(sizeof(configMemoria.tamanioMarcos)* configMemoria.cantidadDeMarcos);
+	generarTablaDePaginas(memoriaReservadaDeMemPpal);
 	log_info(logMemoria,"Comienzo de las diferentes conexiones");
 	int clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
@@ -160,7 +165,7 @@ int main()
 	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	log_info(logMemoria,"%d",envioDeMensajes);
-    pthread_join(*hiloServidor,NULL);
+
 	}
     exit(0);
 }

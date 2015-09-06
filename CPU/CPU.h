@@ -49,5 +49,7 @@ int serverMemoria = 0;
 void LeerArchivoConfiguracion();
 void Conexion_con_planificador();
 int conexion_con_memoria();
+int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
+char *parsearLinea(char * lineaLeida);
 
 #endif /* CPU_H_ */

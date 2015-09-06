@@ -12,7 +12,6 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
-#include "ConfigSWAP.h"
 #include "SWAP.h"
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -25,6 +24,7 @@
 t_log * logSWAP;
 t_config_ProcesoSWAP configuracionSWAP;
 FILE * archivoDisco;
+t_tablaPaginas* tPaginas;
 
 
 void LeerArchivoConfiguracion()
@@ -93,6 +93,20 @@ void servidor_Memoria(){
 
 }
 
+void * inicializarTablaPaginas(int cantidadPaginas)
+{
+
+t_tablaPaginas tPaginas[cantidadPaginas];
+	int entrada = 0;
+	while ( entrada <= cantidadPaginas) {
+		tPaginas[entrada].pid = 0;
+		tPaginas[entrada].primerByte = 0;
+		tPaginas[entrada].cantidadPagidas = 0;
+		++entrada;
+	}
+	return NULL;
+}
+
 void * CreacionDisco() {
 
 	remove(configuracionSWAP.NombreSwap);
@@ -119,30 +133,80 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 	int a = 0;
 	while (a <= cantidadPaginas) {
 	fseek(archivoDisco,(a*configuracionSWAP.TamanioPagina), SEEK_SET);
-	fputs("/0",archivoDisco);
+	fputc('\0',archivoDisco);
 	a++;
 	}
+	int proximaPosicionLibre = busquedaProximaPosicionLibreVector();
+	tPaginas[proximaPosicionLibre].pid = idProceso;
+	tPaginas[proximaPosicionLibre].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
+	tPaginas[proximaPosicionLibre].cantidadPagidas = cantidadPaginas;
 	return NULL;
 
 }
 
-int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar){
-
-if (listaDeArchivos[posicion]== '\0')
-	return -1; else if (listaDeArchivos[posicion]== valorABuscar)
-		return posicion;
-	else
-	return busquedaPosicionCaracter(posicion+1,listaDeArchivos,valorABuscar);
+int busquedaProximaPosicionLibreVector() {
+	int posicion = 0;
+	while (!tPaginas[posicion].pid == 0) {
+		++posicion;
+	}
+	return posicion;
 }
 
-char *parsearLinea(char * lineaLeida){
-	int posicion = busquedaPosicionCaracter (0,lineaLeida,';');
-	char lineaParseada[100] = "";
-	strncpy(lineaParseada,&lineaLeida[0],posicion);
-	//printf("Linea leida1: %s\n", lineaParseada);
-	return lineaParseada;
+int busquedaPosicionPID (int pid) {
+	int posicion = 0;
+	while (!tPaginas[posicion].pid == pid) {
+		++posicion;
+	}
+	return posicion;
 }
 
+void * finalizar (int PID){
+	int posicionPID = busquedaPosicionPID(PID);
+	int primerBytePID = tPaginas[posicionPID].primerByte;
+	int paginasPID = tPaginas[posicionPID].cantidadPagidas;
+	int ultimoBytePID = primerBytePID + paginasPID*configuracionSWAP.TamanioPagina - 1;
+	int bytesUsadosPorPID = ultimoBytePID - primerBytePID;
+	int posicionArchivo;
+	/* ACA VA LA ELIMINACION DEL CONTENIDO DEL S WAP DE ESAS PAGINAS */
+			for (posicionArchivo = 0 ; posicionArchivo <= bytesUsadosPorPID; posicionArchivo++){
+				fseek(archivoDisco,primerBytePID + posicionArchivo,SEEK_SET);
+				fputc('\0',archivoDisco);
+			}
+
+	//ELIMINO DE VECTOR
+	tPaginas[posicionPID].pid = 0;
+	tPaginas[posicionPID].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
+	tPaginas[posicionPID].cantidadPagidas = 0;
+
+	return NULL;
+}
+
+
+void * leer (int nroPagina){
+	int tamanioPagina = configuracionSWAP.TamanioPagina;
+	int primerBytePagina = nroPagina * tamanioPagina - 1;
+	char * contenido;
+	fseek(archivoDisco,primerBytePagina,SEEK_SET);
+	strncpy(contenido,archivoDisco,tamanioPagina); //LEER CONTENIDO UBICADO EN EL COMIENZO DE LA PAGINA
+	//DEVUELVO PAGINA LEIDA
+
+	return NULL;
+}
+
+void * escribir (int nroPagina, char* contenidoPagina){
+	int tamanioPagina = configuracionSWAP.TamanioPagina;
+	int primerBytePagina = nroPagina * tamanioPagina - 1;
+	fseek(archivoDisco,primerBytePagina,SEEK_SET);
+	fputs(contenidoPagina,archivoDisco);
+
+	return NULL;
+}
+
+
+void * compactacion(){
+
+	return NULL;
+}
 
 
 int main ()  {
@@ -153,6 +217,7 @@ int main ()  {
 
 	LeerArchivoConfiguracion();
 	CreacionDisco();
+	inicializarTablaPaginas(configuracionSWAP.CantidadPaginas);
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	printf("Mensaje recibido: %s",datosRecibidos());
 	//servidor_Memoria();

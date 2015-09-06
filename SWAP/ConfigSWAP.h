@@ -8,15 +8,9 @@
 #ifndef CONFIGSWAP_H_
 #define CONFIGSWAP_H_
 
-typedef
-struct
-{
-	int PuertoEscucha;
-	char * NombreSwap;
-	int CantidadPaginas ;
-	int TamanioPagina;
-	int RetardoCompactacion;
 
-} t_config_ProcesoSWAP;
+
+
+
 
 #endif /* CONFIGSWAP_H_ */

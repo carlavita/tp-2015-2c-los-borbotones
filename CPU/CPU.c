@@ -117,6 +117,25 @@ void Conexion_con_planificador(){
 }
 
 
+int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar){
+
+if (listaDeArchivos[posicion]== '\0')
+	return -1; else if (listaDeArchivos[posicion]== valorABuscar)
+		return posicion;
+	else
+	return busquedaPosicionCaracter(posicion+1,listaDeArchivos,valorABuscar);
+}
+
+char *parsearLinea(char * lineaLeida){
+	int posicion = busquedaPosicionCaracter (0,lineaLeida,';');
+	char lineaParseada[100] = "";
+	strncpy(lineaParseada,&lineaLeida[0],posicion);
+	//printf("Linea leida1: %s\n", lineaParseada);
+	return lineaParseada;
+}
+
+
+
 int main ()  {
 	remove(PATH_LOG);
 	logCPU = log_create(PATH_LOG,"CPU",true,LOG_LEVEL_INFO);

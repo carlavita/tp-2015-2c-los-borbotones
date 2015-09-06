@@ -30,4 +30,18 @@ typedef struct
 	int primerByte; //TAMAÑO QUE CARGO, PARA TODOS LOS CAMPOS DE LA TLB.
 }t_tablaPaginas;
 
+
+int busquedaProximaPosicionLibreVector();
+int busquedaPosicionPID (int pid);
+void * CreacionDisco();
+void * inicializarTablaPaginas(int cantidadPaginas);
+void LeerArchivoConfiguracion();
+void servidor_Memoria();
+void * iniciar(int idProceso ,int cantidadPaginas);
+void * finalizar (int PID);
+void * leer (int nroPagina);
+void * escribir (int nroPagina, char* contenidoPagina);
+void * compactacion();
+int controlInsercionPaginas(int cantidadPaginas) ;
+
 #endif /* SWAP_H_ */

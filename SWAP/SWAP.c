@@ -25,6 +25,7 @@ t_log * logSWAP;
 t_config_ProcesoSWAP configuracionSWAP;
 FILE * archivoDisco;
 t_tablaPaginas* tPaginas;
+int paginasLibres;
 
 
 void LeerArchivoConfiguracion()
@@ -131,17 +132,49 @@ return NULL;
 
 void * iniciar(int idProceso ,int cantidadPaginas){
 	int a = 0;
-	while (a <= cantidadPaginas) {
-	fseek(archivoDisco,(a*configuracionSWAP.TamanioPagina), SEEK_SET);
-	fputc('\0',archivoDisco);
-	a++;
+	int estado = controlInsercionPaginas(cantidadPaginas);
+	switch (estado)  {
+	case 1:	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
+		while (a <= cantidadPaginas) {
+		fseek(archivoDisco,(a*configuracionSWAP.TamanioPagina), SEEK_SET);
+		fputc('\0',archivoDisco);
+		a++;
+		}
+		int proximaPosicionLibre = busquedaProximaPosicionLibreVector();
+		tPaginas[proximaPosicionLibre].pid = idProceso;
+		tPaginas[proximaPosicionLibre].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
+		tPaginas[proximaPosicionLibre].cantidadPagidas = cantidadPaginas;
+		paginasLibres = paginasLibres - cantidadPaginas;
+		break;
+	case 0: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
+		compactacion();
+		break;
+	case -1: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
+		break;
 	}
-	int proximaPosicionLibre = busquedaProximaPosicionLibreVector();
-	tPaginas[proximaPosicionLibre].pid = idProceso;
-	tPaginas[proximaPosicionLibre].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
-	tPaginas[proximaPosicionLibre].cantidadPagidas = cantidadPaginas;
 	return NULL;
+}
 
+int controlInsercionPaginas(int cantidadPaginas) {
+	int estado;
+	if (cantidadPaginas > paginasLibres){
+			estado =-1;
+		}
+
+	if (cantidadPaginas <= paginasLibres)
+	{
+
+		/* CONTROL DE ESPACIO CONTIGUO EN VECTOR*/
+		estado = 0;
+	}
+	else
+	{
+		estado = 1 ;
+	}
+
+
+
+	return estado;
 }
 
 int busquedaProximaPosicionLibreVector() {
@@ -177,6 +210,7 @@ void * finalizar (int PID){
 	tPaginas[posicionPID].pid = 0;
 	tPaginas[posicionPID].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
 	tPaginas[posicionPID].cantidadPagidas = 0;
+	paginasLibres = paginasLibres + paginasPID;
 
 	return NULL;
 }
@@ -216,6 +250,7 @@ int main ()  {
 
 
 	LeerArchivoConfiguracion();
+	paginasLibres = configuracionSWAP.CantidadPaginas;
 	CreacionDisco();
 	inicializarTablaPaginas(configuracionSWAP.CantidadPaginas);
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);

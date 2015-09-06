@@ -1,6 +1,7 @@
-[INFO] 19:20:28:961 Administrador de memoria/(3989:3989): Inicio lectura de archivo de configuración
-[INFO] 19:20:28:961 Administrador de memoria/(3989:3989): 64000
-[INFO] 19:20:28:961 Administrador de memoria/(3989:3989): Finalizo lectura de archivo de configuración
-[WARNING] 19:20:29:805 Administrador de memoria/(3989:3989): La TLB no esta activada por configuración
-[INFO] 19:20:32:483 Administrador de memoria/(3989:3989): Comienzo de las diferentes conexiones
-[INFO] 19:21:06:28 Administrador de memoria/(3989:3989): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 13:19:47:192 Administrador de memoria/(12606:12606): Inicio lectura de archivo de configuración
+[INFO] 13:19:47:207 Administrador de memoria/(12606:12606): 64000
+[INFO] 13:19:47:208 Administrador de memoria/(12606:12606): Finalizo lectura de archivo de configuración
+[WARNING] 13:19:47:208 Administrador de memoria/(12606:12606): La TLB no esta activada por configuración
+[INFO] 13:19:47:208 Administrador de memoria/(12606:12606): Comienzo de las diferentes conexiones
+[INFO] 13:19:47:217 Administrador de memoria/(12606:12606): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 13:20:17:731 Administrador de memoria/(12606:12606): 1024

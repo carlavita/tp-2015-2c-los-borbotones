@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <commons/collections/list.h>
 
 
 
@@ -24,7 +25,7 @@
 t_log * logSWAP;
 t_config_ProcesoSWAP configuracionSWAP;
 FILE * archivoDisco;
-t_tablaPaginas* tPaginas;
+t_list * listaProcesos;
 int paginasLibres;
 
 
@@ -93,7 +94,7 @@ void servidor_Memoria(){
 
 
 }
-
+/*
 void * inicializarTablaPaginas(int cantidadPaginas)
 {
 
@@ -102,11 +103,11 @@ t_tablaPaginas tPaginas[cantidadPaginas];
 	while ( entrada <= cantidadPaginas) {
 		tPaginas[entrada].pid = 0;
 		tPaginas[entrada].primerByte = 0;
-		tPaginas[entrada].cantidadPagidas = 0;
+		tPaginas[entrada].cantidadPaginas = 0;
 		++entrada;
 	}
 	return NULL;
-}
+} */
 
 void * CreacionDisco() {
 
@@ -140,10 +141,11 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 		fputc('\0',archivoDisco);
 		a++;
 		}
-		int proximaPosicionLibre = busquedaProximaPosicionLibreVector();
+		list_add_in_index(listaProcesos,idProceso,proceso_create(idProceso,cantidadPaginas,0)); //POSICION = ID PROCESO
+		/*int proximaPosicionLibre = busquedaProximaPosicionLibreVector();
 		tPaginas[proximaPosicionLibre].pid = idProceso;
 		tPaginas[proximaPosicionLibre].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
-		tPaginas[proximaPosicionLibre].cantidadPagidas = cantidadPaginas;
+		tPaginas[proximaPosicionLibre].cantidadPaginas = cantidadPaginas; */
 		paginasLibres = paginasLibres - cantidadPaginas;
 		break;
 	case 0: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
@@ -176,7 +178,7 @@ int controlInsercionPaginas(int cantidadPaginas) {
 
 	return estado;
 }
-
+/*
 int busquedaProximaPosicionLibreVector() {
 	int posicion = 0;
 	while (!tPaginas[posicion].pid == 0) {
@@ -191,32 +193,31 @@ int busquedaPosicionPID (int pid) {
 		++posicion;
 	}
 	return posicion;
-}
+}*/
 
 void * finalizar (int PID){
-	int posicionPID = busquedaPosicionPID(PID);
+	/*
+	 int posicionPID = busquedaPosicionPID(PID);
 	int primerBytePID = tPaginas[posicionPID].primerByte;
-	int paginasPID = tPaginas[posicionPID].cantidadPagidas;
+	int paginasPID = tPaginas[posicionPID].cantidadPaginas;
 	int ultimoBytePID = primerBytePID + paginasPID*configuracionSWAP.TamanioPagina - 1;
 	int bytesUsadosPorPID = ultimoBytePID - primerBytePID;
 	int posicionArchivo;
-	/* ACA VA LA ELIMINACION DEL CONTENIDO DEL S WAP DE ESAS PAGINAS */
+	/* ACA VA LA ELIMINACION DEL CONTENIDO DEL S WAP DE ESAS PAGINAS
 			for (posicionArchivo = 0 ; posicionArchivo <= bytesUsadosPorPID; posicionArchivo++){
 				fseek(archivoDisco,primerBytePID + posicionArchivo,SEEK_SET);
 				fputc('\0',archivoDisco);
 			}
 
 	//ELIMINO DE VECTOR
-	tPaginas[posicionPID].pid = 0;
-	tPaginas[posicionPID].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
-	tPaginas[posicionPID].cantidadPagidas = 0;
+	list_remove_and_destroy_element(listaProcesos,PID,(void*)proceso_destroy);
 	paginasLibres = paginasLibres + paginasPID;
-
+	*/
 	return NULL;
 }
 
 
-void * leer (int nroPagina){
+void * leer (int PID,int nroPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = nroPagina * tamanioPagina - 1;
 	char * contenido;
@@ -227,7 +228,7 @@ void * leer (int nroPagina){
 	return NULL;
 }
 
-void * escribir (int nroPagina, char* contenidoPagina){
+void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = nroPagina * tamanioPagina - 1;
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
@@ -242,6 +243,21 @@ void * compactacion(){
 	return NULL;
 }
 
+static t_tablaProcesos* proceso_create(int PID, int cantidadPaginas, int primerByte) {
+	t_tablaProcesos *proceso = malloc(sizeof(t_tablaProcesos));
+proceso->pid = PID;
+proceso->cantidadPaginas = cantidadPaginas;
+proceso->primerByte = primerByte;
+proceso->cantidadEscrituras = 0;
+proceso->cantidadLecturas = 0;
+return proceso;
+}
+
+static void proceso_destroy(t_tablaProcesos *proceso) {
+	free(proceso);
+}
+
+
 
 int main ()  {
 	remove("ArchivoLogueoSWAP.txt");
@@ -252,7 +268,8 @@ int main ()  {
 	LeerArchivoConfiguracion();
 	paginasLibres = configuracionSWAP.CantidadPaginas;
 	CreacionDisco();
-	inicializarTablaPaginas(configuracionSWAP.CantidadPaginas);
+	//inicializarTablaPaginas(configuracionSWAP.CantidadPaginas);
+	listaProcesos = list_create(); /* CREO MI LISTA ENLAZADA*/
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	printf("Mensaje recibido: %s",datosRecibidos());
 	//servidor_Memoria();

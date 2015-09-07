@@ -26,9 +26,11 @@ struct
 typedef struct
 {
 	int pid;
-	int cantidadPagidas;
+	int cantidadPaginas;
 	int primerByte; //TAMAÑO QUE CARGO, PARA TODOS LOS CAMPOS DE LA TLB.
-}t_tablaPaginas;
+	int cantidadLecturas;
+	int cantidadEscrituras;
+}t_tablaProcesos;
 
 
 int busquedaProximaPosicionLibreVector();
@@ -39,9 +41,11 @@ void LeerArchivoConfiguracion();
 void servidor_Memoria();
 void * iniciar(int idProceso ,int cantidadPaginas);
 void * finalizar (int PID);
-void * leer (int nroPagina);
-void * escribir (int nroPagina, char* contenidoPagina);
+void * leer (int PID ,int nroPagina);
+void * escribir (int PID, int nroPagina, char* contenidoPagina);
 void * compactacion();
 int controlInsercionPaginas(int cantidadPaginas) ;
+static t_tablaProcesos *proceso_create(int PID, int cantidadPaginas, int primerByte);
+static void proceso_destroy(t_tablaProcesos *self);
 
 #endif /* SWAP_H_ */

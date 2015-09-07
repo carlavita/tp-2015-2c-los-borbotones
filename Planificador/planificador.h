@@ -16,6 +16,7 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
+#include <commons/collections/list.h>
 #include <string.h>
 
 
@@ -43,6 +44,23 @@ typedef struct
 
 typedef struct
 {
+	int pid;
+	char* pathProc;
+	int proxInst;
+
+}t_pcb;
+
+typedef struct
+{
+	int estado;//(0 libre, 1 ocupada)
+	int id;
+
+}t_cpu;
+
+
+
+typedef struct
+{
 	int codMje;
 
 }t_mensaje_header;
@@ -50,6 +68,15 @@ typedef struct
 int servidor = 0;//todo socket cpu, solo por pruebas
 t_config_planificador config_planificador;
 t_log *logger;
+
+/*Listas de planificacion*/
+
+t_list* NUEVOS;
+t_list* LISTOS;
+t_list* EJECUTANDO;
+t_list* BLOQUEADOS;
+t_list* FINALIZADOS;
+
 
 void levantarConfiguracion();/*Levanta parametros de configuración*/
 void mostrar_consola( void *ptr );/*Fucnionalidad de consola*/

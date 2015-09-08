@@ -19,8 +19,6 @@
 #include <commons/collections/list.h>
 #include <string.h>
 
-
-
 #define PATH_CONFIG "Planificador.config"
 #define PATH_LOG "LOGPlanificador.config"
 
@@ -34,9 +32,11 @@
 // constantes para algoritmos
 #define FIFO 1
 #define RR 2
+
 typedef struct
 {
-	int puertoEscucha;
+	//int puertoEscucha;
+	char* puertoEscucha;
 	int algoritmo;
 	int quantum;
 
@@ -56,8 +56,6 @@ typedef struct
 	int id;
 
 }t_cpu;
-
-
 
 typedef struct
 {
@@ -82,6 +80,7 @@ void levantarConfiguracion();/*Levanta parametros de configuración*/
 void mostrar_consola( void *ptr );/*Fucnionalidad de consola*/
 void espera_enter ();/*Espera enter en la consola*/
 void servidor_CPU( void *ptr );//servidor de cpus
+void inicializar_listas();//listas inicializadas
 
 
 #endif /* PLANIFICADOR_H_ */

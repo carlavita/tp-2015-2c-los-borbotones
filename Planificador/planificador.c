@@ -25,6 +25,8 @@ int main(void) {
 	log_info(logger,"Leyendo Archivo de Configuracion");
 	levantarConfiguracion();
 	log_info(logger,"Archivo de Configuracion Leido correctamente");
+
+	inicializar_listas();
 	/*Hilo Server Planificador*/
 	//todo sincronizar hilos consola y conexion cpu
 		pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
@@ -38,6 +40,16 @@ int main(void) {
 
 	pthread_join(hilo_server,NULL);
 	return EXIT_SUCCESS;
+}
+
+void inicializar_listas(){
+
+	NUEVOS = list_create();
+	LISTOS = list_create();
+	EJECUTANDO = list_create();;
+	BLOQUEADOS= list_create();;
+	FINALIZADOS=list_create();;
+
 }
 
 void levantarConfiguracion(){

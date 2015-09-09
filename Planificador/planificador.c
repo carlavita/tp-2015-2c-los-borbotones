@@ -211,7 +211,7 @@ void correr_path(){
 int crear_pcb(char* path){
 
 	t_pcb* pcb  = malloc(sizeof(t_pcb)) ;
-	    pthread_mutex_lock(&mutex_listos);
+	    pthread_mutex_lock(&mutex_listas);
 	    PID++;
 		pcb->pid = PID;
 		pcb->proxInst = 0; //Inicializa
@@ -223,7 +223,51 @@ int crear_pcb(char* path){
 /*Lo agrega a la lista de listos*/
 		list_add(LISTOS,pcb);
 		printf("PID %d sumado a la cola de ready\n",pcb->pid );
-		pthread_mutex_unlock(&mutex_listos);
+		pthread_mutex_unlock(&mutex_listas);
 
 return pcb->pid;
 }
+
+
+int planificar_Fifo(){
+
+	t_pcb* pcb = list_get(LISTOS,0);
+	return pcb->pid;
+}
+void enviarACpu(t_pcb* pcb,t_cpu* cpu)
+{
+// Elimina el PID de la cola de listos
+	removerEnListaPorPid(LISTOS,pcb->pid);
+//Pasa  a lista de ejecución
+	pthread_mutex_lock(&mutex_listas);
+	list_add(EJECUTANDO,pcb);
+	pthread_mutex_unlock(&mutex_listas);
+
+
+	//cpu->pid = pcb->pid; //todo, ver si me sirve que la cpu tenga el pid
+
+	// todo enviarPcb(cpu->socket,pcb );
+}
+
+void removerEnListaPorPid(t_list *lista, int pid) {
+	int _is_pcb(t_pcb *p) {
+		return p->pid == pid;
+	}
+	pthread_mutex_lock(&mutex_listas);
+	list_remove_by_condition(lista, (void*) _is_pcb);
+	pthread_mutex_unlock(&mutex_listas);
+}
+
+t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
+	// Busca por pid
+	int _is_pcb(t_pcb *p) {
+		return p->pid == pid;
+	}
+	t_pcb* pcb = list_find(lista, (void*) _is_pcb);
+
+		return pcb;
+
+}
+
+
+

@@ -83,13 +83,50 @@ t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
 
 // Semáforo para listas de pcbs
-pthread_mutex_t mutex_listos;
-
+pthread_mutex_t mutex_listas;
+/**
+* @NAME: levantarConfiguracion()
+* @DESC:Levanta parametros de configuracion
+*/
 void levantarConfiguracion();/*Levanta parametros de configuración*/
+/**
+* @NAME: mostrar_consola()
+* @DESC: Muestra consola para planificador
+*/
 void mostrar_consola( void *ptr );/*Fucnionalidad de consola*/
-void espera_enter ();/*Espera enter en la consola*/
+/**
+* @NAME: espera_enter()
+* @DESC: Espera enter para continuar (Limpia y vuelve a mostrar opciones de consola)
+*/
+void espera_enter ();
+/**
+* @NAME: servidor_CPU()
+* @DESC: Función para hilo de servidor
+*/
 void servidor_CPU( void *ptr );//servidor de cpus
+/**
+* @NAME: inicializar_listas()
+* @DESC: Crea las listas del planificador
+*/
 void inicializar_listas();//listas inicializadas
+/**
+* @NAME: correr_path()
+* @DESC: dispara ejecución de un mProc
+*/
 void correr_path();
+/**
+* @NAME: correr_path()
+* @DESC: crea el PCB de un mProc , lo deja listo para ejecutar
+*/
 int crear_pcb(char* path);
+/**
+* @NAME: removerEnListaPorPid()
+* @DESC: recibe una lista y elimina el elemento que tenga ese pid
+*/
+void removerEnListaPorPid(t_list *lista, int pid);
+/**
+* @NAME: enviarACpu()
+* @DESC: Pasa el pcb de listo a ejecutando y envía el pedido a la CPU*/
+void enviarACpu(t_pcb* pcb,t_cpu* cpu);
+
 #endif /* PLANIFICADOR_H_ */

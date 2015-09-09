@@ -44,13 +44,18 @@ typedef struct
 
 typedef struct
 {
-
+	int pid;
+	int marco;
+	int pagina;
+	int bitUso;
+	int bitModificado;
 }t_tablaDePaginas;
 
 
 t_config_memoria  configMemoria;
 t_log * logMemoria;
-
+int clienteSwap;
+t_tablaDePaginas * tablaDePaginas;
 
 void leerConfiguracion()
 {
@@ -138,11 +143,25 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria)
 
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
 {
-	int pagina = 0;
-   int cantidadDePaginas = *memoriaReservadaDeMemPpal / configMemoria.tamanioMarcos; //Esta formula no me gusta, estaria dando la cantidad de marcos totales
-   while(pagina < cantidadDePaginas)
-   {
+	int  pagina = 0;
+	int *cantidadDePaginas = malloc(sizeof(int *));
 
+	recv(clienteSwap,cantidadDePaginas,sizeof(int),0);
+	int frame = 0;
+	int maximaCantidadDeFrames = configMemoria.cantidadDeMarcos;
+   while(pagina < *cantidadDePaginas)
+   {
+	   if(frame == maximaCantidadDeFrames) return;
+	   else
+	   {
+		   tablaDePaginas->bitModificado = 1;
+		   tablaDePaginas->bitUso = 1;
+		   tablaDePaginas->marco = frame;//ESTO NO ME GUSTA, TODO
+		   tablaDePaginas->pagina = pagina;
+		   tablaDePaginas->pid = -1; //-1 me indica que la pagina no esta asignada a ningun proceso
+	   }
+	   frame++;
+	   pagina += pagina; //pagina++
    }
 }
 
@@ -154,11 +173,11 @@ int main()
 	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
 	leerConfiguracion();
 	creacionTLB(&configMemoria, logMemoria, tlb);
-	memoriaReservadaDeMemPpal = malloc(sizeof(configMemoria.tamanioMarcos)* configMemoria.cantidadDeMarcos);
-	generarTablaDePaginas(memoriaReservadaDeMemPpal);
+
 	log_info(logMemoria,"Comienzo de las diferentes conexiones");
-	int clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
+	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
+	generarTablaDePaginas(memoriaReservadaDeMemPpal);
 	recibidoPorLaMemoria = datosRecibidos();
 
 	for(;;){

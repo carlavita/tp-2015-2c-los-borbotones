@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 int main(void) {
-	pthread_t hilo_consola;
+//	pthread_t hilo_consola;
 	pthread_t hilo_server;
 
 	/*Log*/
@@ -25,8 +25,7 @@ int main(void) {
 	log_info(logger,"Leyendo Archivo de Configuracion");
 	levantarConfiguracion();
 	log_info(logger,"Archivo de Configuracion Leido correctamente");
-
-	inicializar_listas();
+        inicializar_listas();
 	/*Hilo Server Planificador*/
 	//todo sincronizar hilos consola y conexion cpu
 		pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
@@ -51,18 +50,24 @@ void inicializar_listas(){
 	FINALIZADOS=list_create();;
 
 }
-
 void levantarConfiguracion(){
 
 	log_info(logger,"Lectura de variables del archivo de configuracion");
 	  t_config * CONFIG = config_create(PATH_CONFIG);
+
+	  if	(CONFIG != NULL){
+	  config_planificador.puertoEscucha = malloc(PUERTO_SIZE);
 	  config_planificador.puertoEscucha = config_get_string_value(CONFIG,"PUERTO_ESCUCHA");
+
 	  config_planificador.algoritmo = config_get_int_value(CONFIG,"ALGORITMO");
 	  config_planificador.quantum = config_get_int_value(CONFIG,"QUANTUM");
 
 	  printf(" puerto %s \n",config_planificador.puertoEscucha );
 	  printf(" algoritmo %d\n",config_planificador.algoritmo );
 	  printf(" quantum %d\n",config_planificador.quantum );
+	  }else{
+		  printf("estupido config, se cree tan importante");
+	  }
 
 }
 
@@ -71,7 +76,7 @@ void mostrar_consola( void *ptr ){
 	while(option != 0){
 //todo: descomentar todos clear		system("clear");
 
-		puts("Consola - Filesystem \n \n"
+		puts("Consola - Planificador \n \n"
 			 "1  - Correr Path \n"
 			 "2  - Finalizar PID\n"
 			 "3  - ps \n"
@@ -85,7 +90,8 @@ void mostrar_consola( void *ptr ){
 		switch(option){
 		case 1:
 //todo:descomentar			system("clear");
-//todo            correr_path();
+//todo
+			correr_path();
 			printf("soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
 						int mensaje = CHECKPOINT;
 						printf("socket : %d \n", servidor);
@@ -116,6 +122,11 @@ void mostrar_consola( void *ptr ){
 			puts("Gracias por venir, vuelva pronto! :)");
 			espera_enter();
 		break;
+
+		default:
+		 printf("Comando inválido\n");
+		 espera_enter();
+		 break;
 		}
 
 	}
@@ -162,7 +173,7 @@ void servidor_CPU( void *ptr ){
 
 	 	int socketCliente = accept(listenningSocket, (struct sockaddr *) &addr, &addrlen);
 	 	servidor = socketCliente;
-	 	char package[PACKAGESIZE];
+	 	//char package[PACKAGESIZE];
 	 	int status = 1;		// Estructura que manejea el status de los recieve.
 
 	 	printf("CPU conectado. Esperando mensajes:\n");
@@ -188,3 +199,31 @@ void servidor_CPU( void *ptr ){
 
 }
 
+void correr_path(){
+	char path[PATH_SIZE];
+	printf("Ingrese el PATH del mCod a correr \n");
+	  scanf("%s", path);
+	printf("PATH del mCod a correr %s \n",path);
+
+	int pid = crear_pcb(path);
+}
+
+int crear_pcb(char* path){
+
+	t_pcb* pcb  = malloc(sizeof(t_pcb)) ;
+	    pthread_mutex_lock(&mutex_listos);
+	    PID++;
+		pcb->pid = PID;
+		pcb->proxInst = 0; //Inicializa
+		strcpy(pcb->pathProc, path);
+
+		printf("PID mProc: %d \n",pcb->pid);
+		printf("Proxima instruccion mProc: %d \n",pcb->proxInst);
+		printf("Path mProc: %s \n",pcb->pathProc);
+/*Lo agrega a la lista de listos*/
+		list_add(LISTOS,pcb);
+		printf("PID %d sumado a la cola de ready\n",pcb->pid );
+		pthread_mutex_unlock(&mutex_listos);
+
+return pcb->pid;
+}

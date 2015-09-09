@@ -141,7 +141,7 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 		fputc('\0',archivoDisco);
 		a++;
 		}
-		list_add_in_index(listaProcesos,idProceso,proceso_create(idProceso,cantidadPaginas,0)); //POSICION = ID PROCESO
+		list_add(listaProcesos,proceso_create(idProceso,cantidadPaginas,0));
 		/*int proximaPosicionLibre = busquedaProximaPosicionLibreVector();
 		tPaginas[proximaPosicionLibre].pid = idProceso;
 		tPaginas[proximaPosicionLibre].primerByte = 0; //ACA VA LA PRIMER POSICION DE LA PRIMER PAGINA DEL PID QUE SE INSERTA
@@ -208,31 +208,36 @@ void * finalizar (int PID){
 				fseek(archivoDisco,primerBytePID + posicionArchivo,SEEK_SET);
 				fputc('\0',archivoDisco);
 			}
-
+*/
 	//ELIMINO DE VECTOR
-	list_remove_and_destroy_element(listaProcesos,PID,(void*)proceso_destroy);
-	paginasLibres = paginasLibres + paginasPID;
-	*/
+	int _is_proceso(t_tablaProcesos *p) {
+			return p->pid == PID;
+		};
+	list_remove_by_condition(listaProcesos,(void*) _is_proceso);
+	//paginasLibres = paginasLibres + paginasPID;
+
+
 	return NULL;
 }
 
 
-void * leer (int PID,int nroPagina){
+char* leer (int PID,int nroPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = nroPagina * tamanioPagina - 1;
 	char * contenido;
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
-	strncpy(contenido,archivoDisco,tamanioPagina); //LEER CONTENIDO UBICADO EN EL COMIENZO DE LA PAGINA
+	fread(contenido,tamanioPagina,primerBytePagina,archivoDisco); //LEER CONTENIDO UBICADO EN EL COMIENZO DE LA PAGINA
 	//DEVUELVO PAGINA LEIDA
 
-	return NULL;
+	return contenido;
 }
 
 void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = nroPagina * tamanioPagina - 1;
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
-	fputs(contenidoPagina,archivoDisco);
+	//fputs(contenidoPagina,archivoDisco);
+	fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
 
 	return NULL;
 }
@@ -243,19 +248,19 @@ void * compactacion(){
 	return NULL;
 }
 
-static t_tablaProcesos* proceso_create(int PID, int cantidadPaginas, int primerByte) {
+int proceso_create(int PID, int cantidadPaginas, int primerByte) {
 	t_tablaProcesos *proceso = malloc(sizeof(t_tablaProcesos));
 proceso->pid = PID;
 proceso->cantidadPaginas = cantidadPaginas;
 proceso->primerByte = primerByte;
 proceso->cantidadEscrituras = 0;
 proceso->cantidadLecturas = 0;
-return proceso;
+return proceso ->pid;
 }
 
-static void proceso_destroy(t_tablaProcesos *proceso) {
-	free(proceso);
-}
+//static void proceso_destroy(t_tablaProcesos *proceso) {
+//	free(proceso);
+//}
 
 
 

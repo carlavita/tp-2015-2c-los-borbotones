@@ -144,65 +144,6 @@ void espera_enter ()
        	}
 
 
-/*
-void servidor_CPU( void *ptr ){
-
-	 printf(" estoy en el hilo servidor de CPU\n");
-	 //todo crear servidor para un cliente cpu...despues multiplexamos a las distintas cpus
-	 log_info(logger,"Dentro del hilo conexion a cpu");
-
-	 	struct addrinfo hints;
-	 	struct addrinfo *serverInfo;
-
-	 	memset(&hints, 0, sizeof(hints));
-	 	hints.ai_family = AF_UNSPEC;		// No importa si uso IPv4 o IPv6
-	 	hints.ai_flags = AI_PASSIVE;		// Asigna el address del localhost: 127.0.0.1
-	 	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
-
-	 	//getaddrinfo(NULL, PUERTO, &hints, &serverInfo); // Notar que le pasamos NULL como IP, ya que le indicamos que use localhost en AI_PASSIVE
-	 	//dejo la misma ip de la maquina porque el planificador y la cpu son la misma pc--sino cambiar por ip_planificador
-	 	getaddrinfo(NULL,config_planificador.puertoEscucha, &hints, &serverInfo);
-
-	 	int listenningSocket;
-	 	listenningSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-
-	 	bind(listenningSocket,serverInfo->ai_addr, serverInfo->ai_addrlen);
-	 	freeaddrinfo(serverInfo); // Ya no lo vamos a necesitar
-
-	 	listen(listenningSocket, BACKLOG);// IMPORTANTE: listen() es una syscall BLOQUEANTE.
-
-	 	struct sockaddr_in addr;			// Esta estructura contendra los datos de la conexion del cliente. IP, puerto, etc.
-	 	socklen_t addrlen = sizeof(addr);
-
-	 	int socketCliente = accept(listenningSocket, (struct sockaddr *) &addr, &addrlen);
-	 	servidor = socketCliente;
-	 	//char package[PACKAGESIZE];
-	 	int status = 1;		// Estructura que manejea el status de los recieve.
-
-	 	printf("CPU conectado. Esperando mensajes:\n");
-	 	log_info(logger,"CPU conectado");
-
-	 	/* while (status != 0){
-	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
-	 			if (status != 0) printf("%s", package);
-
-	 	}
-
-	 	close(socketCliente);
-	 	close(listenningSocket);*/
-	 	//status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
-
-	 	//int mensaje = CHECKPOINT;
-	/* 	int mensaje = SALUDO;
-	 	status = send(socketCliente,&mensaje , sizeof(int), 0);
-	 	printf("status send inicial %d", status);
-//	 	printf("Cierro conexion con cpu \n");
-//	 	log_info(logger,"Cierro conexion con CPU");
-
-
-}
-
- */
 void servidor_CPU( void *ptr ){
 
 	 printf(" estoy en el hilo servidor de CPU\n");
@@ -306,7 +247,7 @@ void servidor_CPU( void *ptr ){
 	     		                    	servidor = newsock;
 	     		                    	int mensaje = SALUDO;
 	     		                    	status = send(newsock,&mensaje , sizeof(int), 0);
-	     		                    	printf("status send inicial %d", status);
+	     		                    	printf("status send inicial %d \n", status);
 	     		                     }
 	     		                 }
 	     		                 else {
@@ -328,7 +269,40 @@ void servidor_CPU( void *ptr ){
 
 void handle(int newsock, fd_set *set){
 
-		printf("En el handle de planificador");
+
+		printf("En el handle de planificador \n");
+		//recepcion de msj del cpu segun protocolo
+		int status = 1;
+
+		t_mensaje_header mje_header;
+		status = recv(newsock, &mje_header, sizeof(t_mensaje_header), 0);
+		int codigoMsj = mje_header.codMje;
+
+		if (status){
+				switch ( codigoMsj ) {
+
+					case EJECUTARPROC:
+
+						printf("envio de ejecucion de proceso a CPU\n");
+
+					 break;
+
+
+					default:
+						printf("codigo no reconocido\n");
+						break;
+
+				}
+		}
+
+		if(!status){
+				// conexión cerrada
+				printf("la conexion del socket: %d termino \n", newsock);
+				log_info(logger,"Cierro conexion con CPU");
+				close(newsock); // ¡Hasta luego!
+				FD_CLR(newsock, set); // eliminar del conjunto maestro
+			}
+
 
 }
 

@@ -39,8 +39,15 @@
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
 #define PUERTO_SIZE 7 //(MAXIMO 6 MAS EL FIN DE CADENA)
 
+
+//todo pasar a un protocolo.h
 #define SALUDO 0
-#define CHECKPOINT 1  //mensaje de prueba todo al protocolo
+#define CHECKPOINT 1
+
+//mensajes del Planificador a CPU
+#define EJECUTARPROC 2
+
+
 // constantes para algoritmos
 #define FIFO 1
 #define RR 2

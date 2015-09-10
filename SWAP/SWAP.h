@@ -41,14 +41,15 @@ typedef struct
 
 void * creacionDisco();
 void leerArchivoConfiguracion();
-void servidor_Memoria();
+void servidorMemoria();
 void * iniciar(int idProceso ,int cantidadPaginas);
 void * finalizar (int PID);
 char * leer (int PID ,int nroPagina);
 void * escribir (int PID, int nroPagina, char* contenidoPagina);
 void * compactacion();
 int controlInsercionPaginas(int cantidadPaginas) ;
-int proceso_create(int PID, int cantidadPaginas, int primeraPagina);
+int procesoCreate(int PID, int cantidadPaginas, int primeraPagina);
+int paginasLibresCreate(int desdePagina, int hastaPagina);
 int busquedaPIDEnLista(int PID);
 void * ordenarLista();
 void * inicializarListas();

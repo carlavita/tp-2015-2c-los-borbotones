@@ -26,8 +26,9 @@ t_log * logSWAP;
 t_config_ProcesoSWAP configuracionSWAP;
 FILE * archivoDisco;
 t_list * listaProcesos;
-int paginasLibres;
 t_list * listaPaginasLibres;
+int paginasLibres;
+
 
 
 void leerArchivoConfiguracion()
@@ -46,7 +47,7 @@ void leerArchivoConfiguracion()
 
 }
 
-void servidor_Memoria(){
+void servidorMemoria(){
 
 	 //printf(" estoy en el hilo servidor de CPU\n");
 	 //todo crear servidor para un cliente Memoria
@@ -132,7 +133,7 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 		break;
 	default:
 	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
-			list_add(listaProcesos,proceso_create(idProceso,cantidadPaginas,estado));
+			list_add(listaProcesos,procesoCreate(idProceso,cantidadPaginas,estado));
 			paginasLibres = paginasLibres - cantidadPaginas;
 
 			for (nroPagina= 0; nroPagina <= cantidadPaginas;nroPagina++) {
@@ -164,7 +165,7 @@ void * finalizar (int PID){
 			fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
 
 	//ELIMINO DE VECTOR
-	list_add(listaPaginasLibres,paginasLibres_create(primerPagina,ultimaPagina));
+	list_add(listaPaginasLibres,paginasLibresCreate(primerPagina,ultimaPagina));
 	list_remove(listaProcesos,posicionPIDLista);
 	paginasLibres = paginasLibres + cantidadPaginas;
 	ordenarLista(); //LUEGO DE INSERTAR ORDENO LA LISTA POR PAGINA BYTE OCUPADO
@@ -181,6 +182,10 @@ char* leer (int PID,int nroPagina){
 	fread(contenido,tamanioPagina,primerBytePagina,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 	//DEVUELVO PAGINA LEIDA
 
+	int posicionPID = busquedaPIDEnLista(PID);
+	t_tablaProcesos *procesoObtenido = list_get(listaProcesos,posicionPID);
+	procesoObtenido->cantidadLecturas = procesoObtenido->cantidadLecturas + 1;
+
 	return contenido;
 }
 
@@ -191,6 +196,9 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	//fputs(contenidoPagina,archivoDisco);
 	fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
 
+	int posicionPID = busquedaPIDEnLista(PID);
+	t_tablaProcesos *procesoObtenido = list_get(listaProcesos,posicionPID);
+	procesoObtenido->cantidadEscrituras = procesoObtenido->cantidadEscrituras + 1;
 	return NULL;
 }
 
@@ -241,19 +249,19 @@ void * ordenarLista(){
 bool _ordenamiento_porBytes(t_tablaPaginasLibres* paginasLibres, t_tablaPaginasLibres* paginasLibresMenor) {
 	return paginasLibres ->desdePagina < paginasLibresMenor->hastaPagina;
 	}
-	list_sort(listaProcesos,(void*) _ordenamiento_porBytes);
+	list_sort(listaPaginasLibres,(void*) _ordenamiento_porBytes);
 	return NULL;
 }
 
 void * inicializarListas(){
 	listaProcesos = list_create(); /* CREO MI LISTA ENLAZADA*/
 	listaPaginasLibres = list_create();
-	list_add(listaPaginasLibres,paginasLibres_create(0,configuracionSWAP.CantidadPaginas));
+	list_add(listaPaginasLibres,paginasLibresCreate(0,configuracionSWAP.CantidadPaginas));
 
 	return NULL;
 }
 
-int proceso_create(int PID, int cantidadPaginas, int primeraPagina) {
+int procesoCreate(int PID, int cantidadPaginas, int primeraPagina) {
 	t_tablaProcesos *proceso = malloc(sizeof(t_tablaProcesos));
 proceso->pid = PID;
 proceso->cantidadPaginas = cantidadPaginas;
@@ -264,7 +272,7 @@ proceso->cantidadLecturas = 0;
 return proceso ->pid;
 }
 
-int paginasLibres_create(int desdePagina, int hastaPagina) {
+int paginasLibresCreate(int desdePagina, int hastaPagina) {
 	t_tablaPaginasLibres *paginasLibres = malloc(sizeof(t_tablaPaginasLibres));
 paginasLibres->desdePagina = desdePagina;
 paginasLibres->hastaPagina = hastaPagina;
@@ -283,7 +291,7 @@ int main ()  {
 	inicializarListas();
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	printf("Mensaje recibido: %s",datosRecibidos());
-	//servidor_Memoria();
+	//servidorMemoria();
 
 	exit(0);
 }

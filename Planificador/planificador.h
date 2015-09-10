@@ -12,12 +12,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <arpa/inet.h>
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
 #include <commons/collections/list.h>
 #include <string.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 
 
@@ -59,6 +65,7 @@ typedef struct
 	int estado;//(0 libre, 1 ocupada)
 	int id;
 	int socket;
+	int pid;
 }t_cpu;
 
 
@@ -76,14 +83,15 @@ t_log *logger;
 
 /*Listas de planificacion*/
 
-t_list* NUEVOS;
 t_list* LISTOS;
 t_list* EJECUTANDO;
 t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
+t_list* lista_CPU;
 
 // Semáforo para listas de pcbs
 pthread_mutex_t mutex_listas;
+pthread_mutex_t mutex_lista_cpu;
 /**
 * @NAME: levantarConfiguracion()
 * @DESC:Levanta parametros de configuracion
@@ -129,4 +137,28 @@ void removerEnListaPorPid(t_list *lista, int pid);
 * @DESC: Pasa el pcb de listo a ejecutando y envía el pedido a la CPU*/
 void enviarACpu(t_pcb* pcb,t_cpu* cpu);
 
+void *planificador(void *info_proc);
+
+int planificar_RR(int quantum);
+
+void handle(int newsock, fd_set *set);
+
+/**
+* @NAME: agregar_CPU()
+* @DESC: Agrega CPU a la lista de cpus, con PID -1 (asi identificamos las que estan libres)
+*/
+void agregar_CPU(int cpuSocket, int pid);
+
+/**
+* @NAME: agregar_CPU()
+* @DESC: Elimina CPU de lista de CPUs
+*/
+void eliminar_CPU(int socket_cpu);
+
+
+/**
+* @NAME: buscar_Cpu_Libre();
+* @DESC: Busca CPU libre, es decir que tenga PID == -1
+*/
+t_cpu* buscar_Cpu_Libre();
 #endif /* PLANIFICADOR_H_ */

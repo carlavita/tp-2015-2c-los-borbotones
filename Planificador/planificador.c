@@ -6,10 +6,7 @@
  */
 
 #include "planificador.h"
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
+
 
 int main(void) {
 //	pthread_t hilo_consola;
@@ -30,7 +27,12 @@ int main(void) {
 	//todo sincronizar hilos consola y conexion cpu
 		pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
 
+		//seteado con el quantum, hay que evaluar que algoritmo elegido de planificacion
+
+
 		mostrar_consola(NULL);
+
+		planificar_RR(5);
 /*Hilo Consola
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
 */
@@ -43,11 +45,11 @@ int main(void) {
 
 void inicializar_listas(){
 
-	NUEVOS = list_create();
 	LISTOS = list_create();
-	EJECUTANDO = list_create();;
-	BLOQUEADOS= list_create();;
-	FINALIZADOS=list_create();;
+	EJECUTANDO = list_create();
+	BLOQUEADOS= list_create();
+	FINALIZADOS=list_create();
+	lista_CPU=list_create();
 
 }
 void levantarConfiguracion(){
@@ -142,6 +144,7 @@ void espera_enter ()
        	}
 
 
+/*
 void servidor_CPU( void *ptr ){
 
 	 printf(" estoy en el hilo servidor de CPU\n");
@@ -179,7 +182,7 @@ void servidor_CPU( void *ptr ){
 	 	printf("CPU conectado. Esperando mensajes:\n");
 	 	log_info(logger,"CPU conectado");
 
-	 	/*while (status != 0){
+	 	/* while (status != 0){
 	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
 	 			if (status != 0) printf("%s", package);
 
@@ -190,12 +193,142 @@ void servidor_CPU( void *ptr ){
 	 	//status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
 
 	 	//int mensaje = CHECKPOINT;
-	 	int mensaje = SALUDO;
+	/* 	int mensaje = SALUDO;
 	 	status = send(socketCliente,&mensaje , sizeof(int), 0);
 	 	printf("status send inicial %d", status);
-	 	printf("Cierro conexion con cpu \n");
-	 	log_info(logger,"Cierro conexion con CPU");
+//	 	printf("Cierro conexion con cpu \n");
+//	 	log_info(logger,"Cierro conexion con CPU");
 
+
+}
+
+ */
+void servidor_CPU( void *ptr ){
+
+	 printf(" estoy en el hilo servidor de CPU\n");
+		 //todo crear servidor para un cliente cpu...despues multiplexamos a las distintas cpus
+		 log_info(logger,"Dentro del hilo conexion a cpu");
+
+			int sock; //socket asociado a CPU
+	     	 fd_set socks;
+	     	 fd_set readsocks;
+	     	 int maxsock;
+	     	 int reuseaddr = 1; /* True */
+	     	 struct addrinfo hints, *res;
+
+	     	 /*Inicializa fd set*/
+	     	     	 //		fd_set temp;
+
+
+	     	     	 /* Genera socket y multiplexa conexiones con select*/
+
+	     		     /* Get the address info */
+	     		     memset(&hints, 0, sizeof hints);
+	     		     hints.ai_family = AF_INET;
+	     		     hints.ai_socktype = SOCK_STREAM;
+
+	     		     if (getaddrinfo(NULL,config_planificador.puertoEscucha, &hints, &res) != 0) {
+	     		         perror("getaddrinfo");
+	     		         exit (1);
+
+	     		     }
+
+	     		     /* Create the socket */
+	     		     sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	     		     if (sock == -1) {
+	     		         perror("socket");
+	     		         exit (1);
+	     		     }
+	     		     printf("socket de escucha %d \n", sock);
+
+	     		     /* Permitir al socket a reusar  address */
+	     		     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(int)) == -1) {
+	     		         perror("setsockopt");
+	     		         exit(1);
+	     		     }
+
+	     		     /* Bind to the address */
+	     		     if (bind(sock, res->ai_addr, res->ai_addrlen) == -1) {
+	     		         perror("bind");
+	     		         exit(1);
+	     		     }
+
+	     		     freeaddrinfo(res);
+
+	     		     /* Listen */
+	     		     if (listen(sock, BACKLOG) == -1) {
+	     		         perror("listen");
+	     		         exit(1);
+	     		     }
+
+	     		     /* Set up the fd_set */
+	     		     FD_ZERO(&socks);
+	     		     FD_SET(sock, &socks);
+	     		     maxsock = sock;
+
+
+	     		     /* Main loop */
+	     		     while (1) {
+
+	     		    	 unsigned int s;
+	     		         readsocks = socks;
+
+	     		         printf("Escucha pedidos de CPU \n");
+	     		         log_info(logger, "Escuchando conexiones \n ");
+
+	     		         if (select(maxsock + 1, &readsocks, NULL, NULL, NULL) == -1) {
+	     		             perror("select");
+	     		             exit (1);
+	     		         }
+	     		         for (s = 0; s <= maxsock; s++) {
+	     		             if (FD_ISSET(s, &readsocks)) {
+	     		                 printf("el socket %d esta listo \n", s);
+	     		                 if (s == sock) {
+	     		                     /* New connection */
+	     		                	 printf("nueva conexion en socket %d \n", s);
+	     		                     int newsock;
+	     		                     struct sockaddr_in their_addr;
+	     		                     size_t size = sizeof(struct sockaddr_in);
+	     		                     newsock = accept(sock, (struct sockaddr*)&their_addr, &size);
+	     		                     if (newsock == -1) {
+	     		                         perror("accept");
+	     		                     }
+	     		                     else {
+	     		                         printf("Tenemos una conexion desde %s en el puerto %d\n",
+	     		                                 inet_ntoa(their_addr.sin_addr), htons(their_addr.sin_port));
+	     		                         FD_SET(newsock, &socks);
+	     		                         if (newsock > maxsock) {
+	     		                             maxsock = newsock;
+	     		                         }
+
+	     		                    	int status = 1;		// Estructura que maneja el status de los recieve
+
+	     		                    	servidor = newsock;
+	     		                    	int mensaje = SALUDO;
+	     		                    	status = send(newsock,&mensaje , sizeof(int), 0);
+	     		                    	printf("status send inicial %d", status);
+	     		                     }
+	     		                 }
+	     		                 else {
+
+	     		                	 //gestiona la conexion de una CPU segun los pedidos
+	     		                	 handle(s,&socks);
+
+	     		                 }
+	     		             }
+	     		         }
+
+	     		     }
+
+	     		     close(sock);
+
+
+
+}
+
+void handle(int newsock, fd_set *set){
+
+		printf("En el handle de planificador");
 
 }
 
@@ -234,6 +367,7 @@ int planificar_Fifo(){
 	t_pcb* pcb = list_get(LISTOS,0);
 	return pcb->pid;
 }
+
 void enviarACpu(t_pcb* pcb,t_cpu* cpu)
 {
 // Elimina el PID de la cola de listos
@@ -269,5 +403,89 @@ t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
 
 }
 
+int planificar_RR(int quantum){
 
+	//el otro hilo se usa como planificador(consumidor) que elije de la cola de listos y lo pasa la lista de ejecutando con el quantum
+
+	pthread_t hiloPlanificador;
+
+	pthread_create(&hiloPlanificador, NULL,(void *) &planificador, NULL);
+
+	//t_pcb* pcb = list_get(LISTOS,0);
+
+	//enviarACpu(t_pcb* pcb,t_cpu* cpu);
+
+	pthread_join(hiloPlanificador,NULL);
+
+	return 0;
+}
+
+
+void *planificador(void *info_proc){
+	printf("en el hilo planificador \n");
+
+	while (true) {
+
+			pthread_mutex_lock(&mutex_listas);
+
+			t_pcb* pcb_ejecucion = list_remove(LISTOS, 0);
+
+			list_add(EJECUTANDO,pcb_ejecucion);
+
+			pthread_mutex_unlock(&mutex_listas);
+
+			//enviar a cpu elegida el pcb del proceso elegido
+			t_cpu* cpuLibre;
+			cpuLibre = buscar_Cpu_Libre();
+			printf("el id de la cpu libre es: %d /n", cpuLibre->id);
+
+			//enviarACpu(cpuLibre,pcb_ejecucion.pid);
+
+		}
+
+	return 0;
+
+}
+
+void eliminar_CPU(int socket_cpu)
+{
+	t_cpu* cpuNodoLista = malloc(sizeof(t_cpu));
+	int cont;
+	pthread_mutex_lock(&mutex_lista_cpu);
+	for(cont=0;cont < list_size(lista_CPU);cont++)
+	{
+		cpuNodoLista = list_get(lista_CPU, cont);
+		if (cpuNodoLista->socket==socket_cpu)
+		{	puts("CPU eliminada");
+			//Remuevo el CPU de la lista
+
+			list_remove(lista_CPU,cont);
+
+			free(cpuNodoLista);
+		}
+	}
+	pthread_mutex_unlock(&mutex_lista_cpu);
+}
+
+// CPUs nuevas, agregar con PID -1
+void agregar_CPU(int cpuSocket, int pid) {
+	t_cpu* cpu = malloc(sizeof(t_cpu));
+	cpu->socket = cpuSocket;
+	cpu->pid = pid;
+	pthread_mutex_lock(&mutex_lista_cpu);
+	list_add(lista_CPU, cpu);
+	pthread_mutex_unlock(&mutex_lista_cpu);
+
+}
+t_cpu* buscar_Cpu_Libre()
+{
+	// Busca por pid, las que tienen -1 son las libres
+	int _is_pcb(t_cpu *p) {
+			return p->pid == -1;
+		}
+	pthread_mutex_lock(&mutex_lista_cpu);
+	t_cpu* cpu = list_find(lista_CPU,(void*) _is_pcb);
+	pthread_mutex_unlock(&mutex_lista_cpu);
+	return 	cpu;
+}
 

@@ -76,7 +76,7 @@ t_log *logger;
 
 /*Listas de planificacion*/
 
-t_list* NUEVOS;
+t_list* NUEVOS;//no va mas???
 t_list* LISTOS;
 t_list* EJECUTANDO;
 t_list* BLOQUEADOS;
@@ -128,5 +128,11 @@ void removerEnListaPorPid(t_list *lista, int pid);
 * @NAME: enviarACpu()
 * @DESC: Pasa el pcb de listo a ejecutando y envía el pedido a la CPU*/
 void enviarACpu(t_pcb* pcb,t_cpu* cpu);
+
+void *productor(void *info_proc);
+
+void *planificador(void *info_proc);
+
+int planificar_RR(int quantum);
 
 #endif /* PLANIFICADOR_H_ */

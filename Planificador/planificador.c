@@ -30,6 +30,9 @@ int main(void) {
 	//todo sincronizar hilos consola y conexion cpu
 		pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
 
+		//seteado con el quantum, hay que evaluar que algoritmo elegido de planificacion
+		planificar_RR(5);
+
 		mostrar_consola(NULL);
 /*Hilo Consola
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
@@ -234,6 +237,7 @@ int planificar_Fifo(){
 	t_pcb* pcb = list_get(LISTOS,0);
 	return pcb->pid;
 }
+
 void enviarACpu(t_pcb* pcb,t_cpu* cpu)
 {
 // Elimina el PID de la cola de listos
@@ -269,5 +273,37 @@ t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
 
 }
 
+int planificar_RR(int quantum){
+
+	//se crea 2 hilos...uno productor->que encola a los procesos en la cola de listos
+	//el otro hilo se usa como planificador que elije de la cola de listos y lo pasa la lista de ejecutando con el quantum
+
+	pthread_t hiloProductor;
+	pthread_t hiloPlanificador;
+
+	pthread_create(&hiloProductor, NULL, (void *) &productor, NULL);
+
+	pthread_create(&hiloPlanificador, NULL,(void *) &planificador, NULL);
+
+	//t_pcb* pcb = list_get(LISTOS,0);
+
+	//enviarACpu(t_pcb* pcb,t_cpu* cpu);
+
+	pthread_join(hiloPlanificador,NULL);
+	pthread_join(hiloProductor,NULL);
 
 
+	return 0;
+}
+
+void *productor(void *info_proc){
+	printf("en el hilo productor \n");
+	return 0;
+
+}
+
+void *planificador(void *info_proc){
+	printf("en el hilo planificador \n");
+	return 0;
+
+}

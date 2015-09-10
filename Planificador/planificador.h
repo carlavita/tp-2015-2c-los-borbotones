@@ -12,12 +12,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <arpa/inet.h>
 #include <commons/log.h>
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
 #include <commons/collections/list.h>
 #include <string.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 
 
@@ -77,12 +83,12 @@ t_log *logger;
 
 /*Listas de planificacion*/
 
-//t_list* NUEVOS;//no va mas???
 t_list* LISTOS;
 t_list* EJECUTANDO;
 t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
 t_list* lista_CPU;
+
 // Semáforo para listas de pcbs
 pthread_mutex_t mutex_listas;
 pthread_mutex_t mutex_lista_cpu;
@@ -131,11 +137,11 @@ void removerEnListaPorPid(t_list *lista, int pid);
 * @DESC: Pasa el pcb de listo a ejecutando y envía el pedido a la CPU*/
 void enviarACpu(t_pcb* pcb,t_cpu* cpu);
 
-void *productor(void *info_proc);
-
 void *planificador(void *info_proc);
 
 int planificar_RR(int quantum);
+
+void handle(int newsock, fd_set *set);
 
 /**
 * @NAME: agregar_CPU()

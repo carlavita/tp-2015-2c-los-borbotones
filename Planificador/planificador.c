@@ -46,11 +46,12 @@ int main(void) {
 
 void inicializar_listas(){
 
-	NUEVOS = list_create();
+//	NUEVOS = list_create();
 	LISTOS = list_create();
-	EJECUTANDO = list_create();;
-	BLOQUEADOS= list_create();;
-	FINALIZADOS=list_create();;
+	EJECUTANDO = list_create();
+	BLOQUEADOS= list_create();
+	FINALIZADOS=list_create();
+	lista_CPU=list_create();
 
 }
 void levantarConfiguracion(){
@@ -196,8 +197,8 @@ void servidor_CPU( void *ptr ){
 	 	int mensaje = SALUDO;
 	 	status = send(socketCliente,&mensaje , sizeof(int), 0);
 	 	printf("status send inicial %d", status);
-	 	printf("Cierro conexion con cpu \n");
-	 	log_info(logger,"Cierro conexion con CPU");
+//	 	printf("Cierro conexion con cpu \n");
+//	 	log_info(logger,"Cierro conexion con CPU");
 
 
 }
@@ -307,3 +308,45 @@ void *planificador(void *info_proc){
 	return 0;
 
 }
+void eliminar_CPU(int socket_cpu)
+{
+	t_cpu* cpuNodoLista = malloc(sizeof(t_cpu));
+	int cont;
+	pthread_mutex_lock(&mutex_lista_cpu);
+	for(cont=0;cont < list_size(lista_CPU);cont++)
+	{
+		cpuNodoLista = list_get(lista_CPU, cont);
+		if (cpuNodoLista->socket==socket_cpu)
+		{	puts("CPU eliminada");
+			//Remuevo el CPU de la lista
+
+			list_remove(lista_CPU,cont);
+
+			free(cpuNodoLista);
+		}
+	}
+	pthread_mutex_unlock(&mutex_lista_cpu);
+}
+
+// CPUs nuevas, agregar con PID -1
+void agregar_CPU(int cpuSocket, int pid) {
+	t_cpu* cpu = malloc(sizeof(t_cpu));
+	cpu->socket = cpuSocket;
+	cpu->pid = pid;
+	pthread_mutex_lock(&mutex_lista_cpu);
+	list_add(lista_CPU, cpu);
+	pthread_mutex_unlock(&mutex_lista_cpu);
+
+}
+t_cpu* buscar_Cpu_Libre()
+{
+	// Busca por pid, las que tienen -1 son las libres
+	int _is_pcb(t_cpu *p) {
+			return p->pid == -1;
+		}
+	pthread_mutex_lock(&mutex_lista_cpu);
+	t_cpu* cpu = list_find(lista_CPU,(void*) _is_pcb);
+	pthread_mutex_unlock(&mutex_lista_cpu);
+	return 	cpu;
+}
+

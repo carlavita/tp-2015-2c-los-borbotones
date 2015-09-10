@@ -59,6 +59,7 @@ typedef struct
 	int estado;//(0 libre, 1 ocupada)
 	int id;
 	int socket;
+	int pid;
 }t_cpu;
 
 
@@ -76,14 +77,15 @@ t_log *logger;
 
 /*Listas de planificacion*/
 
-t_list* NUEVOS;//no va mas???
+//t_list* NUEVOS;//no va mas???
 t_list* LISTOS;
 t_list* EJECUTANDO;
 t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
-
+t_list* lista_CPU;
 // Semáforo para listas de pcbs
 pthread_mutex_t mutex_listas;
+pthread_mutex_t mutex_lista_cpu;
 /**
 * @NAME: levantarConfiguracion()
 * @DESC:Levanta parametros de configuracion
@@ -135,4 +137,22 @@ void *planificador(void *info_proc);
 
 int planificar_RR(int quantum);
 
+/**
+* @NAME: agregar_CPU()
+* @DESC: Agrega CPU a la lista de cpus, con PID -1 (asi identificamos las que estan libres)
+*/
+void agregar_CPU(int cpuSocket, int pid);
+
+/**
+* @NAME: agregar_CPU()
+* @DESC: Elimina CPU de lista de CPUs
+*/
+void eliminar_CPU(int socket_cpu);
+
+
+/**
+* @NAME: buscar_Cpu_Libre();
+* @DESC: Busca CPU libre, es decir que tenga PID == -1
+*/
+t_cpu* buscar_Cpu_Libre();
 #endif /* PLANIFICADOR_H_ */

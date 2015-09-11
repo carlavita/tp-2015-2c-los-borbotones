@@ -10,11 +10,11 @@
 
 int main(void) {
 //	pthread_t hilo_consola;
-	pthread_t hilo_server;
+	pthread_t hiloServer;
 
 	/*Log*/
-	remove(PATH_LOG);
-	logger = log_create(PATH_LOG,"Planificador",true,LOG_LEVEL_INFO);
+	remove(PATHLOG);
+	logger = log_create(PATHLOG,"Planificador",true,LOG_LEVEL_INFO);
 	log_info(logger,"Iniciando proceso planificador");
 
 /*Archivo de configuración*/
@@ -22,28 +22,29 @@ int main(void) {
 	log_info(logger,"Leyendo Archivo de Configuracion");
 	levantarConfiguracion();
 	log_info(logger,"Archivo de Configuracion Leido correctamente");
-        inicializar_listas();
+
+	inicializarListas();
 	/*Hilo Server Planificador*/
 	//todo sincronizar hilos consola y conexion cpu
-		pthread_create (&hilo_server, NULL, (void *) &servidor_CPU, NULL);
+	pthread_create (&hiloServer, NULL, (void *) &servidorCPU, NULL);
 
-		//seteado con el quantum, hay que evaluar que algoritmo elegido de planificacion
+	//seteado con el quantum, hay que evaluar que algoritmo elegido de planificacion
 
 
-		mostrar_consola(NULL);
+	mostrarConsola(NULL);
 
-		planificar_RR(5);
+	planificarRR(5);
 /*Hilo Consola
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
 */
 
 	//pthread_join(hilo_consola,NULL);
 
-	pthread_join(hilo_server,NULL);
+	pthread_join(hiloServer,NULL);
 	return EXIT_SUCCESS;
 }
 
-void inicializar_listas(){
+void inicializarListas(){
 
 	LISTOS = list_create();
 	EJECUTANDO = list_create();
@@ -58,22 +59,22 @@ void levantarConfiguracion(){
 	  t_config * CONFIG = config_create(PATH_CONFIG);
 
 	  if	(CONFIG != NULL){
-	  config_planificador.puertoEscucha = malloc(PUERTO_SIZE);
-	  config_planificador.puertoEscucha = config_get_string_value(CONFIG,"PUERTO_ESCUCHA");
+		  configPlanificador.puertoEscucha = malloc(PUERTO_SIZE);
+		  configPlanificador.puertoEscucha = config_get_string_value(CONFIG,"PUERTO_ESCUCHA");
 
-	  config_planificador.algoritmo = config_get_int_value(CONFIG,"ALGORITMO");
-	  config_planificador.quantum = config_get_int_value(CONFIG,"QUANTUM");
+		  configPlanificador.algoritmo = config_get_int_value(CONFIG,"ALGORITMO");
+		  configPlanificador.quantum = config_get_int_value(CONFIG,"QUANTUM");
 
-	  printf(" puerto %s \n",config_planificador.puertoEscucha );
-	  printf(" algoritmo %d\n",config_planificador.algoritmo );
-	  printf(" quantum %d\n",config_planificador.quantum );
+	  printf(" puerto %s \n",configPlanificador.puertoEscucha );
+	  printf(" algoritmo %d\n",configPlanificador.algoritmo );
+	  printf(" quantum %d\n",configPlanificador.quantum );
 	  }else{
 		  printf("estupido config, se cree tan importante");
 	  }
 
 }
 
-void mostrar_consola( void *ptr ){
+void mostrarConsola( void *ptr ){
 	int option = -1;
 	while(option != 0){
 //todo: descomentar todos clear		system("clear");
@@ -93,41 +94,41 @@ void mostrar_consola( void *ptr ){
 		case 1:
 //todo:descomentar			system("clear");
 //todo
-			correr_path();
+			correrPath();
 			printf("soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
 						int mensaje = CHECKPOINT;
 						printf("socket : %d \n", servidor);
 						int status = send(servidor,&mensaje,sizeof(int),0);
 						printf("estado de envio : %d \n", status);
-			espera_enter();
+			esperaEnter();
 			break;
 
 		case 2:
 			//todo:descomentar			system("clear");
 //todo			finalizar_pid();
-			espera_enter();
+			esperaEnter();
 			break;
 		case 3:
 			//todo:descomentar			system("clear");
 //todo			ps();
-			espera_enter();
+			esperaEnter();
 			break;
 		case 4:
 			//todo:descomentar			system("clear");
 //todo			cpu();
-			espera_enter();
+			esperaEnter();
 			break;
 
 
 		case 0:
 			log_info(logger, "* Apaga Consola * \n");
 			puts("Gracias por venir, vuelva pronto! :)");
-			espera_enter();
+			esperaEnter();
 		break;
 
 		default:
 		 printf("Comando inválido\n");
-		 espera_enter();
+		 esperaEnter();
 		 break;
 		}
 
@@ -135,7 +136,7 @@ void mostrar_consola( void *ptr ){
 
 }
 
-void espera_enter ()
+void esperaEnter ()
        	{
        			printf("Presione ENTER para continuar \n");
        			char enter='\0';
@@ -144,7 +145,7 @@ void espera_enter ()
        	}
 
 
-void servidor_CPU( void *ptr ){
+void servidorCPU( void *ptr ){
 
 	 printf(" estoy en el hilo servidor de CPU\n");
 		 //todo crear servidor para un cliente cpu...despues multiplexamos a las distintas cpus
@@ -168,7 +169,7 @@ void servidor_CPU( void *ptr ){
 	     		     hints.ai_family = AF_INET;
 	     		     hints.ai_socktype = SOCK_STREAM;
 
-	     		     if (getaddrinfo(NULL,config_planificador.puertoEscucha, &hints, &res) != 0) {
+	     		     if (getaddrinfo(NULL,configPlanificador.puertoEscucha, &hints, &res) != 0) {
 	     		         perror("getaddrinfo");
 	     		         exit (1);
 
@@ -274,20 +275,30 @@ void handle(int newsock, fd_set *set){
 		//recepcion de msj del cpu segun protocolo
 		int status = 1;
 
-		t_mensaje_header mje_header;
-		status = recv(newsock, &mje_header, sizeof(t_mensaje_header), 0);
+		t_mensajeHeader mje_header;
+		status = recv(newsock, &mje_header, sizeof(t_mensajeHeader), 0);
 		int codigoMsj = mje_header.codMje;
 
 		if (status){
 				switch ( codigoMsj ) {
 
-					case EJECUTARPROC:
+					case FINALIZAPROCOK:
 
-						printf("envio de ejecucion de proceso a CPU\n");
+						printf("el proceso finalizo correctamente su rafaga\n");
+						//actualizarPcb();
 
-					 break;
+						break;
+					case PROCFALLA:
 
+						printf("el proceso falló en su ejecucion\n");
+						//borrarEstructurasDelProc();
 
+						break;
+					case PROCIO:
+
+						printf("el proceso esta realizando su entrada-salida\n");
+						//ejecutarIO();
+						break;
 					default:
 						printf("codigo no reconocido\n");
 						break;
@@ -306,16 +317,16 @@ void handle(int newsock, fd_set *set){
 
 }
 
-void correr_path(){
+void correrPath(){
 	char path[PATH_SIZE];
 	printf("Ingrese el PATH del mCod a correr \n");
 	  scanf("%s", path);
 	printf("PATH del mCod a correr %s \n",path);
 
-	int pid = crear_pcb(path);
+	int pid = crearPcb(path);
 }
 
-int crear_pcb(char* path){
+int crearPcb(char* path){
 
 	t_pcb* pcb  = malloc(sizeof(t_pcb)) ;
 	    pthread_mutex_lock(&mutex_listas);
@@ -336,7 +347,7 @@ return pcb->pid;
 }
 
 
-int planificar_Fifo(){
+int planificarFifo(){
 
 	t_pcb* pcb = list_get(LISTOS,0);
 	return pcb->pid;
@@ -377,7 +388,7 @@ t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
 
 }
 
-int planificar_RR(int quantum){
+int planificarRR(int quantum){
 
 	//el otro hilo se usa como planificador(consumidor) que elije de la cola de listos y lo pasa la lista de ejecutando con el quantum
 
@@ -410,7 +421,7 @@ void *planificador(void *info_proc){
 
 			//enviar a cpu elegida el pcb del proceso elegido
 			t_cpu* cpuLibre;
-			cpuLibre = buscar_Cpu_Libre();
+			cpuLibre = buscarCpuLibre();
 			printf("el id de la cpu libre es: %d /n", cpuLibre->id);
 
 			//enviarACpu(cpuLibre,pcb_ejecucion.pid);
@@ -421,7 +432,7 @@ void *planificador(void *info_proc){
 
 }
 
-void eliminar_CPU(int socket_cpu)
+void eliminarCPU(int socket_cpu)
 {
 	t_cpu* cpuNodoLista = malloc(sizeof(t_cpu));
 	int cont;
@@ -442,7 +453,7 @@ void eliminar_CPU(int socket_cpu)
 }
 
 // CPUs nuevas, agregar con PID -1
-void agregar_CPU(int cpuSocket, int pid) {
+void agregarCPU(int cpuSocket, int pid) {
 	t_cpu* cpu = malloc(sizeof(t_cpu));
 	cpu->socket = cpuSocket;
 	cpu->pid = pid;
@@ -451,7 +462,7 @@ void agregar_CPU(int cpuSocket, int pid) {
 	pthread_mutex_unlock(&mutex_lista_cpu);
 
 }
-t_cpu* buscar_Cpu_Libre()
+t_cpu* buscarCpuLibre()
 {
 	// Busca por pid, las que tienen -1 son las libres
 	int _is_pcb(t_cpu *p) {

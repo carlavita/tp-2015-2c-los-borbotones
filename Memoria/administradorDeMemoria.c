@@ -20,7 +20,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+
 #define PACKAGESIZE 1024
+
+
+typedef struct
+{
+	int pid;
+	int frameAsignado;
+}t_pidFrame;
 
 typedef struct
 {
@@ -38,8 +46,8 @@ typedef struct
 typedef struct
 {
 	int pid;
+	int numeroPagina;
 	char * direccion;
-	int offset; //TAMAÑO QUE CARGO, PARA TODOS LOS CAMPOS DE LA TLB.
 }t_TLB;    //LA TLB VA A SER UN ARRAY DE N entradas.(por ahora)
 
 typedef struct
@@ -90,7 +98,6 @@ t_TLB * generarTLB(int entradasTLB)
 	while ( entrada < entradasTLB)
 	{
 		tlb[entrada].direccion = '\0';
-		tlb[entrada].offset = configMemoria.tamanioMarcos;
 		tlb[entrada].pid = 0;//cuando vengan los procesos, ire cambiando ese pid.
 		 ++entrada;
 	}
@@ -165,6 +172,55 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
    }
 }
 
+#define INICIAR 1
+#define LEER 2
+#define ESCRIBIR 3
+#define FINALIZAR 4
+
+t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
+
+void pasaManos(int cliente,int servidor)
+{
+   char mensajeRecibido[PACKAGESIZE];
+   int * pagina = malloc(sizeof(int*));
+   int * pid = malloc(sizeof(int *));
+   int mensaje = recv(servidor,mensajeRecibido,sizeof(PACKAGESIZE),0);
+   if(mensaje == -1)
+	   log_info(logMemoria,"Error al recibir de la CPU");
+   else
+   {
+	   char * m = malloc(sizeof(char *));
+	   strncpy(m,mensajeRecibido,sizeof(PACKAGESIZE));
+	switch ((int)&m)
+	{
+		case INICIAR:
+				//CREAR ESTRUCTURAS ADMINISTRATIVAS
+				//AVISAR AL SWAP
+				//asignar pid y frame utilizado por el proceso a la tabla administrativa
+			break;
+		case LEER:
+				//&pid = PID;
+				recv(servidor,pagina,sizeof(pagina),0);
+				send(cliente,pid,sizeof(pid),0);
+				recv(cliente,"OK",sizeof("OK"),0);// NO VALE MANDARLO EN MINISCULA O ALGO PARECIDO!
+				send(cliente,pagina,sizeof(pagina),0);
+				recv(cliente,mensajeRecibido,sizeof(mensajeRecibido),0);
+				send(servidor,mensajeRecibido,sizeof(mensajeRecibido),0);
+		        free(pagina);
+			break;
+		case ESCRIBIR:
+
+			break;
+		case FINALIZAR:
+			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
+			//AVISAR A SWAP, PARA QUE LIBERE TAMBIEN.
+			break;
+		default:
+			log_info(logMemoria,"Mensaje incorrecto");
+	}
+	free(m);
+   }
+}
 
 int * memoriaReservadaDeMemPpal;
 int main()
@@ -177,13 +233,15 @@ int main()
 	log_info(logMemoria,"Comienzo de las diferentes conexiones");
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
-	generarTablaDePaginas(memoriaReservadaDeMemPpal);
+
+//	generarTablaDePaginas(memoriaReservadaDeMemPpal);
+	pasaManos(clienteSwap, servidorCPU);
 	recibidoPorLaMemoria = datosRecibidos();
 
 	for(;;){
 		//ACA SE VA A PROCESAR TODO, DESPUES DE LA CREACION DE LAS DISTINTAS ESTRUCTURAS Y CONEXIONES
-	//int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
-	int size = PACKAGESIZE;
+        //int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+
 	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,PACKAGESIZE,0);
 	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
 	log_info(logMemoria,"%d",envioDeMensajes);

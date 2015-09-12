@@ -25,6 +25,8 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#include <protocolo.h>
+#include <socket.h>
 
 
 #define PATH_CONFIG "Planificador.config"
@@ -40,6 +42,7 @@
 #define PUERTO_SIZE 7 //(MAXIMO 6 MAS EL FIN DE CADENA)
 
 
+/*
 //todo pasar a un protocolo.h
 #define SALUDO 0
 #define CHECKPOINT 1
@@ -51,7 +54,9 @@
 #define FINALIZAPROCOK 3
 #define PROCFALLA 4
 #define PROCIO 5
-
+#define FINDERAFAGA 6
+#define FINDEQUANTUM 7
+*/
 
 
 // constantes para algoritmos
@@ -108,7 +113,7 @@ typedef struct
 
 
 int PID = 0; // Para numerar los procesos
-int servidor = 0;//todo socket cpu, solo por pruebas
+int Servidor = 0;//todo socket cpu, solo por pruebas
 t_configPlanificador configPlanificador;
 t_log *logger;
 
@@ -167,15 +172,28 @@ void removerEnListaPorPid(t_list *lista, int pid);
 * @NAME: enviarACpu()
 * @DESC: Pasa el pcb de listo a ejecutando y envía el pedido a la CPU*/
 void enviarACpu(t_pcb* pcb,t_cpu* cpu);
-
+/**
+* @NAME: planificador()
+* @DESC: Funcion para hilo de planificador*/
 void *planificador(void *info_proc);
+/**
+* @NAME: planificar()
+* @DESC: Planifica de acuerdo al algoritmo, el quantum -1 indica FIFO*/
+int planificar(int quantum);
 
-int planificarRR(int quantum);
-
-int planificarFifo();
+/**
+* @NAME: planificarFifo()
+* @DESC: Planifica  FIFO, devuelve el pcb (contexto de ejecucion). Lo saca de listos lo pasa a ejecutando
+* vamos a usar el mismo para RR porque es un fifo y el fin de quantum lo infomra la CPU*/
+t_pcb* planificarFifo();
+/**
+* @NAME: handle(newsock, set)
+* @DESC: Manejo de mensajes recibidos en el select*/
 
 void handle(int newsock, fd_set *set);
-
+/**
+* @NAME: ejecutarIO()
+* @DESC: ejecuta entrada salida, discpositivo unico, encola.*/
 void ejecutarIO(int socketCPU);
 
 /**

@@ -297,7 +297,7 @@ void handle(int newsock, fd_set *set){
 					case PROCIO:
 
 						printf("el proceso esta realizando su entrada-salida\n");
-						//ejecutarIO();
+						ejecutarIO(newsock);
 						break;
 					default:
 						printf("codigo no reconocido\n");
@@ -375,6 +375,8 @@ void removerEnListaPorPid(t_list *lista, int pid) {
 	pthread_mutex_lock(&mutex_listas);
 	list_remove_by_condition(lista, (void*) _is_pcb);
 	pthread_mutex_unlock(&mutex_listas);
+
+	//cuidado q esa funcion retorna el valor q remueve (void*)
 }
 
 t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
@@ -432,6 +434,24 @@ void *planificador(void *info_proc){
 
 }
 
+void ejecutarIO(int socketCPU){
+
+	//recepciono de la pcu el msj con el Tiempo(en segundos) que hay que hacer el IO
+	t_rtaIO mjeIO;
+	recv(socketCPU, &mjeIO, sizeof(t_rtaIO), 0);
+
+	//busco el proc por si pid, se borra de ejecutados y lo mando a bloqueados
+	removerEnListaPorPid(EJECUTANDO,mjeIO.pid);
+
+	//por T segundos
+	sleep(mjeIO.tiempo);
+
+	//Ahora enviarlo a la cola de listos
+
+
+
+}
+
 void eliminarCPU(int socket_cpu)
 {
 	t_cpu* cpuNodoLista = malloc(sizeof(t_cpu));
@@ -462,6 +482,7 @@ void agregarCPU(int cpuSocket, int pid) {
 	pthread_mutex_unlock(&mutex_lista_cpu);
 
 }
+
 t_cpu* buscarCpuLibre()
 {
 	// Busca por pid, las que tienen -1 son las libres

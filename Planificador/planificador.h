@@ -91,11 +91,20 @@ typedef struct
 
 typedef struct
 {
+	int pid;//revisar si es necesario este campo
 	char* pathProc;
 	int proxInst;
 	int quantum;
 
 }t_contextoEjecucion;
+
+typedef struct
+{
+	int pid;
+	int tiempo;
+
+}t_rtaIO;
+
 
 
 int PID = 0; // Para numerar los procesos
@@ -166,6 +175,8 @@ int planificarRR(int quantum);
 int planificarFifo();
 
 void handle(int newsock, fd_set *set);
+
+void ejecutarIO(int socketCPU);
 
 /**
 * @NAME: agregar_CPU()

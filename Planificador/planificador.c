@@ -33,7 +33,7 @@ int main(void) {
 
 	mostrarConsola(NULL);
 
-	planificarRR(5);
+	planificar(configPlanificador.quantum);
 /*Hilo Consola
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
 */
@@ -97,8 +97,8 @@ void mostrarConsola( void *ptr ){
 			correrPath();
 			printf("soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
 						int mensaje = CHECKPOINT;
-						printf("socket : %d \n", servidor);
-						int status = send(servidor,&mensaje,sizeof(int),0);
+						printf("socket : %d \n", Servidor);
+						int status = send(Servidor,&mensaje,sizeof(int),0);
 						printf("estado de envio : %d \n", status);
 			esperaEnter();
 			break;
@@ -245,7 +245,7 @@ void servidorCPU( void *ptr ){
 
 	     		                    	int status = 1;		// Estructura que maneja el status de los recieve
 
-	     		                    	servidor = newsock;
+	     		                    	Servidor = newsock;
 	     		                    	int mensaje = SALUDO;
 	     		                    	status = send(newsock,&mensaje , sizeof(int), 0);
 	     		                    	printf("status send inicial %d \n", status);
@@ -324,6 +324,8 @@ void correrPath(){
 	printf("PATH del mCod a correr %s \n",path);
 
 	int pid = crearPcb(path);
+
+	printf("Creado mProc %d", pid);
 }
 
 int crearPcb(char* path){
@@ -332,7 +334,7 @@ int crearPcb(char* path){
 	    pthread_mutex_lock(&mutex_listas);
 	    PID++;
 		pcb->pid = PID;
-		pcb->proxInst = 0; //Inicializa
+		pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
 		strcpy(pcb->pathProc, path);
 
 		printf("PID mProc: %d \n",pcb->pid);
@@ -347,20 +349,22 @@ return pcb->pid;
 }
 
 
-int planificarFifo(){
-
-	t_pcb* pcb = list_get(LISTOS,0);
-	return pcb->pid;
+t_pcb* planificarFifo(){
+	pthread_mutex_lock(&mutex_listas);
+	t_pcb* pcb = list_remove(LISTOS,0);
+	list_add(EJECUTANDO, pcb);
+	pthread_mutex_unlock(&mutex_listas);
+	return pcb;
 }
 
 void enviarACpu(t_pcb* pcb,t_cpu* cpu)
 {
-// Elimina el PID de la cola de listos
+/*// Elimina el PID de la cola de listos
 	removerEnListaPorPid(LISTOS,pcb->pid);
 //Pasa  a lista de ejecución
 	pthread_mutex_lock(&mutex_listas);
 	list_add(EJECUTANDO,pcb);
-	pthread_mutex_unlock(&mutex_listas);
+	pthread_mutex_unlock(&mutex_listas);*/
 
 
 	//cpu->pid = pcb->pid; //todo, ver si me sirve que la cpu tenga el pid
@@ -390,7 +394,7 @@ t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
 
 }
 
-int planificarRR(int quantum){
+int planificar(int quantum){
 
 	//el otro hilo se usa como planificador(consumidor) que elije de la cola de listos y lo pasa la lista de ejecutando con el quantum
 
@@ -409,24 +413,21 @@ int planificarRR(int quantum){
 
 
 void *planificador(void *info_proc){
+	t_pcb* pcb ;
 	printf("en el hilo planificador \n");
 
 	while (true) {
 
-			pthread_mutex_lock(&mutex_listas);
+// el planificar lo saca de la cola de listos y lo pasa a ejecutando
+				pcb = planificarFifo();
 
-			t_pcb* pcb_ejecucion = list_remove(LISTOS, 0);
-
-			list_add(EJECUTANDO,pcb_ejecucion);
-
-			pthread_mutex_unlock(&mutex_listas);
 
 			//enviar a cpu elegida el pcb del proceso elegido
 			t_cpu* cpuLibre;
 			cpuLibre = buscarCpuLibre();
 			printf("el id de la cpu libre es: %d /n", cpuLibre->id);
 
-			//enviarACpu(cpuLibre,pcb_ejecucion.pid);
+			//enviarACpu(cpuLibre,pcb.pid);
 
 		}
 

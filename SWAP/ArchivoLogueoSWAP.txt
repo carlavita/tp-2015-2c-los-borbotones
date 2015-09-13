@@ -1,6 +1,9 @@
-[INFO] 13:19:36:605 SWAP/(12580:12580): Inicio Proceso SWAP
-[INFO] 13:19:36:621 SWAP/(12580:12580): Leyendo Archivo de Configuracion
-[INFO] 13:19:36:626 SWAP/(12580:12580): 6000
-[INFO] 13:19:36:630 SWAP/(12580:12580): Archivo de Configuracion Leido correctamente
-[INFO] 13:19:36:644 SWAP/(12580:12580): Creando archivo de tamanio: 131072
-[INFO] 13:19:36:908 SWAP/(12580:12580): Archivo Creado correctamente
+[INFO] 17:18:51:228 SWAP/(3974:3974): Inicio Proceso SWAP
+[INFO] 17:18:51:228 SWAP/(3974:3974): Leyendo Archivo de Configuracion
+[INFO] 17:18:51:229 SWAP/(3974:3974): 6000
+[INFO] 17:18:51:229 SWAP/(3974:3974): Archivo de Configuracion Leido correctamente
+[INFO] 17:18:51:229 SWAP/(3974:3974): Creando archivo de tamanio: 131072
+[INFO] 17:18:51:250 SWAP/(3974:3974): Archivo Creado correctamente
+[INFO] 17:18:51:250 SWAP/(3974:3974): INICIALIZANDO
+[INFO] 17:18:51:250 SWAP/(3974:3974): FIN INICIA
+[INFO] 17:18:51:250 SWAP/(3974:3974): 0

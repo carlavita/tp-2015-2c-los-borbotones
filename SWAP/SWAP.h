@@ -49,9 +49,10 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina);
 void * compactacion();
 int controlInsercionPaginas(int cantidadPaginas) ;
 int procesoCreate(int PID, int cantidadPaginas, int primeraPagina);
-int paginasLibresCreate(int desdePagina, int hastaPagina);
+void * paginasLibresCreate(int desdePagina, int hastaPagina);
 int busquedaPIDEnLista(int PID);
 void * ordenarLista();
 void * inicializarListas();
+int busquedaPaginaEnLista(int numeroPagina);
 
 #endif /* SWAP_H_ */

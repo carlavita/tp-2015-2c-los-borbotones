@@ -123,9 +123,15 @@ return NULL;
 
 
 void * iniciar(int idProceso ,int cantidadPaginas){
+
+	/* CASO 0 : HAY ESPACIO PERO NO CONSECUTIVO PARA ASIGNAR PAGINAS
+	 * CASO -1: NO HAY ESPACIO PARA ASIGNAR LA CANTIDAD SOLICITADA
+	 * CASO 2(DEVUELVE LA PRIMER PAGINA ASIGNADA) : HAY ESPACIO Y SE ASIGNA
+	 */
 	int nroPagina;
-	int estado = controlInsercionPaginas(cantidadPaginas);
-	switch (estado)  {
+	int paginaInicial;
+	paginaInicial = controlInsercionPaginas(cantidadPaginas);
+	switch (paginaInicial)  {
 		case 0: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
 		compactacion();
 		break;
@@ -133,11 +139,25 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 		break;
 	default:
 	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
-			list_add(listaProcesos,procesoCreate(idProceso,cantidadPaginas,estado));
+
+		/* AGREGO EL PROCESO A LA LISTA*/
+			list_add(listaProcesos,procesoCreate(idProceso,cantidadPaginas,paginaInicial));
 			paginasLibres = paginasLibres - cantidadPaginas;
 
-			for (nroPagina= 0; nroPagina <= cantidadPaginas;nroPagina++) {
-			fseek(archivoDisco,(estado+(nroPagina*configuracionSWAP.TamanioPagina)), SEEK_SET);
+			/* ACTUALIZO MI LISTA DE PAGINAS LIBRES */
+			int posicionEnLista = busquedaPaginaEnLista(paginaInicial);
+			t_tablaPaginasLibres * paginas = list_get(listaPaginasLibres,posicionEnLista);
+				if (paginas->hastaPagina - paginas->desdePagina == cantidadPaginas){
+					list_remove(listaPaginasLibres,posicionEnLista);
+				}
+				else
+				{
+					paginas->desdePagina = paginas->desdePagina + cantidadPaginas;
+				}
+
+			/* INSERTO EN EL DISCO SWAP LAS PAGINAS */
+			for (nroPagina= 0; paginaInicial +nroPagina <= cantidadPaginas+paginaInicial;nroPagina++) {
+			fseek(archivoDisco,((paginaInicial + nroPagina -1)*configuracionSWAP.TamanioPagina), SEEK_SET);
 			fputc('\0',archivoDisco);
 			}
 
@@ -147,28 +167,28 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 }
 
 void * finalizar (int PID){
+
+	/* OBTENDO LA INFORMACION DEL PRCESO A FINALIZAR Y ALMACENO EN VARIABLES LOCALES */
 	int posicionPIDLista = busquedaPIDEnLista(PID);
-	t_tablaProcesos* procesoFinalizado = list_get(listaProcesos,posicionPIDLista); //VER COMO BUSCAR LA POSICION EN LA LISTA
+	t_tablaProcesos* procesoFinalizado = list_get(listaProcesos,posicionPIDLista);
 	int cantidadPaginas =procesoFinalizado->cantidadPaginas;
 	int primerPagina = procesoFinalizado->primerPagina;
 	int cantidadEscrituras = procesoFinalizado->cantidadEscrituras ;
 	int cantidadLecturas = procesoFinalizado->cantidadLecturas ;
 	int ultimaPagina = procesoFinalizado->ultimaPagina ;
-	int bytesUsadosPorPID = ultimaPagina - primerPagina;
-	char * contenido = '/0';
+	int bytesUsadosPorPID = ((ultimaPagina - primerPagina) * configuracionSWAP.TamanioPagina) - 1;
+	char * contenido = '\0';
+
+
 	//ACA VA LA ELIMINACION DEL CONTENIDO DEL S WAP DE ESAS PAGINAS
-		/*	for (posicionArchivo = 0 ; posicionArchivo <= bytesUsadosPorPID; posicionArchivo++){
-				fseek(archivoDisco,primerBytePID + posicionArchivo,SEEK_SET);
-				fputc('\0',archivoDisco);
-			}*/
-			fseek(archivoDisco,primerPagina,SEEK_SET);
+			fseek(archivoDisco,(primerPagina-1)* configuracionSWAP.TamanioPagina,SEEK_SET);
 			fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
 
-	//ELIMINO DE VECTOR
+	//ELIMINO DE LISTA DE PRCESOS Y AGREGO A LISTA DE PAGINAS LIBRES
 	list_add(listaPaginasLibres,paginasLibresCreate(primerPagina,ultimaPagina));
 	list_remove(listaProcesos,posicionPIDLista);
 	paginasLibres = paginasLibres + cantidadPaginas;
-	ordenarLista(); //LUEGO DE INSERTAR ORDENO LA LISTA POR PAGINA BYTE OCUPADO
+	ordenarLista(); //LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
 
 	return NULL;
 }
@@ -180,8 +200,8 @@ char* leer (int PID,int nroPagina){
 	char * contenido;
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
 	fread(contenido,tamanioPagina,primerBytePagina,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
-	//DEVUELVO PAGINA LEIDA
 
+	//DEVUELVO PAGINA LEIDA
 	int posicionPID = busquedaPIDEnLista(PID);
 	t_tablaProcesos *procesoObtenido = list_get(listaProcesos,posicionPID);
 	procesoObtenido->cantidadLecturas = procesoObtenido->cantidadLecturas + 1;
@@ -193,7 +213,6 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = (nroPagina-1) * tamanioPagina;
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
-	//fputs(contenidoPagina,archivoDisco);
 	fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
 
 	int posicionPID = busquedaPIDEnLista(PID);
@@ -204,35 +223,42 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina){
 
 
 void * compactacion(){
-
+	sleep(configuracionSWAP.RetardoCompactacion);//SIMULO TIEMPO DE COMPACTACION
 	return NULL;
 }
 
 
 
 int controlInsercionPaginas(int cantidadPaginas) {
-	int contador = 0 ;
-	int espacioRequerido = cantidadPaginas * configuracionSWAP.TamanioPagina;
-	int tamanioLista = list_size(listaProcesos);
-	t_tablaProcesos* procesoInicial;
-	t_tablaProcesos* procesoFinal;
-	procesoInicial = list_get(listaProcesos,contador);
-	procesoFinal = list_get(listaProcesos,(contador+1));
+	int estadoDevuelto = 0;
+	t_tablaPaginasLibres* pagLibres;
 	if (cantidadPaginas > paginasLibres){
-			return -1;
+			estadoDevuelto = -1;
 		}
-		while (contador < tamanioLista) {
-	/*while ((procesoFinal->primerByte - procesoInicial->ultimoByte > 1)) {
-			if (espacioRequerido <= (procesoFinal->primerByte - procesoInicial->ultimoByte > 1)){
-				return espacioRequerido; // ACA DEVUELVO LA POSICION EN CUAL INGRESAR
-
-	}}*/
-		contador++;
-		procesoInicial = list_get(listaProcesos,contador);
-		procesoFinal = list_get(listaProcesos,(contador+1));
+	else
+	{
+		if (list_size(listaPaginasLibres) == 1){
+			    pagLibres = list_get(listaPaginasLibres,0);
+				estadoDevuelto = pagLibres->desdePagina;
 		}
-	return 0;/* CONTROL DE ESPACIO CONTIGUO EN VECTOR*/
+		else {
+			int contador = 0;
+			while (contador < list_size(listaPaginasLibres)){
+				pagLibres = list_get(listaPaginasLibres,contador);
+					if ((pagLibres->hastaPagina - pagLibres->desdePagina) >= cantidadPaginas){
+						estadoDevuelto = pagLibres->desdePagina;
+						contador = list_size(listaPaginasLibres);
+					}
+					else{
+						contador++;
+					}
+			}
+		}
+	}
+	return estadoDevuelto;
 }
+
+
 
 int busquedaPIDEnLista(int PID){
 	int posicion = 0;
@@ -245,18 +271,29 @@ int busquedaPIDEnLista(int PID){
 	return posicion;
 }
 
+int busquedaPaginaEnLista(int numeroPagina){
+	int posicion = 0;
+	t_tablaPaginasLibres* paginaLibre;
+	paginaLibre = list_get(listaPaginasLibres,posicion);
+	while (!paginaLibre->desdePagina == numeroPagina) {
+		posicion++;
+		paginaLibre = list_get(listaProcesos,posicion);
+		}
+	return posicion;
+}
+
 void * ordenarLista(){
-bool _ordenamiento_porBytes(t_tablaPaginasLibres* paginasLibres, t_tablaPaginasLibres* paginasLibresMenor) {
-	return paginasLibres ->desdePagina < paginasLibresMenor->hastaPagina;
+bool _ordenamiento_porPaginasLibres(t_tablaPaginasLibres* paginasLibres, t_tablaPaginasLibres* paginasLibresMenor) {
+	return paginasLibres ->desdePagina < paginasLibresMenor->desdePagina;
 	}
-	list_sort(listaPaginasLibres,(void*) _ordenamiento_porBytes);
+	list_sort(listaPaginasLibres,(void*) _ordenamiento_porPaginasLibres);
 	return NULL;
 }
 
 void * inicializarListas(){
 	listaProcesos = list_create(); /* CREO MI LISTA ENLAZADA*/
 	listaPaginasLibres = list_create();
-	list_add(listaPaginasLibres,paginasLibresCreate(0,configuracionSWAP.CantidadPaginas));
+	list_add(listaPaginasLibres,paginasLibresCreate(1,configuracionSWAP.CantidadPaginas));
 
 	return NULL;
 }
@@ -265,18 +302,19 @@ int procesoCreate(int PID, int cantidadPaginas, int primeraPagina) {
 	t_tablaProcesos *proceso = malloc(sizeof(t_tablaProcesos));
 proceso->pid = PID;
 proceso->cantidadPaginas = cantidadPaginas;
-proceso->primerPagina = 0;
-proceso->ultimaPagina = cantidadPaginas - proceso->primerPagina;
+proceso->primerPagina = primeraPagina;
+proceso->ultimaPagina = cantidadPaginas + proceso->primerPagina - 1;
 proceso->cantidadEscrituras = 0;
 proceso->cantidadLecturas = 0;
 return proceso ->pid;
 }
 
-int paginasLibresCreate(int desdePagina, int hastaPagina) {
+void * paginasLibresCreate(int desdePagina, int hastaPagina) {
 	t_tablaPaginasLibres *paginasLibres = malloc(sizeof(t_tablaPaginasLibres));
 paginasLibres->desdePagina = desdePagina;
 paginasLibres->hastaPagina = hastaPagina;
-return paginasLibres->desdePagina;
+//return paginasLibres->desdePagina;
+return NULL;
 }
 
 int main ()  {
@@ -289,8 +327,11 @@ int main ()  {
 	paginasLibres = configuracionSWAP.CantidadPaginas;
 	creacionDisco();
 	inicializarListas();
+
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	printf("Mensaje recibido: %s",datosRecibidos());
+
+
 	//servidorMemoria();
 
 	exit(0);

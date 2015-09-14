@@ -10,7 +10,7 @@ void sendACK(int socket)
 {
 	t_mensajeHeader ack;
 	ack.idmensaje = ACK;
-	send(socket,&ack,sizeof(t_mensaje_header),0);
+	send(socket,&ack,sizeof(t_mensajeHeader),0);
 }
 
 

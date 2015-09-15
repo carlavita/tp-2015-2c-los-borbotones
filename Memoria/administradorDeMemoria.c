@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <commons/config.h>
+#include <commons/collections/list.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdbool.h>
@@ -20,6 +21,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <protocolo.h>
 
 #define PACKAGESIZE 1024
 
@@ -64,6 +66,11 @@ t_config_memoria  configMemoria;
 t_log * logMemoria;
 int clienteSwap;
 t_tablaDePaginas * tablaDePaginas;
+t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
+int * memoriaReservadaDeMemPpal;
+pthread_t * hiloSigUsr1;
+pthread_t * hiloSigUsr2;
+
 
 void leerConfiguracion()
 {
@@ -172,18 +179,48 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
    }
 }
 
-#define INICIAR 1
-#define LEER 2
-#define ESCRIBIR 3
-#define FINALIZAR 4
+t_list * listaDePidFrames;
+void generarCantidadDeFramesAsignadosAlProceso(int pid)
+{
+  listaDePidFrames = malloc(sizeof(t_list *));/*ESTA CREACION VA A ESTAR EN EL MAIN*/
+  listaDePidFrames = list_create();
+  t_pidFrame *pidFrame = malloc(sizeof(t_pidFrame*));
+  int frame = list_size(listaDePidFrames)-1;//cada posicion va a ser un frame(por ahora) y quiero que empieze en 0
+  while( frame < configMemoria.maximoMarcosPorProceso)
+  	  {
+	  pidFrame->frameAsignado = frame;
+	  pidFrame->pid = pid;
+	   list_add(listaDePidFrames,pidFrame);
+	  frame += frame;
+  	  }
 
-t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
+  free(listaDePidFrames);
+}
+void avisarAlSwap(int clienteSwap)
+{
+	send(clienteSwap,"Inicio mProc",sizeof("Inicio mProc"),0);
+}
 
-void pasaManos(int cliente,int servidor)
+void generarEstructurasAdministrativas(int pid,int paginas)
+{
+
+  if(configMemoria.maximoMarcosPorProceso < paginas)
+  {
+	  generarCantidadDeFramesAsignadosAlProceso(pid);
+  }
+  else
+  {
+
+  }
+
+}
+
+void procesamientoDeMensajes(int cliente,int servidor)
 {
    char mensajeRecibido[PACKAGESIZE];
    int * pagina = malloc(sizeof(int*));
    int * pid = malloc(sizeof(int *));
+   int mensaje1, mensaje2, mensaje3;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
    int mensaje = recv(servidor,mensajeRecibido,sizeof(PACKAGESIZE),0);
    if(mensaje == -1)
 	   log_info(logMemoria,"Error al recibir de la CPU");
@@ -194,17 +231,22 @@ void pasaManos(int cliente,int servidor)
 	switch ((int)&m)
 	{
 		case INICIAR:
-				//CREAR ESTRUCTURAS ADMINISTRATIVAS
-				//AVISAR AL SWAP
-				//asignar pid y frame utilizado por el proceso a la tabla administrativa
+				recv(servidor,pid,sizeof(pid),0);
+				recv(servidor,pagina,sizeof(pagina),0);
+				generarEstructurasAdministrativas(*pid,*pagina);
+				avisarAlSwap(cliente);
+
 			break;
 		case LEER:
 				//&pid = PID;
-				recv(servidor,pagina,sizeof(pagina),0);
+				mensaje1 = recv(servidor,pagina,sizeof(pagina),0);
+				while(mensaje1 == -1) mensaje1 = recv(servidor,pagina,sizeof(pagina),0);
 				send(cliente,pid,sizeof(pid),0);
-				recv(cliente,"OK",sizeof("OK"),0);// NO VALE MANDARLO EN MINISCULA O ALGO PARECIDO!
+				mensaje2 = recv(cliente,"OK",sizeof("OK"),0);// NO VALE MANDARLO EN MINISCULA O ALGO PARECIDO!
+				while(mensaje2 == -1) mensaje2 = recv(cliente,"OK",sizeof("OK"),0);
 				send(cliente,pagina,sizeof(pagina),0);
-				recv(cliente,mensajeRecibido,sizeof(mensajeRecibido),0);
+				mensaje3 = recv(cliente,mensajeRecibido,sizeof(mensajeRecibido),0);
+				while(mensaje3 == -1) recv(cliente,mensajeRecibido,sizeof(mensajeRecibido),0);
 				send(servidor,mensajeRecibido,sizeof(mensajeRecibido),0);
 		        free(pagina);
 			break;
@@ -222,7 +264,32 @@ void pasaManos(int cliente,int servidor)
    }
 }
 
-int * memoriaReservadaDeMemPpal;
+
+
+void * inicioHiloSigUsr1()
+{
+	return NULL;
+}
+void * inicioHiloSigUsr2()
+{
+	return NULL;
+}
+
+void creacionHilos(t_log* logMemoria) {
+	/*
+	 * 	CREACION HILOS SINCRONIZADOS PARA ADMINISTRAR LAS SEÑALES sigusr1 y sigusr2
+	 */
+	log_info(logMemoria,
+			"Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2");
+	hiloSigUsr1 = malloc(sizeof(pthread_t*));
+	hiloSigUsr2 = malloc(sizeof(pthread_t*));
+	pthread_create(hiloSigUsr1, NULL, inicioHiloSigUsr1, NULL);
+	pthread_create(hiloSigUsr2, NULL, inicioHiloSigUsr2, NULL);
+	free(hiloSigUsr1);
+	free(hiloSigUsr2);
+	log_info(logMemoria,"Fin creación hilos para atender señales SIGUSR1 y SIGUSR2");
+}
+
 int main()
 {
 	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
@@ -230,12 +297,14 @@ int main()
 	leerConfiguracion();
 	creacionTLB(&configMemoria, logMemoria, tlb);
 
+	creacionHilos(logMemoria);
+
 	log_info(logMemoria,"Comienzo de las diferentes conexiones");
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
 
 //	generarTablaDePaginas(memoriaReservadaDeMemPpal);
-	pasaManos(clienteSwap, servidorCPU);
+	procesamientoDeMensajes(clienteSwap, servidorCPU);
 	recibidoPorLaMemoria = datosRecibidos();
 
 	for(;;){

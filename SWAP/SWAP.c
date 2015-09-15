@@ -18,6 +18,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <commons/collections/list.h>
+#include <protocolo.h>
 
 
 
@@ -133,9 +134,12 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 	paginaInicial = controlInsercionPaginas(cantidadPaginas);
 	switch (paginaInicial)  {
 		case 0: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
+		log_info(logSWAP,"Iniciando Compactacion");
 		compactacion();
+		log_info(logSWAP,"Compactacion finalizada");
 		break;
 	case -1: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
+		log_info(logSWAP,"Proceso mProc rechazado por falta de espacido, su PID es %d", idProceso);
 		break;
 	default:
 	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
@@ -160,6 +164,11 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 			fseek(archivoDisco,((paginaInicial + nroPagina -1)*configuracionSWAP.TamanioPagina), SEEK_SET);
 			fputc('\0',archivoDisco);
 			}
+			/* LOGEO EN INICIAR */
+				log_info(logSWAP,"Proceso mPRoc asignado");
+				log_info(logSWAP,"PID asignado: %d",idProceso);
+				log_info(logSWAP,"Byte Inicial %d",(paginaInicial-1)*configuracionSWAP.TamanioPagina);
+				log_info(logSWAP,"Tamaño en bytes de asignacion %d",cantidadPaginas*configuracionSWAP.TamanioPagina);
 
 			break;
 	}
@@ -180,6 +189,9 @@ void * finalizar (int PID){
 	char * contenido = '\0';
 
 
+
+
+
 	//ACA VA LA ELIMINACION DEL CONTENIDO DEL S WAP DE ESAS PAGINAS
 			fseek(archivoDisco,(primerPagina-1)* configuracionSWAP.TamanioPagina,SEEK_SET);
 			fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
@@ -188,6 +200,13 @@ void * finalizar (int PID){
 	list_add(listaPaginasLibres,paginasLibresCreate(primerPagina,ultimaPagina));
 	list_remove(listaProcesos,posicionPIDLista);
 	paginasLibres = paginasLibres + cantidadPaginas;
+
+	/* LOGEO EN FINALIZAR */
+					log_info(logSWAP,"Proceso mPRoc liberado");
+					log_info(logSWAP,"PID liberado: %d",PID);
+					log_info(logSWAP,"Byte Inicial %d",(primerPagina-1)*configuracionSWAP.TamanioPagina);
+					log_info(logSWAP,"Tamaño en bytes liberados %d",bytesUsadosPorPID);
+
 	ordenarLista(); //LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
 
 	return NULL;
@@ -201,6 +220,13 @@ char* leer (int PID,int nroPagina){
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
 	fread(contenido,tamanioPagina,primerBytePagina,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 
+	/* LOGEO EN ESCRITURA */
+		log_info(logSWAP,"Lectura solicitada");
+		log_info(logSWAP,"PID solicitado: %d",PID);
+		log_info(logSWAP,"Byte Inicial %d",primerBytePagina);
+		log_info(logSWAP,"Tamaño solicitado para lectura %d",strlen(contenido));
+		log_info(logSWAP,"El contenido de escritura es %s", contenido);
+
 	//DEVUELVO PAGINA LEIDA
 	int posicionPID = busquedaPIDEnLista(PID);
 	t_tablaProcesos *procesoObtenido = list_get(listaProcesos,posicionPID);
@@ -212,6 +238,13 @@ char* leer (int PID,int nroPagina){
 void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = (nroPagina-1) * tamanioPagina;
+	/* LOGEO EN ESCRITURA */
+	log_info(logSWAP,"Escritura solicitada");
+	log_info(logSWAP,"PID solicitado: %d",PID);
+	log_info(logSWAP,"Byte Inicial %d",primerBytePagina);
+	log_info(logSWAP,"Tamaño solicitado para escritura %d",strlen(contenidoPagina));
+	log_info(logSWAP,"El contenido de escritura es %s", contenidoPagina);
+
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
 	fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
 
@@ -317,6 +350,33 @@ paginasLibres->hastaPagina = hastaPagina;
 return NULL;
 }
 
+void * escucharConexiones(){
+	char *mensajeRecibido = malloc(sizeof(char *));
+	strncpy(mensajeRecibido,datosRecibidos(),sizeof(PACKAGESIZE));
+	switch ((int)&mensajeRecibido)
+		{
+			case INICIAR:
+
+				break;
+			case LEER:
+					//&pid = PID;
+
+				break;
+			case ESCRIBIR:
+
+				break;
+			case FINALIZAR:
+				//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
+				//AVISAR A SWAP, PARA QUE LIBERE TAMBIEN.
+				break;
+			default:
+				log_info(logSWAP,"Mensaje incorrecto");
+		}
+		free(mensajeRecibido);
+
+	return NULL;
+}
+
 int main ()  {
 	remove("ArchivoLogueoSWAP.txt");
 	logSWAP = log_create("ArchivoLogueoSWAP.txt","SWAP",true,LOG_LEVEL_INFO);
@@ -329,7 +389,8 @@ int main ()  {
 	inicializarListas();
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	printf("Mensaje recibido: %s",datosRecibidos());
+	escucharConexiones();
+
 
 
 	//servidorMemoria();

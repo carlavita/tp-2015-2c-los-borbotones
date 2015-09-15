@@ -81,7 +81,7 @@ int main (){
 
 // FUNCION SERVIDOR, te devuelve el socket por donde esta escuchando. Si devuelve -1, se produjo un error
 
-int servidor(int PUERTO)
+int Servidor(int PUERTO)
 {
 	int socketservidor;
 	int yes = 1;
@@ -138,7 +138,7 @@ int servidorMultiplexor(int PUERTO){
 	FD_ZERO(&read_fds);
 	//buffer = malloc(sizeof(paquete));
 	buffer = malloc(PACKAGESIZE);
-	int socketservidor = servidor(PUERTO);
+	int socketservidor = Servidor(PUERTO);
 
 	FD_SET(socketservidor, &master);
 	fdmax = socketservidor;

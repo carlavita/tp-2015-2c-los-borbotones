@@ -20,11 +20,13 @@
 #include <commons/collections/list.h>
 #include <string.h>
 
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-
+#include <semaphore.h>
+// includes de iblioteca compartida
 #include <protocolo.h>
 #include <socket.h>
 
@@ -43,7 +45,7 @@
 
 
 /*
-//todo pasar a un protocolo.h
+
 #define SALUDO 0
 #define CHECKPOINT 1
 
@@ -70,13 +72,15 @@ typedef struct
 
 }t_configPlanificador;
 
+/*
 typedef struct
 {
 	int pid;
-	char* pathProc;
+	char pathProc[256];
 	int proxInst;
-
+	int quantum;
 }t_pcb;
+*/
 
 typedef struct
 {
@@ -88,20 +92,14 @@ typedef struct
 
 
 
-typedef struct
-{
-	int codMje;
-
-}t_mensajeHeader;
-
-typedef struct
+/*typedef struct
 {
 	int pid;//revisar si es necesario este campo
 	char* pathProc;
 	int proxInst;
 	int quantum;
 
-}t_contextoEjecucion;
+}t_contextoEjecucion;*/
 
 typedef struct
 {
@@ -113,7 +111,7 @@ typedef struct
 
 
 int PID = 0; // Para numerar los procesos
-int Servidor = 0;//todo socket cpu, solo por pruebas
+int ServidorP = 0;//todo socket cpu, solo por pruebas
 t_configPlanificador configPlanificador;
 t_log *logger;
 
@@ -123,11 +121,15 @@ t_list* LISTOS;
 t_list* EJECUTANDO;
 t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
-t_list* lista_CPU;
+t_list* listaCPU;
 
-// Semáforo para listas de pcbs
-pthread_mutex_t mutex_listas;
-pthread_mutex_t mutex_lista_cpu;
+//Mutex
+pthread_mutex_t mutexListas; //Listas
+pthread_mutex_t mutexListaCpu; //Lista de cpus
+
+// Semáforos
+
+sem_t semaforoListos;
 /**
 * @NAME: levantarConfiguracion()
 * @DESC:Levanta parametros de configuracion

@@ -8,7 +8,7 @@
 
 #include "CPU.h"
 
-#define SALUDO 0// todo los mensajes van a ir al protocolo
+//#define SALUDO 0// todo los mensajes van a ir al protocolo
 #define CHECKPOINT 1// todo los mensajes van a ir al protocolo
 
 typedef struct
@@ -85,7 +85,7 @@ void Conexion_con_planificador(){
 			printf("recibir\n");
 		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
 			if (status > 0){
-				if (mensaje == CHECKPOINT){
+				if (mensaje == CORRERPATH){
 				printf("recibido el mensaje correr path desde el planificador\n");
 
 				printf("reenvío mensaje a memoria\n");
@@ -102,6 +102,7 @@ void Conexion_con_planificador(){
 
 			}else{
 				printf("error al recibir");
+				enviar = 0;
 			}
 		}
 			/*while(enviar){

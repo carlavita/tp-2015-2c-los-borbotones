@@ -8,12 +8,11 @@
 #ifndef PROTOCOLO_H_
 #define PROTOCOLO_H_
 
-//todo pasar a un protocolo.h
 #define ACK 0
 #define NAK 1
 
 #define SALUDO 2
-#define CHECKPOINT 3
+#define CORRERPATH 3
 
 //mensajes del Planificador a CPU
 #define EJECUTARPROC 4
@@ -42,6 +41,19 @@ typedef struct __attribute__((packed))
 	int idmensaje;
 
 }t_mensajeHeader;
+/* Estructura para comando correrMensaje*/
+  typedef struct __attribute__((packed))
+{
+	int pid;
+	char pathProc[256];
+	int proxInst;
+	int quantum;
+}t_pcb;
+
+typedef struct __attribute__((packed))
+{
+	int pid;
+}t_finalizarPID;
 
 
 // Funciones

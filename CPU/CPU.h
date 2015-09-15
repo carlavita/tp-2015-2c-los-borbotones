@@ -22,6 +22,9 @@
 #include <netdb.h>
 #include <unistd.h>
 
+// lIBRERIA COMPARTIDA
+#include <protocolo.h>
+
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
 
 #define PATH_CONFIG "archivoConfig.conf"

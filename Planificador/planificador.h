@@ -108,9 +108,10 @@ typedef struct
 
 }t_rtaIO;
 
-
+int val; //variable para saber el valor del semaforoListos
 
 int PID = 0; // Para numerar los procesos
+int CPUID = 0;
 int ServidorP = 0;//todo socket cpu, solo por pruebas
 t_configPlanificador configPlanificador;
 t_log *logger;
@@ -130,6 +131,7 @@ pthread_mutex_t mutexListaCpu; //Lista de cpus
 // Semáforos
 
 sem_t semaforoListos;
+
 /**
 * @NAME: levantarConfiguracion()
 * @DESC:Levanta parametros de configuracion

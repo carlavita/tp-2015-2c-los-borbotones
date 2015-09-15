@@ -9,7 +9,7 @@
 
 
 int main(void) {
-//	pthread_t hilo_consola;
+	pthread_t hilo_consola;
 	pthread_t hiloServer;
 
 
@@ -26,22 +26,23 @@ int main(void) {
 /*Inicialicacion*/
 	inicializarListas();
 	sem_init(&semaforoListos,0,0); //Semaforo productor consumidor de prcesos listos
+
 	/*Hilo Server Planificador*/
 	//todo sincronizar hilos consola y conexion cpu
 	pthread_create (&hiloServer, NULL, (void *) &servidorCPU, NULL);
 
-	//seteado con el quantum, hay que evaluar que algoritmo elegido de planificacion
+	pthread_create (&hilo_consola, NULL, (void *) &mostrarConsola, NULL);
+
+	//mostrarConsola(NULL);
 
 	planificar(configPlanificador.quantum);
-	mostrarConsola(NULL);
-
-
+	//mostrarConsola(NULL);
 
 /*Hilo Consola
 	pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
 */
 
-	//pthread_join(hilo_consola,NULL);
+	pthread_join(hilo_consola,NULL);
 
 	pthread_join(hiloServer,NULL);
 	return EXIT_SUCCESS;
@@ -78,6 +79,7 @@ void levantarConfiguracion(){
 }
 
 void mostrarConsola( void *ptr ){
+
 	int option = -1;
 	while(option != 0){
 //todo: descomentar todos clear		system("clear");
@@ -247,7 +249,8 @@ void servidorCPU( void *ptr ){
 	     		                         }
 
 	     		                    	int status = 1;		// Estructura que maneja el status de los recieve
-
+	     		                    	//una vez detectada la conexion de una cpu se la agrega a la lista de cpus y se la coloca como libre -1
+	     		                    	agregarCPU(newsock,-1);
 	     		                    	ServidorP = newsock;
 	     		                    	int mensaje = SALUDO;
 	     		                    	status = send(newsock,&mensaje , sizeof(int), 0);
@@ -328,7 +331,7 @@ void correrPath(){
 
 	int pid = crearPcb(path);
 
-	printf("Creado mProc %d", pid);
+	printf("Creado mProc %d \n", pid);
 }
 
 int crearPcb(char* path){
@@ -348,17 +351,28 @@ int crearPcb(char* path){
 		printf("PID %d sumado a la cola de ready\n",pcb->pid );
 		pthread_mutex_unlock(&mutexListas);
 		sem_post(&semaforoListos); //Habilita al planificador
+		sem_getvalue(&semaforoListos,&val); // valor del contador del semáforo
+		printf("Soy el semaforo despues de habilitar a planificador con el valor: %d\n", val);
+
 return pcb->pid;
 }
 
 
 t_pcb* planificarFifo(){
-	sem_post(&semaforoListos);// Consumir cuando haya procesos listos
+
+
+	sem_wait(&semaforoListos);// Consumir cuando haya procesos listos
 	pthread_mutex_lock(&mutexListas);
 	t_pcb* pcb = list_remove(LISTOS,0);
 	list_add(EJECUTANDO, pcb);
 	pthread_mutex_unlock(&mutexListas);
+	sem_getvalue(&semaforoListos,&val); // valor del contador del semáforo
+	printf("Soy el semaforo despues de planificar un proceso  con el valor: %d\n", val);
+
+	printf("termino la planificacion con fifo de un proceso \n");
+
 	return pcb;
+
 }
 
 void enviarACpu(t_pcb* pcb,t_cpu* cpu)
@@ -400,7 +414,7 @@ t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
 
 int planificar(int quantum){
 
-	//el otro hilo se usa como planificador(consumidor) que elije de la cola de listos y lo pasa la lista de ejecutando con el quantum
+	//este hilo se usa como planificador(consumidor) que elije de la cola de listos y lo pasa la lista de ejecutando con el quantum
 
 	pthread_t hiloPlanificador;
 
@@ -423,13 +437,13 @@ void *planificador(void *info_proc){
 	while (true) {
 
 // el planificar lo saca de la cola de listos y lo pasa a ejecutando
-				pcb = planificarFifo();
+			pcb = planificarFifo();
 
 
 			//enviar a cpu elegida el pcb del proceso elegido
 			t_cpu* cpuLibre;
 			cpuLibre = buscarCpuLibre();
-			printf("el id de la cpu libre es: %d /n", cpuLibre->id);
+			printf("el id de la cpu libre es: %d \n", cpuLibre->id);
 
 			//enviarACpu(cpuLibre,pcb.pid);
 
@@ -466,7 +480,7 @@ void eliminarCPU(int socket_cpu)
 	{
 		cpuNodoLista = list_get(listaCPU, cont);
 		if (cpuNodoLista->socket==socket_cpu)
-		{	puts("CPU eliminada");
+		{	puts("CPU eliminada \n");
 			//Remuevo el CPU de la lista
 
 			list_remove(listaCPU,cont);
@@ -482,6 +496,8 @@ void agregarCPU(int cpuSocket, int pid) {
 	t_cpu* cpu = malloc(sizeof(t_cpu));
 	cpu->socket = cpuSocket;
 	cpu->pid = pid;
+	CPUID++;
+	cpu->id=CPUID;
 	pthread_mutex_lock(&mutexListaCpu);
 	list_add(listaCPU, cpu);
 	pthread_mutex_unlock(&mutexListaCpu);
@@ -497,6 +513,7 @@ t_cpu* buscarCpuLibre()
 	pthread_mutex_lock(&mutexListaCpu);
 	t_cpu* cpu = list_find(listaCPU,(void*) _is_pcb);
 	pthread_mutex_unlock(&mutexListaCpu);
+
 	return 	cpu;
 }
 

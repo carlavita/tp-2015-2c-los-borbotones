@@ -140,24 +140,30 @@ void *ejecucion (void *ptr){
 	FILE *fd;
 	fd = fopen("/home/utnso/codigo/test.cod","r");
 	iniciar(3,12);
-	escribir(3,"HOLA");
-	leer(3);
+	escribir(3,"HOLA",12);
+	leer(3,12);
 	finalizar(12);
 	fclose(fd);
 	return 0;
 }
 
+
 void iniciar (int paginas, int mProcID){
-	printf("Inicio proceso %d. Numero de paginas asignadas %d \n",mProcID,paginas); }
+	printf("mProc %d - Iniciado \n", mProcID);
+	sleep(1);}
 
-void escribir (int pagina, char *texto){
-	printf("Escribio: HOLA en la pagina %d \n",pagina); }
+void escribir (int pagina, char *texto, int mProcID){
+	printf("mProc %d - Pagina %d escrita: HOLA \n", mProcID, pagina);
+	sleep(5);}
 
-void leer (int pagina){
-	printf("Contenido de la pagina %d: HOLA \n",pagina); }
+void leer (int pagina, int mProcID){
+	printf("mProc %d - Pagina %d leida: HOLA \n", mProcID, pagina);
+	sleep(5);}
 
 void finalizar (int mProcID){
-	printf("Se finalizo el proceso: %d \n", mProcID); }
+	printf("mProc %d - Finalizado \n", mProcID);
+	sleep(1);}
+
 
 int main ()  {
 	pthread_t cpu;

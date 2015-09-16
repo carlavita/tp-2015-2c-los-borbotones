@@ -42,14 +42,16 @@ typedef struct __attribute__((packed))
 
 }t_mensajeHeader;
 /* Estructura para comando correrMensaje*/
-  typedef struct __attribute__((packed))
+
+typedef struct __attribute__((packed))
 {
 	int pid;
 	char pathProc[256];
 	int proxInst;
 	int quantum;
+	int cantidadLineas;
+	int status;
 }t_pcb;
-
 typedef struct __attribute__((packed))
 {
 	int pid;

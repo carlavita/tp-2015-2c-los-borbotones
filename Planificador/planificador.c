@@ -6,7 +6,9 @@
  */
 
 #include "planificador.h"
-
+// includes de iblioteca compartida
+#include <protocolo.h>
+#include <socket.h>
 
 int main(void) {
 	pthread_t hilo_consola;
@@ -110,17 +112,18 @@ void mostrarConsola( void *ptr ){
 
 		case 2:
 			//todo:descomentar			system("clear");
-//todo			finalizar_pid();
+//todo			finalizarPid();
 			esperaEnter();
 			break;
 		case 3:
 			//todo:descomentar			system("clear");
-//todo			ps();
+
+			ejecutarPS();
 			esperaEnter();
 			break;
 		case 4:
 			//todo:descomentar			system("clear");
-//todo			cpu();
+			ejecutarCPU();
 			esperaEnter();
 			break;
 
@@ -454,19 +457,20 @@ void *planificador(void *info_proc){
 }
 
 void ejecutarIO(int socketCPU){
-
+	// TODO, VER ESTO
 	//recepciono de la pcu el msj con el Tiempo(en segundos) que hay que hacer el IO
 	t_rtaIO mjeIO;
 	recv(socketCPU, &mjeIO, sizeof(t_rtaIO), 0);
-
+	pthread_mutex_lock(&mutexListas);
 	//busco el proc por si pid, se borra de ejecutados y lo mando a bloqueados
-	removerEnListaPorPid(EJECUTANDO,mjeIO.pid);
+	//t_pbc *pcb = removerEnListaPorPid(EJECUTANDO,mjeIO.pid);
 
+	//pcb->status = BLOQUEADO;
+	pthread_mutex_unlock(&mutexListas);
 	//por T segundos
-	sleep(mjeIO.tiempo);
+	sleep(mjeIO.tiempo); // TODO: HAY QUE ENCOLAR LOS BLOQUEOS
 
 	//Ahora enviarlo a la cola de listos
-
 
 
 }
@@ -498,6 +502,8 @@ void agregarCPU(int cpuSocket, int pid) {
 	cpu->pid = pid;
 	CPUID++;
 	cpu->id=CPUID;
+	cpu->porcentajeUso = 0; // inicial
+
 	pthread_mutex_lock(&mutexListaCpu);
 	list_add(listaCPU, cpu);
 	pthread_mutex_unlock(&mutexListaCpu);
@@ -516,4 +522,87 @@ t_cpu* buscarCpuLibre()
 
 	return 	cpu;
 }
+void ejecutarPS(){
 
+
+	pthread_mutex_lock(&mutexListas);
+// Crea una lista con todos los procesos.
+	    t_list* PROCESOS = list_create();
+
+		list_add_all(PROCESOS, LISTOS);
+		list_add_all(PROCESOS, EJECUTANDO);
+//		list_add_all(PROCESOS, BLOQUEADOS);
+//		list_add_all(PROCESOS, FINALIZADOS);
+
+    	ordernarPorPID(PROCESOS);
+		printf("---  Status de Procesos mProc    --- \n \n");
+			int indexLista = 0;
+
+		t_pcb *mProc = list_get(PROCESOS, indexLista);
+		//	t_pcb *mProc = list_get(LISTOS, indexLista);
+
+		while (mProc != NULL ) {
+
+			printf("mProc %d: %s  ->  %d \n", mProc->pid, mProc->pathProc, mProc->status);
+			//todo pasar el int y que muestre el nombre del estado. loguear
+
+			indexLista++;
+			mProc = list_get(PROCESOS, indexLista);
+		}
+
+		pthread_mutex_unlock(&mutexListas);
+
+}
+
+void ordernarPorPID(t_list* lista)
+{
+	bool _pidMayor(t_pcb *proceso, t_pcb *procesoMenorPID) {
+		return proceso->pid < procesoMenorPID->pid;
+	}
+
+	list_sort(lista, (void*) _pidMayor);
+}
+void ejecutarCPU(){
+		pthread_mutex_lock(&mutexListaCpu);
+
+		printf("---  Cache 13 . Reporte de CPUs    --- \n \n");
+
+		int indexLista = 0;
+
+		t_cpu *cpu = list_get(listaCPU, indexLista);
+
+		while (cpu != NULL ) {
+
+			printf("CPU %d:  %d  %\n", cpu->id, cpu->porcentajeUso);
+			//todo pasar el int y que muestre el nombre del estado. loguear
+
+			indexLista++;
+			cpu = list_get(listaCPU, indexLista);
+		}
+
+		pthread_mutex_unlock(&mutexListaCpu);
+
+
+}
+
+int obtenerCantidadLineasPath(char* path){
+
+	FILE* mCod = fopen(path, "r");
+    int caracter, lineasPath = 0;
+
+do
+{
+    caracter = fgetc(mCod);
+    if(caracter == '\n')
+    	lineasPath++;
+} while (caracter != EOF);
+
+// La ultima linea no termina con \n
+// pero no va a haber otra despues de la ultima
+if(caracter != '\n' && lineasPath != 0)
+    lineasPath++;
+
+fclose(mCod);
+
+return lineasPath;
+}

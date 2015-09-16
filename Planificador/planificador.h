@@ -64,6 +64,12 @@
 // constantes para algoritmos
 #define FIFO 1
 #define RR 2
+
+// constantes STATUS DE PROCESOS
+#define LISTO 0
+#define EJECUTA 1
+#define BLOQUEADO 2
+#define FINALIZADO 3
 typedef struct
 {
 	char* puertoEscucha;
@@ -84,10 +90,11 @@ typedef struct
 
 typedef struct
 {
-	int estado;//(0 libre, 1 ocupada)
+	//int estado;//(0 libre, 1 ocupada)
 	int id;
 	int socket;
 	int pid;
+	int porcentajeUso;
 }t_cpu;
 
 
@@ -219,3 +226,26 @@ void eliminarCPU(int socket_cpu);
 */
 t_cpu* buscarCpuLibre();
 #endif /* PLANIFICADOR_H_ */
+/**
+* @NAME: ejecutarPS()
+* @DESC: Muestra los procesos por pantalla
+*/
+void ejecutarPS();//
+/**
+* @NAME: ordernarPorPID()
+* @DESC: ordena una lista de pcbs ascendente por PID.
+*/
+void ordernarPorPID(t_list* lista);
+
+/**
+* @NAME: ejecutarCPU()
+* @DESC: Muestra los porcentajes de uso de cada CPU.
+*/
+void ejecutarCPU();
+
+/**
+* @NAME: obtenerCantidadLineasPath()
+* @DESC: Para saber que linea es la ultima, obtiene la cantidad de lineas del archivo mCod
+* la funcion retorna el int con el numero de lineas
+*/
+int obtenerCantidadLineasPath(char* path);

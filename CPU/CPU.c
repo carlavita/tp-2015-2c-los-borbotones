@@ -135,9 +135,34 @@ char *parsearLinea(char * lineaLeida){
 	return lineaParseada;
 }
 
+void *ejecucion (void *ptr);
+void *ejecucion (void *ptr){
+	FILE *fd;
+	fd = fopen("/home/utnso/codigo/test.cod","r");
+	iniciar(3,12);
+	escribir(3,"HOLA");
+	leer(3);
+	finalizar(12);
+	fclose(fd);
+	return 0;
+}
 
+void iniciar (int paginas, int mProcID){
+	printf("Inicio proceso %d. Numero de paginas asignadas %d \n",mProcID,paginas); }
+
+void escribir (int pagina, char *texto){
+	printf("Escribio: HOLA en la pagina %d \n",pagina); }
+
+void leer (int pagina){
+	printf("Contenido de la pagina %d: HOLA \n",pagina); }
+
+void finalizar (int mProcID){
+	printf("Se finalizo el proceso: %d \n", mProcID); }
 
 int main ()  {
+	pthread_t cpu;
+	int cpuID;
+
 	remove(PATH_LOG);
 	logCPU = log_create(PATH_LOG,"CPU",true,LOG_LEVEL_INFO);
 	log_info(logCPU,"Inicio Proceso CPU");
@@ -145,6 +170,8 @@ int main ()  {
 	LeerArchivoConfiguracion();
 	serverMemoria = conexion_con_memoria();
 	Conexion_con_planificador();
+	cpuID = pthread_create(&cpu,NULL,ejecucion,NULL);
+    pthread_join(cpu,NULL);
 
-	return 0; //CARLA AMOR Y PAZ POR MI 0 :D
+    return 0; //CARLA AMOR Y PAZ POR MI 0 :D
 }

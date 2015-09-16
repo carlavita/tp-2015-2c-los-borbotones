@@ -15,7 +15,7 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
-
+#include <pthread.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>

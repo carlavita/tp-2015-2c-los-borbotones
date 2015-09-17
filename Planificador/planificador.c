@@ -339,11 +339,12 @@ void correrPath(){
 
 int crearPcb(char* path){
 
-	t_pcb* pcb  = malloc(sizeof(t_pcb)) ;
+	t_pcb* pcb  = malloc(sizeof(t_pcb*)) ;
 	    pthread_mutex_lock(&mutexListas);
 	    PID++;
 		pcb->pid = PID;
 		pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
+		pcb->status = LISTO;
 		strcpy(pcb->pathProc, path);
 
 		printf("PID mProc: %d \n",pcb->pid);
@@ -367,6 +368,7 @@ t_pcb* planificarFifo(){
 	sem_wait(&semaforoListos);// Consumir cuando haya procesos listos
 	pthread_mutex_lock(&mutexListas);
 	t_pcb* pcb = list_remove(LISTOS,0);
+	pcb->status = EJECUTA;
 	list_add(EJECUTANDO, pcb);
 	pthread_mutex_unlock(&mutexListas);
 	sem_getvalue(&semaforoListos,&val); // valor del contador del semáforo
@@ -446,9 +448,14 @@ void *planificador(void *info_proc){
 			//enviar a cpu elegida el pcb del proceso elegido
 			t_cpu* cpuLibre;
 			cpuLibre = buscarCpuLibre();
-			printf("el id de la cpu libre es: %d \n", cpuLibre->id);
+			if (cpuLibre != NULL){
+ 			printf("el id de la cpu libre es: %d \n", cpuLibre->id);
+			}
+			else {
+				printf("sin cpu libre \n", cpuLibre->id);
 
-			//enviarACpu(cpuLibre,pcb.pid);
+			}
+			// todo enviarACpu(cpuLibre,pcb.pid);
 
 		}
 
@@ -531,8 +538,8 @@ void ejecutarPS(){
 
 		list_add_all(PROCESOS, LISTOS);
 		list_add_all(PROCESOS, EJECUTANDO);
-//		list_add_all(PROCESOS, BLOQUEADOS);
-//		list_add_all(PROCESOS, FINALIZADOS);
+		list_add_all(PROCESOS, BLOQUEADOS);
+		list_add_all(PROCESOS, FINALIZADOS);
 
     	ordernarPorPID(PROCESOS);
 		printf("---  Status de Procesos mProc    --- \n \n");

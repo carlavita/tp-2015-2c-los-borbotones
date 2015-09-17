@@ -66,10 +66,10 @@
 #define RR 2
 
 // constantes STATUS DE PROCESOS
-#define LISTO 0
-#define EJECUTA 1
-#define BLOQUEADO 2
-#define FINALIZADO 3
+#define LISTO 1
+#define EJECUTA 2
+#define BLOQUEADO 3
+#define FINALIZADO 4
 typedef struct
 {
 	char* puertoEscucha;

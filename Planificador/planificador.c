@@ -112,7 +112,7 @@ void mostrarConsola( void *ptr ){
 
 		case 2:
 			//todo:descomentar			system("clear");
-//todo			finalizarPid();
+			finalizarPid();
 			esperaEnter();
 			break;
 		case 3:
@@ -273,8 +273,6 @@ void servidorCPU( void *ptr ){
 
 	     		     close(sock);
 
-
-
 }
 
 void handle(int newsock, fd_set *set){
@@ -371,17 +369,16 @@ t_pcb* planificarFifo(){
 	pcb->status = EJECUTA;
 	list_add(EJECUTANDO, pcb);
 	pthread_mutex_unlock(&mutexListas);
+
 	sem_getvalue(&semaforoListos,&val); // valor del contador del semáforo
 	printf("Soy el semaforo despues de planificar un proceso  con el valor: %d\n", val);
-
 	printf("termino la planificacion con fifo de un proceso \n");
 
 	return pcb;
 
 }
 
-void enviarACpu(t_pcb* pcb,t_cpu* cpu)
-{
+void enviarACpu(t_pcb* pcb,t_cpu* cpu){
 /*// Elimina el PID de la cola de listos
 	removerEnListaPorPid(LISTOS,pcb->pid);
 //Pasa  a lista de ejecución
@@ -485,7 +482,7 @@ void ejecutarIO(int socketCPU){
 	//por T segundos
 	sleep(mjeIO.tiempo); // TODO: HAY QUE ENCOLAR LOS BLOQUEOS
 
-	//Ahora enviarlo a la cola de listos
+	//Ahora enviarlo a la cola de listos??
 
 
 }
@@ -537,8 +534,8 @@ t_cpu* buscarCpuLibre()
 
 	return 	cpu;
 }
-void ejecutarPS(){
 
+void ejecutarPS(){
 
 	pthread_mutex_lock(&mutexListas);
 // Crea una lista con todos los procesos.
@@ -588,7 +585,7 @@ void ejecutarCPU(){
 
 		while (cpu != NULL ) {
 
-			printf("CPU %d:  %d  %\n", cpu->id, cpu->porcentajeUso);
+			printf("CPU %d:  %d \n", cpu->id, cpu->porcentajeUso);
 			//todo pasar el int y que muestre el nombre del estado. loguear
 
 			indexLista++;
@@ -597,6 +594,19 @@ void ejecutarCPU(){
 
 		pthread_mutex_unlock(&mutexListaCpu);
 
+
+}
+
+void finalizarPid(){
+
+	int idProc;
+	printf("Ingrese el ID del mCod a finalizar \n");
+	scanf("%d",&idProc);
+	printf("el proceso con id: %d del mCod finalizará \n",idProc);
+
+	//validar q ese proceso este ejecutandose en alguna de las cpu??
+
+	//el puntero de instrucciones tiene que posicionarse en la ultima del programa mCod en ejecucion
 
 }
 

@@ -251,3 +251,10 @@ void ejecutarCPU();
 * la funcion retorna el int con el numero de lineas
 */
 int obtenerCantidadLineasPath(char* path);
+
+/**
+* @NAME: finalizarPid()
+* @DESC: mueve el puntero de instrucciones haciéndolo apuntar a la última del programa “mCod”. De esta
+* forma, cuando este proceso ejecute nuevamente, finalizará.
+*/
+void finalizarPid();

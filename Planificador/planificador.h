@@ -70,6 +70,7 @@
 #define EJECUTA 2
 #define BLOQUEADO 3
 #define FINALIZADO 4
+
 typedef struct
 {
 	char* puertoEscucha;
@@ -120,7 +121,7 @@ typedef struct
 int val; //variable para saber el valor del semaforoListos
 
 int PID = 0; // Para numerar los procesos
-int CPUID = 0;
+int CPUID = 0; // Para numerar las CPUs
 int ServidorP = 0;//todo socket cpu, solo por pruebas
 t_configPlanificador configPlanificador;
 t_log *logger;

@@ -604,10 +604,18 @@ void finalizarPid(){
 	scanf("%d",&idProc);
 	printf("el proceso con id: %d del mCod finalizará \n",idProc);
 
-	//validar q ese proceso este ejecutandose en alguna de las cpu??
-
 	//el puntero de instrucciones tiene que posicionarse en la ultima del programa mCod en ejecucion
+	pthread_mutex_lock(&mutexListas);
 
+	t_pcb* pcbProc;
+	pcbProc = buscarEnListaPorPID(EJECUTANDO,idProc);
+	int ultimaInst;
+	ultimaInst= pcbProc->cantidadLineas;
+	pcbProc->proxInst= ultimaInst;
+
+	pthread_mutex_unlock(&mutexListas);
+
+	//mandar a cpu??
 }
 
 int obtenerCantidadLineasPath(char* path){
@@ -615,19 +623,18 @@ int obtenerCantidadLineasPath(char* path){
 	FILE* mCod = fopen(path, "r");
     int caracter, lineasPath = 0;
 
-do
-{
-    caracter = fgetc(mCod);
-    if(caracter == '\n')
+    do {
+    	caracter = fgetc(mCod);
+    	if(caracter == '\n')
+    		lineasPath++;
+    } while (caracter != EOF);
+
+    // La ultima linea no termina con \n
+    // pero no va a haber otra despues de la ultima
+    if(caracter != '\n' && lineasPath != 0)
     	lineasPath++;
-} while (caracter != EOF);
 
-// La ultima linea no termina con \n
-// pero no va a haber otra despues de la ultima
-if(caracter != '\n' && lineasPath != 0)
-    lineasPath++;
+    fclose(mCod);
 
-fclose(mCod);
-
-return lineasPath;
+    return lineasPath;
 }

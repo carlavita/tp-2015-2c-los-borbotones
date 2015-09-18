@@ -78,15 +78,17 @@ typedef struct
 
 }t_configPlanificador;
 
-/*
-typedef struct
+
+/*typedef struct __attribute__((packed))
 {
 	int pid;
 	char pathProc[256];
 	int proxInst;
 	int quantum;
-}t_pcb;
-*/
+	int cantidadLineas;
+	int status;
+}t_pcb;*/
+
 
 typedef struct
 {

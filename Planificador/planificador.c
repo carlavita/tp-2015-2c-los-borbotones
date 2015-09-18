@@ -444,7 +444,6 @@ void *planificador(void *info_proc){
 // el planificar lo saca de la cola de listos y lo pasa a ejecutando
 			pcb = planificarFifo();
 
-
 			//enviar a cpu elegida el pcb del proceso elegido
 			t_cpu* cpuLibre;
 			cpuLibre = buscarCpuLibre();
@@ -452,10 +451,19 @@ void *planificador(void *info_proc){
  			printf("el id de la cpu libre es: %d \n", cpuLibre->id);
 			}
 			else {
-				printf("sin cpu libre \n", cpuLibre->id);
+				printf("sin cpu libre \n");
 
 			}
 			// todo enviarACpu(cpuLibre,pcb.pid);
+
+			int msjEjecutar;
+			msjEjecutar=EJECUTARPROC;
+			send(cpuLibre->socket,&msjEjecutar,sizeof(int),0);
+			printf("Envio de pedido de ejecucion a la cpu libre \n");
+
+			send(cpuLibre->socket,pcb,sizeof(t_pcb),0);
+			printf("Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
+
 
 		}
 

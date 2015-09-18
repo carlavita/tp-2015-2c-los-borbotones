@@ -85,6 +85,44 @@ void Conexion_con_planificador(){
 			printf("recibir\n");
 		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
 			if (status > 0){
+
+				switch ( mensaje) {
+
+					case CORRERPATH:
+
+						printf("recibido el mensaje correr path desde el planificador\n");
+						printf("reenvío mensaje a memoria\n");
+						strcpy(message,"Correr path\n");
+
+						status = send(serverMemoria, message, strlen(message) + 1, 0);
+
+						break;
+					case SALUDO:
+						printf("recibido el mensaje saludo de planificador\n");
+
+						break;
+					case EJECUTARPROC:
+						printf("recibido el mensaje de ejecutar proceso de planificador\n");
+
+						t_pcb pcbProc;
+						recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
+						printf("recibido el contexto del proceso de planificador con su id %d \n",pcbProc.pid);
+						printf("recibido el contexto del proceso de planificador con su path %s \n",pcbProc.pathProc);
+						printf("recibido el contexto del proceso de planificador\n");
+
+						break;
+
+					default:
+						printf("error al recibir");
+						enviar = 0;
+
+					}
+
+
+
+
+
+/*
 				if (mensaje == CORRERPATH){
 				printf("recibido el mensaje correr path desde el planificador\n");
 
@@ -103,8 +141,9 @@ void Conexion_con_planificador(){
 			}else{
 				printf("error al recibir");
 				enviar = 0;
-			}
+			}*/
 		}
+	}
 			/*while(enviar){
 				fgets(message, PACKAGESIZE, stdin);			// Lee una linea en el stdin (lo que escribimos en la consola) hasta encontrar un \n (y lo incluye) o llegar a PACKAGESIZE.
 				if (!strcmp(message,"exit\n")) enviar = 0;			// Chequeo que el usuario no quiera salir

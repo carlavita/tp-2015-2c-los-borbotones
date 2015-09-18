@@ -22,44 +22,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <protocolo.h>
+#include "administradorDeMemoria.h"
 
-#define PACKAGESIZE 1024
-
-
-typedef struct
-{
-	int pid;
-	int frameAsignado;
-}t_pidFrame;
-
-typedef struct
-{
-	int puertoEscucha;
-	char* ipSwap;
-	char * puertoSwap;
-	int maximoMarcosPorProceso;
-	int cantidadDeMarcos;
-	int tamanioMarcos;
-	int entradasTLB;
-	int tlbHabilitada; /*Las commons no tiene un config_ge_bool.... => 0 false, 1 true*/
-	int retardoMemoria;
-}t_config_memoria;
-
-typedef struct
-{
-	int pid;
-	int numeroPagina;
-	char * direccion;
-}t_TLB;    //LA TLB VA A SER UN ARRAY DE N entradas.(por ahora)
-
-typedef struct
-{
-	int pid;
-	int marco;
-	int pagina;
-	int bitUso;
-	int bitModificado;
-}t_tablaDePaginas;
 
 
 t_config_memoria  configMemoria;
@@ -70,6 +34,52 @@ t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
 int * memoriaReservadaDeMemPpal;
 pthread_t * hiloSigUsr1;
 pthread_t * hiloSigUsr2;
+t_list * listaDePidFrames;
+t_TLB * tlb;
+char * recibidoPorLaMemoria;
+char mensaje[1024];
+
+void * inicioHiloSigUsr1()
+{
+	return NULL;
+}
+void * inicioHiloSigUsr2()
+{
+	return NULL;
+}
+
+int main()
+{
+	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
+	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
+	leerConfiguracion();
+	generarEstructuraAdministrativaPIDFrame();
+	creacionTLB(&configMemoria, logMemoria, tlb);
+
+	creacionHilos(logMemoria);
+	pthread_join(*hiloSigUsr1,NULL);
+	log_info(logMemoria,"termino hiloSigUsr1");
+	pthread_join(*hiloSigUsr2,NULL);
+	log_info(logMemoria,"Termino hiloSigUsr2");
+	log_info(logMemoria,"Comienzo de las diferentes conexiones");
+	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
+	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
+
+//	generarTablaDePaginas(memoriaReservadaDeMemPpal);
+	procesamientoDeMensajes(clienteSwap, servidorCPU);
+	recibidoPorLaMemoria = datosRecibidos();
+
+	for(;;){
+		//ACA SE VA A PROCESAR TODO, DESPUES DE LA CREACION DE LAS DISTINTAS ESTRUCTURAS Y CONEXIONES
+        //int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+
+	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,PACKAGESIZE,0);
+	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
+	log_info(logMemoria,"%d",envioDeMensajes);
+
+	}
+    exit(0);
+}
 
 
 void leerConfiguracion()
@@ -85,19 +95,14 @@ void leerConfiguracion()
   configMemoria.entradasTLB = config_get_int_value(configuracionMemoria,"ENTRADAS_TLB");
   configMemoria.tlbHabilitada = config_get_int_value(configuracionMemoria,"TLB_HABILITADA");
   configMemoria.retardoMemoria = config_get_int_value(configuracionMemoria,"RETARDO_MEMORIA");
+  free(configuracionMemoria);
   log_info(logMemoria,"%d",configMemoria.puertoEscucha);
   log_info(logMemoria,"Finalizo lectura de archivo de configuración");
 }
-
 void crearServidores()
 {
 	servidorMultiplexor(configMemoria.puertoEscucha);
 }
-
-
-char * recibidoPorLaMemoria;
-char mensaje[1024];
-
 t_TLB * generarTLB(int entradasTLB)
 {
 	t_TLB tlb[entradasTLB];
@@ -110,8 +115,6 @@ t_TLB * generarTLB(int entradasTLB)
 	}
 	return tlb;
 }
-t_TLB * tlb;
-
 void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB* tlb)
 {
 
@@ -129,7 +132,6 @@ void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB*
 		log_warning(logMemoria,"La TLB no esta activada por configuración");
 	}
 }
-
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria)
 {
 	int intentosFallidosDeConexionASwap = 0;
@@ -154,7 +156,6 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria)
 	}
 	return clienteSwap;
 }
-
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
 {
 	int  pagina = 0;
@@ -175,32 +176,25 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
 		   tablaDePaginas->pid = -1; //-1 me indica que la pagina no esta asignada a ningun proceso
 	   }
 	   frame++;
-	   pagina += pagina; //pagina++
+	   pagina++;
    }
 }
-
-t_list * listaDePidFrames;
 void generarCantidadDeFramesAsignadosAlProceso(int pid)
 {
-  listaDePidFrames = malloc(sizeof(t_list *));/*ESTA CREACION VA A ESTAR EN EL MAIN*/
-  listaDePidFrames = list_create();
-  t_pidFrame *pidFrame = malloc(sizeof(t_pidFrame*));
-  int frame = list_size(listaDePidFrames)-1;//cada posicion va a ser un frame(por ahora) y quiero que empieze en 0
+  int frame = listaDePidFrames->elements_count-1;//EMPIEZA EN 0
+  t_pidFrame * estrucPidFrame = malloc(sizeof(t_pidFrame*));
   while( frame < configMemoria.maximoMarcosPorProceso)
   	  {
-	  pidFrame->frameAsignado = frame;
-	  pidFrame->pid = pid;
-	   list_add(listaDePidFrames,pidFrame);
-	  frame += frame;
+	  estrucPidFrame = list_find(listaDePidFrames,(void*)(listaDePidFrames->head->data == &frame));
+	  estrucPidFrame->pid = pid;
+	   list_add(listaDePidFrames,estrucPidFrame);
+	  frame++;
   	  }
-
-  free(listaDePidFrames);
 }
 void avisarAlSwap(int clienteSwap)
 {
 	send(clienteSwap,"Inicio mProc",sizeof("Inicio mProc"),0);
 }
-
 void generarEstructurasAdministrativas(int pid,int paginas)
 {
 
@@ -214,7 +208,6 @@ void generarEstructurasAdministrativas(int pid,int paginas)
   }
 
 }
-
 void procesamientoDeMensajes(int cliente,int servidor)
 {
    char mensajeRecibido[PACKAGESIZE];
@@ -264,17 +257,6 @@ void procesamientoDeMensajes(int cliente,int servidor)
    }
 }
 
-
-
-void * inicioHiloSigUsr1()
-{
-	return NULL;
-}
-void * inicioHiloSigUsr2()
-{
-	return NULL;
-}
-
 void creacionHilos(t_log* logMemoria) {
 	/*
 	 * 	CREACION HILOS SINCRONIZADOS PARA ADMINISTRAR LAS SEÑALES sigusr1 y sigusr2
@@ -289,34 +271,20 @@ void creacionHilos(t_log* logMemoria) {
 	free(hiloSigUsr2);
 	log_info(logMemoria,"Fin creación hilos para atender señales SIGUSR1 y SIGUSR2");
 }
-
-int main()
+void generarEstructuraAdministrativaPIDFrame()
 {
-	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
-	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
-	leerConfiguracion();
-	creacionTLB(&configMemoria, logMemoria, tlb);
-
-	creacionHilos(logMemoria);
-
-	log_info(logMemoria,"Comienzo de las diferentes conexiones");
-	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
-	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
-
-//	generarTablaDePaginas(memoriaReservadaDeMemPpal);
-	procesamientoDeMensajes(clienteSwap, servidorCPU);
-	recibidoPorLaMemoria = datosRecibidos();
-
-	for(;;){
-		//ACA SE VA A PROCESAR TODO, DESPUES DE LA CREACION DE LAS DISTINTAS ESTRUCTURAS Y CONEXIONES
-        //int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
-
-	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,PACKAGESIZE,0);
-	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
-	log_info(logMemoria,"%d",envioDeMensajes);
-
-	}
-    exit(0);
+	log_info(logMemoria,"Inicio creacion estructura administrativa frame asignado a proceso");
+	  listaDePidFrames = malloc(sizeof(t_list *));/*ESTA CREACION VA A ESTAR EN EL MAIN*/
+	  listaDePidFrames = list_create();
+	  t_pidFrame *estructuraPidFrame = malloc(sizeof(t_pidFrame*));
+	  int frame = 0;
+	  while(frame < configMemoria.cantidadDeMarcos)
+	  {
+		log_trace(logMemoria,"N° frame:%d",frame);
+		 estructuraPidFrame->frameAsignado = frame;
+		 estructuraPidFrame->pid = -1;// F RAME/MARCO LIBRE
+ 		 list_add(listaDePidFrames,estructuraPidFrame);
+ 		 frame++;
+	  }
+		log_debug(logMemoria,"Fin creacion estructura administrativa frame asignado a proceso");
 }
-
-

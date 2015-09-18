@@ -1,7 +1,11 @@
-[INFO] 13:19:47:192 Administrador de memoria/(12606:12606): Inicio lectura de archivo de configuración
-[INFO] 13:19:47:207 Administrador de memoria/(12606:12606): 64000
-[INFO] 13:19:47:208 Administrador de memoria/(12606:12606): Finalizo lectura de archivo de configuración
-[WARNING] 13:19:47:208 Administrador de memoria/(12606:12606): La TLB no esta activada por configuración
-[INFO] 13:19:47:208 Administrador de memoria/(12606:12606): Comienzo de las diferentes conexiones
-[INFO] 13:19:47:217 Administrador de memoria/(12606:12606): La memoria se conecto satisfactoriamente al SWAP
-[INFO] 13:20:17:731 Administrador de memoria/(12606:12606): 1024
+[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): Inicio lectura de archivo de configuración
+[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): 64000
+[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): Finalizo lectura de archivo de configuración
+[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 20:15:24:753 Administrador de memoria/(5074:5074): La TLB no esta activada por configuración
+[INFO] 20:15:25:368 Administrador de memoria/(5074:5074): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): termino hiloSigUsr1
+[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): Termino hiloSigUsr2
+[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): Comienzo de las diferentes conexiones
+[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): La memoria se conecto satisfactoriamente al SWAP

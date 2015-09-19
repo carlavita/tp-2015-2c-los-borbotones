@@ -31,6 +31,10 @@
 #define ESCRIBIR 13
 
 
+#define OK 14
+#define ERROR 15
+
+
 
 #include <sys/types.h>
 #include <sys/socket.h>

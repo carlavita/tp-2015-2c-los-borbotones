@@ -48,7 +48,7 @@ int main ()  {
 
 /******************* FUNCIONES ELEMENTALES *****************/
 
-void * iniciar(int idProceso ,int cantidadPaginas){
+int iniciar(int idProceso ,int cantidadPaginas){
 
 	/* CASO -1 : HAY ESPACIO PERO NO CONSECUTIVO PARA ASIGNAR PAGINAS
 	 * CASO -2: NO HAY ESPACIO PARA ASIGNAR LA CANTIDAD SOLICITADA
@@ -58,7 +58,8 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 	int paginaInicial;
 	t_tablaProcesos* proceso = malloc(sizeof(t_tablaProcesos));
 	int posicionEnLista;
-	paginaInicial = controlInsercionPaginas(cantidadPaginas);
+	//paginaInicial = controlInsercionPaginas(cantidadPaginas);
+	paginaInicial = 0;
 		switch (paginaInicial)  {
 		case -1: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
 		log_info(logSWAP,"Iniciando Compactacion");
@@ -67,6 +68,7 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 		break;
 	case -2: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
 		log_info(logSWAP,"Proceso mProc rechazado por falta de espacido, su PID es %d", idProceso);
+		return 15;
 		break;
 	default:
 	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
@@ -97,22 +99,21 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 
 			/* INSERTO EN EL DISCO SWAP LAS PAGINAS */
 
-				for (nroPagina= 0; paginaInicial +nroPagina <= cantidadPaginas+paginaInicial;nroPagina++) {
+			/*	for (nroPagina= 0; paginaInicial +nroPagina <= cantidadPaginas+paginaInicial;nroPagina++) {
 			fseek(archivoDisco,((paginaInicial + nroPagina -1)*configuracionSWAP.TamanioPagina), SEEK_SET);
 			fputc('\0',archivoDisco);
-			}
+			}*/
 			/* LOGEO EN INICIAR */
 				log_info(logSWAP,"Proceso mPRoc asignado");
 				log_info(logSWAP,"PID asignado: %d",idProceso);
 				log_info(logSWAP,"Byte Inicial %d",(paginaInicial-1)*configuracionSWAP.TamanioPagina);
 				log_info(logSWAP,"Tamaño en bytes de asignacion %d",cantidadPaginas*configuracionSWAP.TamanioPagina);
-
+				return 14;
 			break;
 	}
-	return NULL;
+		return 0;
 }
-
-void * finalizar (int PID){
+int finalizar (int PID){
 
 	/* OBTENDO LA INFORMACION DEL PRCESO A FINALIZAR Y ALMACENO EN VARIABLES LOCALES */
 	int posicionPIDLista = busquedaPIDEnLista(PID);
@@ -153,7 +154,7 @@ void * finalizar (int PID){
 
 	ordenarLista(); //LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
 
-	return NULL;
+	return 14;
 }
 
 
@@ -335,8 +336,9 @@ bool _ordenamiento_porPaginasLibres(t_tablaPaginasLibres* paginasLibres, t_tabla
 
 /****************** FUNCIONES SOCKETS *****************/
 
-void * escucharMensajes(int servidor){
+void escucharMensajes(int servidor){
 		int mensaje1 = 0;
+		int pid, paginas,status;
 	  t_mensajeHeader mensajeHeader;
 	    mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
 	    printf("mensaje recibido: %d",mensajeHeader.idmensaje);
@@ -344,11 +346,18 @@ void * escucharMensajes(int servidor){
 	    switch (mensajeHeader.idmensaje)
 		{
 			case INICIAR:
-				log_info(logSWAP,"Se recibio mensaje INICIAR!!!!!!!!!!!!!!");
+				log_info(logSWAP,"Se recibio mensaje INICIAR");
 				sleep(10);
 				sendACK(servidor);
-				//send(servidor,"HOLA!",sizeof("HOLA!"),0);
-				sleep(10);
+				recv(servidor,&pid,sizeof(int),0);
+				sendACK(servidor);
+				recv(servidor,&paginas,sizeof(int),0);
+				sendACK(servidor);
+			 status = iniciar(pid,paginas);
+				t_mensajeHeader iniciar;
+					iniciar.idmensaje = status;
+					send(servidor,&iniciar,sizeof(t_mensajeHeader),0);
+				//sleep(10);
 				break;
 			case LEER:
 					//&pid = PID;
@@ -358,68 +367,18 @@ void * escucharMensajes(int servidor){
 
 				break;
 			case FINALIZAR:
-				//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
-				//AVISAR A SWAP, PARA QUE LIBERE TAMBIEN.
+				log_info(logSWAP,"Se recibio mensaje FINALIZAR");
+				sleep(10);
+				sendACK(servidor);
+				recv(servidor,&pid,sizeof(int),0);
+				sendACK(servidor);
+				status = finalizar(pid);
+				t_mensajeHeader finalizar;
+				finalizar.idmensaje = status;
+				send(servidor,&finalizar,sizeof(t_mensajeHeader),0);
 				break;
 			default:
 				log_info(logSWAP,"Mensaje incorrecto");
 		}
 
-	return NULL;
 }
-
-void servidorMemoria(){
-
-	 //printf(" estoy en el hilo servidor de CPU\n");
-	 //todo crear servidor para un cliente Memoria
-	 //log_info(logSWAP,"Dentro del hilo conexion a cpu");
-
-	 	struct addrinfo hints;
-	 	struct addrinfo *serverInfo;
-
-
-	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	escucharMensajes(servidor);
-
-	 	memset(&hints, 0, sizeof(hints));
-	 	hints.ai_family = AF_UNSPEC;		// No importa si uso IPv4 o IPv6
-	 	hints.ai_flags = AI_PASSIVE;		// Asigna el address del localhost: 127.0.0.1
-	 	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
-
-
-	 	//getaddrinfo(NULL, PUERTO, &hints, &serverInfo); // Notar que le pasamos NULL como IP, ya que le indicamos que use localhost en AI_PASSIVE
-	 	//dejo la misma ip de la maquina porque el planificador y la cpu son la misma pc--sino cambiar por ip_planificador
-	 	getaddrinfo(NULL,configuracionSWAP.PuertoEscucha, &hints, &serverInfo);
-
-	 	int listenningSocket;
-	 	listenningSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-
-	 	bind(listenningSocket,serverInfo->ai_addr, serverInfo->ai_addrlen);
-	 	freeaddrinfo(serverInfo); // Ya no lo vamos a necesitar
-
-	 	listen(listenningSocket, BACKLOG);// IMPORTANTE: listen() es una syscall BLOQUEANTE.
-
-	 	struct sockaddr_in addr;			// Esta estructura contendra los datos de la conexion del cliente. IP, puerto, etc.
-	 	socklen_t addrlen = sizeof(addr);
-
-	 	int socketCliente = accept(listenningSocket, (struct sockaddr *) &addr, &addrlen);
-	 	char package[PACKAGESIZE];
-	 	int status = 1;		// Estructura que manejea el status de los recieve.
-
-	 	printf("Memoria conectada. Esperando mensajes:\n");
-	 	log_info(logSWAP,"Memoria conectada");
-
-	 	while (status != 0){
-	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
-	 			if (status != 0) printf("%s", package);
-
-	 	}
-
-	 	close(socketCliente);
-	 	close(listenningSocket);
-	 	printf("Cierro conexion con Memoria \n");
-	 	log_info(logSWAP,"Cierro conexion con Memoria");
-
-
-}
-

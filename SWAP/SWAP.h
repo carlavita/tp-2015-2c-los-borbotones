@@ -55,8 +55,8 @@ void * inicializarListas();
 
 
 /*** FUNCIONES ELEMENTALES ***/
-void * iniciar(int idProceso ,int cantidadPaginas);
-void * finalizar (int PID);
+int iniciar(int idProceso ,int cantidadPaginas);
+int finalizar (int PID);
 char * leer (int PID ,int nroPagina);
 void * escribir (int PID, int nroPagina, char* contenidoPagina);
 void * compactacion();
@@ -65,11 +65,10 @@ void * compactacion();
 int controlInsercionPaginas(int cantidadPaginas) ;
 int busquedaPIDEnLista(int PID);
 int busquedaPaginaEnLista(int numeroPagina);
-void * escucharMensajes(int servidor);
-
 void * ordenarLista();
 
-
+/*** FUNCIONES DE SOCKETS ***/
+void escucharMensajes(int servidor);
 void servidorMemoria();
 
 

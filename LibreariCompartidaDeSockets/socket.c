@@ -181,26 +181,12 @@ int servidorMultiplexor(int PUERTO){
 					}
 					else
 					{
-						if((nbytes = recv(i, paquete, sizeof(paquete), 0)) <= 0)
-						{
-							if(nbytes == 0)
-								printf("Socket %d conexion caida\n", i);
-							else
-								perror("Error recv");
-							close(i);
-							FD_CLR(i, &master);
-						}
-						else
-						{
-							printf("El socket %i escribio: %s con tamanio: %i \n", i, paquete, nbytes); // A partir de aca se recibe el dato y se comienza a utilizar
-							strncpy(buffer,paquete,sizeof(paquete));
-							free(buffer);
 							return fdmax;
 						}
 					}
 				}
 			}
-		}
+
 	exit(0);//el descriptor del cliente seleccionado
 }
 

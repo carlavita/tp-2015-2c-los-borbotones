@@ -60,5 +60,6 @@ typedef struct __attribute__((packed))
 
 // Funciones
 void sendACK(int socket);
+void recvACK(int socket);
 
 #endif /* PROTOCOLO_H_ */

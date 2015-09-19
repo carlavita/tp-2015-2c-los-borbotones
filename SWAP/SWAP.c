@@ -34,7 +34,8 @@ int main ()  {
 	inicializarListas();
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	escucharConexiones(servidor);
+	for (;;){}
+	escucharMensajes(servidor);
 
 
 
@@ -334,7 +335,7 @@ bool _ordenamiento_porPaginasLibres(t_tablaPaginasLibres* paginasLibres, t_tabla
 
 /****************** FUNCIONES SOCKETS *****************/
 
-void * escucharConexiones(int servidor){
+void * escucharMensajes(int servidor){
 		int mensaje1 = 0;
 	  t_mensajeHeader mensajeHeader;
 	    mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
@@ -345,7 +346,8 @@ void * escucharConexiones(int servidor){
 			case INICIAR:
 				log_info(logSWAP,"Se recibio mensaje INICIAR!!!!!!!!!!!!!!");
 				sleep(10);
-				send(servidor,"HOLA!",sizeof("HOLA!"),0);
+				sendACK(servidor);
+				//send(servidor,"HOLA!",sizeof("HOLA!"),0);
 				sleep(10);
 				break;
 			case LEER:
@@ -377,7 +379,7 @@ void servidorMemoria(){
 
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	escucharConexiones(servidor);
+	escucharMensajes(servidor);
 
 	 	memset(&hints, 0, sizeof(hints));
 	 	hints.ai_family = AF_UNSPEC;		// No importa si uso IPv4 o IPv6

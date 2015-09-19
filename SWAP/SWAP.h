@@ -65,7 +65,7 @@ void * compactacion();
 int controlInsercionPaginas(int cantidadPaginas) ;
 int busquedaPIDEnLista(int PID);
 int busquedaPaginaEnLista(int numeroPagina);
-void * escucharConexiones(int servidor);
+void * escucharMensajes(int servidor);
 
 void * ordenarLista();
 

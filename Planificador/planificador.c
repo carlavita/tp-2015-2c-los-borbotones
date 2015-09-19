@@ -27,10 +27,7 @@ int main(void) {
 	/*Inicialicacion*/
 
 	inicializarListas();
-
-	sem_init(&semaforoListos, 0, 0); //Semaforo productor consumidor de prcesos listos
-	sem_init(&semaforoCPU, 0, 0);
-	log_info(logger, "Se inicializaron las listas y los semaforos \n");
+	inicializarSemaforos();
 	/*Hilo Server Planificador*/
 	//todo sincronizar hilos consola y conexion cpu
 	pthread_create(&hiloServer, NULL, (void *) &servidorCPU, NULL);
@@ -59,7 +56,24 @@ void inicializarListas() {
 	BLOQUEADOS = list_create();
 	FINALIZADOS = list_create();
 	listaCPU = list_create();
+	log_info(logger, "Se inicializaron las Listas de planificacion \n");
 
+}
+void inicializarSemaforos(){
+	sem_init(&semaforoListos, 0, 0); //Semaforo productor consumidor de prcesos listos
+	sem_init(&semaforoCPU, 0, 0);
+	pthread_mutex_init(&mutexListaCpu,NULL);
+	pthread_mutex_init(&mutexListas,NULL);
+	pthread_mutex_init(&mutexLog,NULL);
+	log_info(logger, "Se inicializaron los semaforos \n");
+
+}
+void destruirSemaforosYmutex(){
+	sem_destroy(&semaforoListos);
+	sem_destroy(&semaforoCPU);
+	pthread_mutex_destroy(&mutexListaCpu);
+	pthread_mutex_destroy(&mutexListas);
+	pthread_mutex_destroy(&mutexLog);
 }
 void levantarConfiguracion() {
 
@@ -134,6 +148,7 @@ void mostrarConsola(void *ptr) {
 		case 0:
 			log_info(logger, "* Apaga Consola * \n");
 			puts("Gracias por venir, vuelva pronto! :)");
+			// todo: destruir semaforos?
 			esperaEnter();
 			break;
 
@@ -180,8 +195,10 @@ void servidorCPU(void *ptr) {
 
 	if (getaddrinfo(NULL, configPlanificador.puertoEscucha, &hints, &res)
 			!= 0) {
+
 		perror("getaddrinfo");
-		exit(1);
+		//exit(1);
+	//	return 1;al
 
 	}
 
@@ -304,10 +321,16 @@ void handle(int newsock, fd_set *set) {
 
 			break;
 		case PROCIO:
-
+			// todo liberar cpu y sem_post(&semaforoCPU);
 			printf("el proceso esta realizando su entrada-salida\n");
 			ejecutarIO(newsock);
 			break;
+		case FINDEQUANTUM:
+			// todo liberar cpu y sem_post(&semaforoCPU);
+			break;
+		case FINDERAFAGA:
+					// todo liberar cpu y sem_post(&semaforoCPU);
+					break;
 		default:
 			printf("codigo no reconocido\n");
 			break;
@@ -345,10 +368,12 @@ int crearPcb(char* path) {
 	pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
+//	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
 
 	printf("PID mProc: %d \n", pcb->pid);
 	printf("Proxima instruccion mProc: %d \n", pcb->proxInst);
 	printf("Path mProc: %s \n", pcb->pathProc);
+	//printf("Path mProc: %d \n", pcb->cantidadLineas);
 	/*Lo agrega a la lista de listos*/
 	list_add(LISTOS, pcb);
 	printf("PID %d sumado a la cola de ready\n", pcb->pid);
@@ -566,24 +591,27 @@ void ejecutarPS() {
 	while (mProc != NULL) {
 		switch (mProc->status) {
 		case LISTO:
-			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
-					"Listo \n");
+			printf("mProc %d: )", mProc->pid);
+			printf(" %s  -> ", mProc->pathProc);
+			printf("%s \n",	"Listo \n");
+			//printf("%s",mProc->pathProc);
 
 			break;
 		case EJECUTA:
-			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
-					"Ejecutando \n");
-
+			printf("mProc %d: \n)", mProc->pid);
+			printf(" %s  -> \n", mProc->pathProc);
+			printf("%s \n",	"Ejecutando \n");
+			//printf("%s",mProc->pathProc);
 			break;
 		case BLOQUEADO:
 			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
 					"Bloqueado \n");
-
+			//printf("%s",mProc->pathProc);
 			break;
 		case FINALIZADO:
 			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
 					"Finalizado \n");
-
+			//printf("%s",mProc->pathProc);
 			break;
 		default:
 			break;

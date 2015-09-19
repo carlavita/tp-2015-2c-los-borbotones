@@ -17,142 +17,77 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <commons/collections/list.h>
 #include <protocolo.h>
 
 
 
 
-t_log * logSWAP;
-t_config_ProcesoSWAP configuracionSWAP;
-FILE * archivoDisco;
-t_list * listaProcesos;
-t_list * listaPaginasLibres;
-int paginasLibres;
+int main ()  {
+	remove("ArchivoLogueoSWAP.txt");
+	logSWAP = log_create("ArchivoLogueoSWAP.txt","SWAP",true,LOG_LEVEL_INFO);
+	log_info(logSWAP,"Inicio Proceso SWAP");
+
+
+	leerArchivoConfiguracion();
+	paginasLibres = configuracionSWAP.CantidadPaginas;
+	creacionDisco();
+	inicializarListas();
+
+	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
+	escucharConexiones();
 
 
 
-void leerArchivoConfiguracion()
-{
-	t_config* cfgSWAP = malloc(sizeof(t_config));
+	//servidorMemoria();
 
-	log_info(logSWAP,"Leyendo Archivo de Configuracion");
-	cfgSWAP = config_create("archivoConfig.conf");
-	configuracionSWAP.PuertoEscucha = config_get_int_value(cfgSWAP,"PUERTO_ESCUCHA");
-	configuracionSWAP.NombreSwap = config_get_string_value(cfgSWAP,"NOMBRE_SWAP");
-	configuracionSWAP.CantidadPaginas = config_get_int_value(cfgSWAP,"CANTIDAD_PAGINAS");
-	configuracionSWAP.TamanioPagina = config_get_int_value(cfgSWAP,"TAMANIO_PAGINA");
-	configuracionSWAP.RetardoCompactacion = config_get_int_value(cfgSWAP,"RETARDO_COMPACTACION");
-	log_info (logSWAP,"%d",configuracionSWAP.PuertoEscucha);
-	log_info(logSWAP,"Archivo de Configuracion Leido correctamente");
-
-}
-
-void servidorMemoria(){
-
-	 //printf(" estoy en el hilo servidor de CPU\n");
-	 //todo crear servidor para un cliente Memoria
-	 //log_info(logSWAP,"Dentro del hilo conexion a cpu");
-
-	 	struct addrinfo hints;
-	 	struct addrinfo *serverInfo;
-
-	 	memset(&hints, 0, sizeof(hints));
-	 	hints.ai_family = AF_UNSPEC;		// No importa si uso IPv4 o IPv6
-	 	hints.ai_flags = AI_PASSIVE;		// Asigna el address del localhost: 127.0.0.1
-	 	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
-
-	 	//getaddrinfo(NULL, PUERTO, &hints, &serverInfo); // Notar que le pasamos NULL como IP, ya que le indicamos que use localhost en AI_PASSIVE
-	 	//dejo la misma ip de la maquina porque el planificador y la cpu son la misma pc--sino cambiar por ip_planificador
-	 	getaddrinfo(NULL,configuracionSWAP.PuertoEscucha, &hints, &serverInfo);
-
-	 	int listenningSocket;
-	 	listenningSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-
-	 	bind(listenningSocket,serverInfo->ai_addr, serverInfo->ai_addrlen);
-	 	freeaddrinfo(serverInfo); // Ya no lo vamos a necesitar
-
-	 	listen(listenningSocket, BACKLOG);// IMPORTANTE: listen() es una syscall BLOQUEANTE.
-
-	 	struct sockaddr_in addr;			// Esta estructura contendra los datos de la conexion del cliente. IP, puerto, etc.
-	 	socklen_t addrlen = sizeof(addr);
-
-	 	int socketCliente = accept(listenningSocket, (struct sockaddr *) &addr, &addrlen);
-	 	char package[PACKAGESIZE];
-	 	int status = 1;		// Estructura que manejea el status de los recieve.
-
-	 	printf("Memoria conectada. Esperando mensajes:\n");
-	 	log_info(logSWAP,"Memoria conectada");
-
-	 	while (status != 0){
-	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
-	 			if (status != 0) printf("%s", package);
-
-	 	}
-
-	 	close(socketCliente);
-	 	close(listenningSocket);
-	 	printf("Cierro conexion con Memoria \n");
-	 	log_info(logSWAP,"Cierro conexion con Memoria");
-
-
+	exit(0);
 }
 
 
-void * creacionDisco() {
 
-	remove(configuracionSWAP.NombreSwap);
-	char command[1000];
-	char * bytesCrear;
-	int tamanioArchivo = configuracionSWAP.CantidadPaginas * configuracionSWAP.TamanioPagina;
-	bytesCrear = string_itoa(tamanioArchivo);
-
-	log_info(logSWAP,"Creando archivo de tamanio: %d",tamanioArchivo);
-	/* ARMO COMANDO DD DE CREACION DE ARCHIVO DE TAMAÑO FIJO */
-	strcpy(command,"dd if=/dev/zero of=");
-	strcat(command,configuracionSWAP.NombreSwap);
-	strcat(command, " bs=");
-	strcat(command,bytesCrear);
-	strcat(command," count=1");
-
-	/* EJECUTO COMANDO*/
-	system(command);
-	log_info(logSWAP,"Archivo Creado correctamente");
-return NULL;
-}
-
-
+/******************* FUNCIONES ELEMENTALES *****************/
 
 void * iniciar(int idProceso ,int cantidadPaginas){
 
-	/* CASO 0 : HAY ESPACIO PERO NO CONSECUTIVO PARA ASIGNAR PAGINAS
-	 * CASO -1: NO HAY ESPACIO PARA ASIGNAR LA CANTIDAD SOLICITADA
+	/* CASO -1 : HAY ESPACIO PERO NO CONSECUTIVO PARA ASIGNAR PAGINAS
+	 * CASO -2: NO HAY ESPACIO PARA ASIGNAR LA CANTIDAD SOLICITADA
 	 * CASO 2(DEVUELVE LA PRIMER PAGINA ASIGNADA) : HAY ESPACIO Y SE ASIGNA
 	 */
 	int nroPagina;
 	int paginaInicial;
+	t_tablaProcesos* proceso = malloc(sizeof(t_tablaProcesos));
+	int posicionEnLista;
 	paginaInicial = controlInsercionPaginas(cantidadPaginas);
-	switch (paginaInicial)  {
-		case 0: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
+		switch (paginaInicial)  {
+		case -1: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
 		log_info(logSWAP,"Iniciando Compactacion");
 		compactacion();
 		log_info(logSWAP,"Compactacion finalizada");
 		break;
-	case -1: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
+	case -2: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
 		log_info(logSWAP,"Proceso mProc rechazado por falta de espacido, su PID es %d", idProceso);
 		break;
 	default:
 	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
-
+		posicionEnLista = busquedaPaginaEnLista(paginaInicial);
 		/* AGREGO EL PROCESO A LA LISTA*/
-			list_add(listaProcesos,procesoCreate(idProceso,cantidadPaginas,paginaInicial));
+		proceso->pid = idProceso;
+		proceso->cantidadPaginas = cantidadPaginas;
+		proceso->primerPagina = paginaInicial;
+		proceso->ultimaPagina = cantidadPaginas + paginaInicial - 1;
+		proceso->cantidadEscrituras = 0;
+		proceso->cantidadLecturas = 0;
+		list_add(listaProcesos,proceso);
 			paginasLibres = paginasLibres - cantidadPaginas;
 
 			/* ACTUALIZO MI LISTA DE PAGINAS LIBRES */
-			int posicionEnLista = busquedaPaginaEnLista(paginaInicial);
+
 			t_tablaPaginasLibres * paginas = list_get(listaPaginasLibres,posicionEnLista);
-				if (paginas->hastaPagina - paginas->desdePagina == cantidadPaginas){
-					list_remove(listaPaginasLibres,posicionEnLista);
+
+
+				if (paginas->hastaPagina + 1 - paginas->desdePagina == cantidadPaginas){
+					list_remove(listaPaginasLibres,0);
+
 				}
 				else
 				{
@@ -160,7 +95,8 @@ void * iniciar(int idProceso ,int cantidadPaginas){
 				}
 
 			/* INSERTO EN EL DISCO SWAP LAS PAGINAS */
-			for (nroPagina= 0; paginaInicial +nroPagina <= cantidadPaginas+paginaInicial;nroPagina++) {
+
+				for (nroPagina= 0; paginaInicial +nroPagina <= cantidadPaginas+paginaInicial;nroPagina++) {
 			fseek(archivoDisco,((paginaInicial + nroPagina -1)*configuracionSWAP.TamanioPagina), SEEK_SET);
 			fputc('\0',archivoDisco);
 			}
@@ -192,12 +128,19 @@ void * finalizar (int PID){
 
 
 
-	//ACA VA LA ELIMINACION DEL CONTENIDO DEL S WAP DE ESAS PAGINAS
+	//ACA VA LA ELIMINACION DEL CONTENIDO DEL SWAP DE ESAS PAGINAS
 			fseek(archivoDisco,(primerPagina-1)* configuracionSWAP.TamanioPagina,SEEK_SET);
 			fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
 
 	//ELIMINO DE LISTA DE PRCESOS Y AGREGO A LISTA DE PAGINAS LIBRES
-	list_add(listaPaginasLibres,paginasLibresCreate(primerPagina,ultimaPagina));
+		//AGREGO LAS PAGINAS LIBERADAS A LA LISTA
+			t_tablaPaginasLibres *paginas = malloc(sizeof(t_tablaPaginasLibres));
+			paginas->desdePagina = primerPagina;
+			paginas->hastaPagina = ultimaPagina;
+			list_add(listaPaginasLibres,paginas);
+
+		//LIBERO EL PROCESO DE LA LISTA
+
 	list_remove(listaProcesos,posicionPIDLista);
 	paginasLibres = paginasLibres + cantidadPaginas;
 
@@ -262,11 +205,74 @@ void * compactacion(){
 
 
 
+
+
+
+/************** FUNCION CONFIGURACION E INICIALIZACION *************/
+
+void leerArchivoConfiguracion()
+{
+	t_config* cfgSWAP = malloc(sizeof(t_config));
+
+	log_info(logSWAP,"Leyendo Archivo de Configuracion");
+	cfgSWAP = config_create("archivoConfig.conf");
+	configuracionSWAP.PuertoEscucha = config_get_int_value(cfgSWAP,"PUERTO_ESCUCHA");
+	configuracionSWAP.NombreSwap = config_get_string_value(cfgSWAP,"NOMBRE_SWAP");
+	configuracionSWAP.CantidadPaginas = config_get_int_value(cfgSWAP,"CANTIDAD_PAGINAS");
+	configuracionSWAP.TamanioPagina = config_get_int_value(cfgSWAP,"TAMANIO_PAGINA");
+	configuracionSWAP.RetardoCompactacion = config_get_int_value(cfgSWAP,"RETARDO_COMPACTACION");
+	log_info (logSWAP,"%d",configuracionSWAP.PuertoEscucha);
+	log_info(logSWAP,"Archivo de Configuracion Leido correctamente");
+
+}
+
+
+
+void * creacionDisco() {
+
+	remove(configuracionSWAP.NombreSwap);
+	char command[1000];
+	char * bytesCrear;
+	int tamanioArchivo = configuracionSWAP.CantidadPaginas * configuracionSWAP.TamanioPagina;
+	bytesCrear = string_itoa(tamanioArchivo);
+
+	log_info(logSWAP,"Creando archivo de tamanio: %d",tamanioArchivo);
+	/* ARMO COMANDO DD DE CREACION DE ARCHIVO DE TAMAÑO FIJO */
+	strcpy(command,"dd if=/dev/zero of=");
+	strcat(command,configuracionSWAP.NombreSwap);
+	strcat(command, " bs=");
+	strcat(command,bytesCrear);
+	strcat(command," count=1");
+
+	/* EJECUTO COMANDO*/
+	system(command);
+	log_info(logSWAP,"Archivo Creado correctamente");
+return NULL;
+}
+
+void * inicializarListas(){
+	listaProcesos = list_create(); /* CREO MI LISTA ENLAZADA*/
+	listaPaginasLibres = list_create();
+	t_tablaPaginasLibres *paginasLibres = malloc(sizeof(t_tablaPaginasLibres));
+	paginasLibres->desdePagina = 0;
+	paginasLibres->hastaPagina = configuracionSWAP.CantidadPaginas -1 ;
+	list_add(listaPaginasLibres,paginasLibres);
+
+	return NULL;
+}
+
+
+
+
+
+
+/***************** FUNCIONES AUXILIARES Y DE BUSQUEDA **************/
+
 int controlInsercionPaginas(int cantidadPaginas) {
-	int estadoDevuelto = 0;
+	int estadoDevuelto = -1;
 	t_tablaPaginasLibres* pagLibres;
 	if (cantidadPaginas > paginasLibres){
-			estadoDevuelto = -1;
+			estadoDevuelto = -2;
 		}
 	else
 	{
@@ -313,6 +319,7 @@ int busquedaPaginaEnLista(int numeroPagina){
 		paginaLibre = list_get(listaProcesos,posicion);
 		}
 	return posicion;
+
 }
 
 void * ordenarLista(){
@@ -323,32 +330,9 @@ bool _ordenamiento_porPaginasLibres(t_tablaPaginasLibres* paginasLibres, t_tabla
 	return NULL;
 }
 
-void * inicializarListas(){
-	listaProcesos = list_create(); /* CREO MI LISTA ENLAZADA*/
-	listaPaginasLibres = list_create();
-	list_add(listaPaginasLibres,paginasLibresCreate(1,configuracionSWAP.CantidadPaginas));
 
-	return NULL;
-}
 
-int procesoCreate(int PID, int cantidadPaginas, int primeraPagina) {
-	t_tablaProcesos *proceso = malloc(sizeof(t_tablaProcesos));
-proceso->pid = PID;
-proceso->cantidadPaginas = cantidadPaginas;
-proceso->primerPagina = primeraPagina;
-proceso->ultimaPagina = cantidadPaginas + proceso->primerPagina - 1;
-proceso->cantidadEscrituras = 0;
-proceso->cantidadLecturas = 0;
-return proceso ->pid;
-}
-
-void * paginasLibresCreate(int desdePagina, int hastaPagina) {
-	t_tablaPaginasLibres *paginasLibres = malloc(sizeof(t_tablaPaginasLibres));
-paginasLibres->desdePagina = desdePagina;
-paginasLibres->hastaPagina = hastaPagina;
-//return paginasLibres->desdePagina;
-return NULL;
-}
+/****************** FUNCIONES SOCKETS *****************/
 
 void * escucharConexiones(){
 	char *mensajeRecibido = malloc(sizeof(char *));
@@ -377,23 +361,53 @@ void * escucharConexiones(){
 	return NULL;
 }
 
-int main ()  {
-	remove("ArchivoLogueoSWAP.txt");
-	logSWAP = log_create("ArchivoLogueoSWAP.txt","SWAP",true,LOG_LEVEL_INFO);
-	log_info(logSWAP,"Inicio Proceso SWAP");
+void servidorMemoria(){
+
+	 //printf(" estoy en el hilo servidor de CPU\n");
+	 //todo crear servidor para un cliente Memoria
+	 //log_info(logSWAP,"Dentro del hilo conexion a cpu");
+
+	 	struct addrinfo hints;
+	 	struct addrinfo *serverInfo;
+
+	 	memset(&hints, 0, sizeof(hints));
+	 	hints.ai_family = AF_UNSPEC;		// No importa si uso IPv4 o IPv6
+	 	hints.ai_flags = AI_PASSIVE;		// Asigna el address del localhost: 127.0.0.1
+	 	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
+
+	 	//getaddrinfo(NULL, PUERTO, &hints, &serverInfo); // Notar que le pasamos NULL como IP, ya que le indicamos que use localhost en AI_PASSIVE
+	 	//dejo la misma ip de la maquina porque el planificador y la cpu son la misma pc--sino cambiar por ip_planificador
+	 	getaddrinfo(NULL,configuracionSWAP.PuertoEscucha, &hints, &serverInfo);
+
+	 	int listenningSocket;
+	 	listenningSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+
+	 	bind(listenningSocket,serverInfo->ai_addr, serverInfo->ai_addrlen);
+	 	freeaddrinfo(serverInfo); // Ya no lo vamos a necesitar
+
+	 	listen(listenningSocket, BACKLOG);// IMPORTANTE: listen() es una syscall BLOQUEANTE.
+
+	 	struct sockaddr_in addr;			// Esta estructura contendra los datos de la conexion del cliente. IP, puerto, etc.
+	 	socklen_t addrlen = sizeof(addr);
+
+	 	int socketCliente = accept(listenningSocket, (struct sockaddr *) &addr, &addrlen);
+	 	char package[PACKAGESIZE];
+	 	int status = 1;		// Estructura que manejea el status de los recieve.
+
+	 	printf("Memoria conectada. Esperando mensajes:\n");
+	 	log_info(logSWAP,"Memoria conectada");
+
+	 	while (status != 0){
+	 			status = recv(socketCliente, (void*) package, PACKAGESIZE, 0);
+	 			if (status != 0) printf("%s", package);
+
+	 	}
+
+	 	close(socketCliente);
+	 	close(listenningSocket);
+	 	printf("Cierro conexion con Memoria \n");
+	 	log_info(logSWAP,"Cierro conexion con Memoria");
 
 
-	leerArchivoConfiguracion();
-	paginasLibres = configuracionSWAP.CantidadPaginas;
-	creacionDisco();
-	inicializarListas();
-
-	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	escucharConexiones();
-
-
-
-	//servidorMemoria();
-
-	exit(0);
 }
+

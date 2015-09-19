@@ -11,6 +11,7 @@
 #define PUERTO "6008"
 #define PACKAGESIZE 1024
 #define BACKLOG 5
+#include <commons/collections/list.h>
 
 typedef
 struct
@@ -39,21 +40,37 @@ typedef struct
 	int hastaPagina;
 }t_tablaPaginasLibres;
 
+t_log * logSWAP;
+t_config_ProcesoSWAP configuracionSWAP;
+FILE * archivoDisco;
+t_list * listaProcesos;
+t_list * listaPaginasLibres;
+int paginasLibres;
+
+
+/*** FUNCIONES DE INICIALIZACION ***/
 void * creacionDisco();
 void leerArchivoConfiguracion();
-void servidorMemoria();
+void * inicializarListas();
+
+
+/*** FUNCIONES ELEMENTALES ***/
 void * iniciar(int idProceso ,int cantidadPaginas);
 void * finalizar (int PID);
 char * leer (int PID ,int nroPagina);
 void * escribir (int PID, int nroPagina, char* contenidoPagina);
 void * compactacion();
+
+/*** FUNCIONES DE BUSQUEDA Y AUXILIARES***/
 int controlInsercionPaginas(int cantidadPaginas) ;
-int procesoCreate(int PID, int cantidadPaginas, int primeraPagina);
-void * paginasLibresCreate(int desdePagina, int hastaPagina);
 int busquedaPIDEnLista(int PID);
-void * ordenarLista();
-void * inicializarListas();
 int busquedaPaginaEnLista(int numeroPagina);
 void * escucharConexiones(int servidor);
+
+void * ordenarLista();
+
+
+void servidorMemoria();
+
 
 #endif /* SWAP_H_ */

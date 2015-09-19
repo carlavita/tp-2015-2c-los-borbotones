@@ -124,7 +124,7 @@ t_list* listaCPU;
 //Mutex
 pthread_mutex_t mutexListas; //Listas
 pthread_mutex_t mutexListaCpu; //Lista de cpus
-
+pthread_mutex_t mutexLog;//Mutex para archivo de logueo
 // Semáforos
 
 sem_t semaforoListos; // productor - consumidor de listos
@@ -150,10 +150,20 @@ void esperaEnter();
  */
 void servidorCPU(void *ptr); //servidor de cpus
 /**
- * @NAME: inicializar_listas()
+ * @NAME: inicializarListas()
  * @DESC: Crea las listas del planificador
  */
 void inicializarListas(); //listas inicializadas
+/**
+ * @NAME: inicializarSemaforos()
+ * @DESC: Inicializa los semaforos contadores.
+ */
+void inicializarSemaforos();
+/**
+ * @NAME: inicializarSemaforos()
+ * @DESC: Al finalizar el proceso se llama a esta rutina para que destruya todos los semaforos
+ */
+void destruirSemaforosYmutex();
 /**
  * @NAME: correr_path()
  * @DESC: dispara ejecución de un mProc

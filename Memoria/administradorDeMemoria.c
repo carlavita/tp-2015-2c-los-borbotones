@@ -200,18 +200,81 @@ void generarEstructurasAdministrativas(int pid,int paginas)
 
 }
 
+void envioFinalizarSwap(t_mensajeHeader mensajeHeaderSwap, int cliente, int pid,
+		int pagina) {
+	mensajeHeaderSwap.idmensaje = 11;
+	send(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+	recvACK(cliente);
+	send(cliente, &pid, sizeof(int), 0);
+	recvACK(cliente);
+	send(cliente, &pagina, sizeof(int), 0);
+	recvACK(cliente);
+	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+}
+
+void enviarIniciarSwap(int cliente, int pid, int pagina,
+		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
+	avisarAlSwap(cliente);
+	recvACK(cliente);
+	pid = 1;
+	pagina = 4;
+	send(cliente, &pid, sizeof(int), 0);
+	recvACK(cliente);
+	send(cliente, &pagina, sizeof(int), 0);
+	recvACK(cliente);
+	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+	if (mensajeHeaderSwap.idmensaje == 14) {
+		log_info(logMemoria, "Se proceso correctamente el mensaje");
+		send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+	} else if (mensajeHeaderSwap.idmensaje == 15)
+		log_error(logMemoria, "Fallo envio mensaje");
+
+	printf("RECIBI: HOLA! del puto del swap");
+	fflush(stdout);
+}
+
+void comandLeerPrimeraParte(int mensaje1, int servidor, int pagina, int cliente,
+		int pid, int mensaje2) {
+	mensaje1 = recv(servidor, &pagina, sizeof(pagina), 0);
+	while (mensaje1 == -1)
+		mensaje1 = recv(servidor, &pagina, sizeof(pagina), 0);
+	send(cliente, &pid, sizeof(pid), 0);
+	recvACK(cliente);
+	mensaje2 = recv(cliente, "OK", sizeof("OK"), 0); // NO VALE MANDARLO EN MINISCULA O ALGO PARECIDO!
+	while (mensaje2 == -1)
+		mensaje2 = recv(cliente, "OK", sizeof("OK"), 0);
+	send(cliente, &pagina, sizeof(pagina), 0);
+	recvACK(cliente);
+}
+
+void comandoLeerSegundaParte(int cliente, int tamanioDatosSwap, int mensaje3,
+		char mensajeRecibido[PACKAGESIZE], int servidor) {
+	recv(cliente, &tamanioDatosSwap, sizeof(int), 0);
+	sendACK(cliente);
+	char contenido[tamanioDatosSwap];
+	recv(cliente, &contenido, tamanioDatosSwap, 0);
+	mensaje3 = recv(cliente, mensajeRecibido, sizeof(mensajeRecibido), 0);
+	while (mensaje3 == -1)
+		recv(cliente, mensajeRecibido, sizeof(mensajeRecibido), 0);
+	send(servidor, mensajeRecibido, sizeof(mensajeRecibido), 0);
+}
+
 void procesamientoDeMensajes(int cliente,int servidor)
 {
+	int tamanioDatosSwap;
    char mensajeRecibido[PACKAGESIZE];
-   int * pagina = malloc(sizeof(int*));
-   int * pid = malloc(sizeof(int *));
-   int mensaje1, mensaje2, mensaje3, pidRecibido,cantidadDePaginasRecibidas;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
+   int pagina,pid;
+   int mensaje1, mensaje2, mensaje3;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
 //   int mensaje = recv(servidor,mensajeRecibido,sizeof(mensajeRecibido),0); //NUMERO de OPERACION
-   t_mensajeHeader mensajeHeader;
+   t_mensajeHeader mensajeHeader,mensajeHeaderSwap;
     mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
     printf("mensaje recibido: %d",mensajeHeader.idmensaje);
     fflush(stdout);
     log_error(logMemoria,"Mensaje recibido: %d",mensaje1);
+    /*PRUEBA!!!!, SACAR */
+
+
+    /********************/
    if(mensaje1 < 0) log_info(logMemoria,"Error al recibir de la CPU");
    else
    {
@@ -221,44 +284,30 @@ void procesamientoDeMensajes(int cliente,int servidor)
 	   switch (mensajeHeader.idmensaje)
 	{
 		case INICIAR:
-		/*	   pidRecibido = recv(servidor,pid,sizeof(pid),0);
-			   while(pidRecibido == -1)	pidRecibido = recv(servidor,pid,sizeof(pid),0);
-			   cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);
-			   while(cantidadDePaginasRecibidas == -1) cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);*/
-			   //generarEstructurasAdministrativas(*pid,*pagina);
-			   avisarAlSwap(cliente);
-			   recvACK(cliente);
-			   while(mensaje2 == -1)
-				   mensaje2 = recv(cliente,"HOLA!",sizeof("HOLA!"),0);
-			   printf("RECIBI: HOLA! del puto del swap");
-			   fflush(stdout);
+			/*	   pidRecibido = recv(servidor,pid,sizeof(pid),0);
+			 while(pidRecibido == -1)	pidRecibido = recv(servidor,pid,sizeof(pid),0);
+			 cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);
+			 while(cantidadDePaginasRecibidas == -1) cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);*/
+			//generarEstructurasAdministrativas(*pid,*pagina);
+			enviarIniciarSwap(cliente, pid, pagina, mensajeHeaderSwap, servidor,logMemoria);
 			   /*free(pagina);
 			   free(pid);*/
 			break;
 		case LEER:
-
-				mensaje1 = recv(servidor,pagina,sizeof(pagina),0);
-				while(mensaje1 == -1) mensaje1 = recv(servidor,pagina,sizeof(pagina),0);
-				send(cliente,pid,sizeof(pid),0);
-				mensaje2 = recv(cliente,"OK",sizeof("OK"),0);// NO VALE MANDARLO EN MINISCULA O ALGO PARECIDO!
-				while(mensaje2 == -1) mensaje2 = recv(cliente,"OK",sizeof("OK"),0);
-				send(cliente,pagina,sizeof(pagina),0);
-				mensaje3 = recv(cliente,mensajeRecibido,sizeof(mensajeRecibido),0);
-				while(mensaje3 == -1) recv(cliente,mensajeRecibido,sizeof(mensajeRecibido),0);
-				send(servidor,mensajeRecibido,sizeof(mensajeRecibido),0);
-		        free(pagina);
+			comandLeerPrimeraParte(mensaje1, servidor, pagina, cliente, pid,mensaje2);
+			comandoLeerSegundaParte(cliente, tamanioDatosSwap, mensaje3,mensajeRecibido, servidor);
 			break;
 		case ESCRIBIR:
 
 			break;
 		case FINALIZAR:
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
-			//AVISAR A SWAP, PARA QUE LIBERE TAMBIEN.
+			envioFinalizarSwap(mensajeHeaderSwap, cliente, pid, pagina);
 			break;
 		default:
 			log_info(logMemoria,"Mensaje incorrecto");
 	}
-   }
+  }
 }
 
 void creacionHilos(t_log* logMemoria) {

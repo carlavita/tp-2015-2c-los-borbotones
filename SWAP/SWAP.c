@@ -34,8 +34,10 @@ int main ()  {
 	inicializarListas();
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	for (;;){}
-	escucharMensajes(servidor);
+	for (;;){
+		escucharMensajes(servidor);
+			}
+
 
 
 
@@ -360,7 +362,18 @@ void escucharMensajes(int servidor){
 				//sleep(10);
 				break;
 			case LEER:
-					//&pid = PID;
+				log_info(logSWAP,"Se recibio mensaje INICIAR");
+
+				sendACK(servidor);
+				recv(servidor,&pid,sizeof(int),0);sendACK(servidor);
+				sendACK(servidor);
+				recv(servidor,&paginas,sizeof(int),0);
+				sendACK(servidor);
+				char * contenido = leer(pid,paginas);
+				int tamanio = string_length(contenido);
+				send(servidor,tamanio, sizeof(int),0);
+				recvACK(servidor);
+				send(servidor,contenido,strlen(contenido),0);
 
 				break;
 			case ESCRIBIR:

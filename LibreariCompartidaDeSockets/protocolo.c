@@ -13,4 +13,10 @@ void sendACK(int socket)
 	send(socket,&ack,sizeof(t_mensajeHeader),0);
 }
 
+void recvACK(int socket)
+{
+	t_mensajeHeader ack;
+	ack.idmensaje = ACK;
+	recv(socket,&ack,sizeof(t_mensajeHeader),0);
+}
 

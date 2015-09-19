@@ -66,19 +66,8 @@ int main()
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
 
 //	generarTablaDePaginas(memoriaReservadaDeMemPpal);
-	procesamientoDeMensajes(clienteSwap, servidorCPU);
-	recibidoPorLaMemoria = datosRecibidos();
+	for(;;) procesamientoDeMensajes(clienteSwap,servidorCPU);
 
-	for(;;){
-		//ACA SE VA A PROCESAR TODO, DESPUES DE LA CREACION DE LAS DISTINTAS ESTRUCTURAS Y CONEXIONES
-        //int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
-
-	int envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,PACKAGESIZE,0);
-	while(envioDeMensajes == -1) envioDeMensajes = send(clienteSwap,recibidoPorLaMemoria,sizeof(recibidoPorLaMemoria),0);
-	log_info(logMemoria,"%d",envioDeMensajes);
-
-	}
-    exit(0);
 }
 
 
@@ -179,11 +168,11 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
 	   pagina++;
    }
 }
-void generarCantidadDeFramesAsignadosAlProceso(int pid)
+void generarCantidadDeFramesAsignadosAlProceso(int pid,int cantidadDePaginas)
 {
   int frame = listaDePidFrames->elements_count-1;//EMPIEZA EN 0
   t_pidFrame * estrucPidFrame = malloc(sizeof(t_pidFrame*));
-  while( frame < configMemoria.maximoMarcosPorProceso)
+  while( frame < cantidadDePaginas)
   	  {
 	  estrucPidFrame = list_find(listaDePidFrames,(void*)(listaDePidFrames->head->data == &frame));
 	  estrucPidFrame->pid = pid;
@@ -193,45 +182,61 @@ void generarCantidadDeFramesAsignadosAlProceso(int pid)
 }
 void avisarAlSwap(int clienteSwap)
 {
-	send(clienteSwap,"Inicio mProc",sizeof("Inicio mProc"),0);
+	 t_mensajeHeader mensajeHeader;
+	 mensajeHeader.idmensaje = 10;
+	send(clienteSwap,&mensajeHeader,sizeof(t_mensajeHeader),0);
 }
 void generarEstructurasAdministrativas(int pid,int paginas)
 {
 
   if(configMemoria.maximoMarcosPorProceso < paginas)
   {
-	  generarCantidadDeFramesAsignadosAlProceso(pid);
+	  generarCantidadDeFramesAsignadosAlProceso(pid,paginas);
   }
   else
   {
-
+	  generarCantidadDeFramesAsignadosAlProceso(pid,configMemoria.maximoMarcosPorProceso);
   }
 
 }
+
 void procesamientoDeMensajes(int cliente,int servidor)
 {
    char mensajeRecibido[PACKAGESIZE];
    int * pagina = malloc(sizeof(int*));
    int * pid = malloc(sizeof(int *));
-   int mensaje1, mensaje2, mensaje3;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
-   int mensaje = recv(servidor,mensajeRecibido,sizeof(PACKAGESIZE),0);
-   if(mensaje == -1)
-	   log_info(logMemoria,"Error al recibir de la CPU");
+   int mensaje1, mensaje2, mensaje3, pidRecibido,cantidadDePaginasRecibidas;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
+//   int mensaje = recv(servidor,mensajeRecibido,sizeof(mensajeRecibido),0); //NUMERO de OPERACION
+   t_mensajeHeader mensajeHeader;
+    mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
+    printf("mensaje recibido: %d",mensajeHeader.idmensaje);
+    fflush(stdout);
+    log_error(logMemoria,"Mensaje recibido: %d",mensaje1);
+   if(mensaje1 < 0) log_info(logMemoria,"Error al recibir de la CPU");
    else
    {
-	   char * m = malloc(sizeof(char *));
-	   strncpy(m,mensajeRecibido,sizeof(PACKAGESIZE));
-	switch ((int)&m)
+	  // char * m = malloc(sizeof(char *));
+	   //strncpy(m,mensajeRecibido,sizeof(mensajeRecibido));
+	//switch ((int)m)
+	   switch (mensajeHeader.idmensaje)
 	{
 		case INICIAR:
-				recv(servidor,pid,sizeof(pid),0);
-				recv(servidor,pagina,sizeof(pagina),0);
-				generarEstructurasAdministrativas(*pid,*pagina);
-				avisarAlSwap(cliente);
-
+		/*	   pidRecibido = recv(servidor,pid,sizeof(pid),0);
+			   while(pidRecibido == -1)	pidRecibido = recv(servidor,pid,sizeof(pid),0);
+			   cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);
+			   while(cantidadDePaginasRecibidas == -1) cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);*/
+			   //generarEstructurasAdministrativas(*pid,*pagina);
+			   avisarAlSwap(cliente);
+			   recvACK(cliente);
+			   while(mensaje2 == -1)
+				   mensaje2 = recv(cliente,"HOLA!",sizeof("HOLA!"),0);
+			   printf("RECIBI: HOLA! del puto del swap");
+			   fflush(stdout);
+			   /*free(pagina);
+			   free(pid);*/
 			break;
 		case LEER:
-				//&pid = PID;
+
 				mensaje1 = recv(servidor,pagina,sizeof(pagina),0);
 				while(mensaje1 == -1) mensaje1 = recv(servidor,pagina,sizeof(pagina),0);
 				send(cliente,pid,sizeof(pid),0);
@@ -253,7 +258,6 @@ void procesamientoDeMensajes(int cliente,int servidor)
 		default:
 			log_info(logMemoria,"Mensaje incorrecto");
 	}
-	free(m);
    }
 }
 

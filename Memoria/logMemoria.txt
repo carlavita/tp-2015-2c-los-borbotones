@@ -1,11 +1,12 @@
-[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): Inicio lectura de archivo de configuración
-[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): 64000
-[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): Finalizo lectura de archivo de configuración
-[INFO] 20:15:24:753 Administrador de memoria/(5074:5074): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 20:15:24:753 Administrador de memoria/(5074:5074): La TLB no esta activada por configuración
-[INFO] 20:15:25:368 Administrador de memoria/(5074:5074): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): termino hiloSigUsr1
-[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): Termino hiloSigUsr2
-[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): Comienzo de las diferentes conexiones
-[INFO] 20:15:25:392 Administrador de memoria/(5074:5074): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): Inicio lectura de archivo de configuración
+[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): 64000
+[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): Finalizo lectura de archivo de configuración
+[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 12:20:08:293 Administrador de memoria/(7936:7936): La TLB no esta activada por configuración
+[INFO] 12:20:08:293 Administrador de memoria/(7936:7936): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): termino hiloSigUsr1
+[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): Termino hiloSigUsr2
+[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): Comienzo de las diferentes conexiones
+[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): La memoria se conecto satisfactoriamente al SWAP
+[ERROR] 12:20:29:73 Administrador de memoria/(7936:7936): Mensaje recibido: 4

@@ -93,8 +93,12 @@ void Conexion_con_planificador(){
 						printf("recibido el mensaje correr path desde el planificador\n");
 						printf("reenvío mensaje a memoria\n");
 						strcpy(message,"Correr path\n");
-
-						status = send(serverMemoria, message, strlen(message) + 1, 0);
+						/*SACAR*/
+						t_mensajeHeader inicia;
+						inicia.idmensaje = INICIAR;
+						status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+/*SACAR*/
+						//status = send(serverMemoria, message, strlen(message) + 1, 0);
 
 						break;
 					case SALUDO:
@@ -109,6 +113,10 @@ void Conexion_con_planificador(){
 						printf("recibido el contexto del proceso de planificador con su id %d \n",pcbProc.pid);
 						printf("recibido el contexto del proceso de planificador con su path %s \n",pcbProc.pathProc);
 						printf("recibido el contexto del proceso de planificador\n");
+ //todo prueba borrar!
+						t_mensajeHeader inicia1;
+						inicia.idmensaje = INICIAR;
+						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
 
 						break;
 
@@ -176,13 +184,13 @@ char *parsearLinea(char * lineaLeida){
 
 void *ejecucion (void *ptr);
 void *ejecucion (void *ptr){
-	FILE *fd;
-	fd = fopen("/home/utnso/codigo/test.cod","r");
+//FILE *fd;
+	//fd = fopen("/home/utnso/codigo/test.cod","r");
 	iniciar(3,12);
 	escribir(3,"HOLA",12);
 	leer(3,12);
 	finalizar(12);
-	fclose(fd);
+	//fclose(fd);
 	return 0;
 }
 

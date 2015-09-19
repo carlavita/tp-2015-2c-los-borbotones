@@ -54,6 +54,6 @@ int busquedaPIDEnLista(int PID);
 void * ordenarLista();
 void * inicializarListas();
 int busquedaPaginaEnLista(int numeroPagina);
-void * escucharConexiones();
+void * escucharConexiones(int servidor);
 
 #endif /* SWAP_H_ */

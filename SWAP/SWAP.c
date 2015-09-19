@@ -350,13 +350,19 @@ paginasLibres->hastaPagina = hastaPagina;
 return NULL;
 }
 
-void * escucharConexiones(){
-	char *mensajeRecibido = malloc(sizeof(char *));
-	strncpy(mensajeRecibido,datosRecibidos(),sizeof(PACKAGESIZE));
-	switch ((int)&mensajeRecibido)
+void * escucharConexiones(int servidor){
+		int mensaje1 = 0;
+	  t_mensajeHeader mensajeHeader;
+	    mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
+	    printf("mensaje recibido: %d",mensajeHeader.idmensaje);
+	    fflush(stdout);
+	    switch (mensajeHeader.idmensaje)
 		{
 			case INICIAR:
-
+				log_info(logSWAP,"Se recibio mensaje INICIAR!!!!!!!!!!!!!!");
+				sleep(10);
+				send(servidor,"HOLA!",sizeof("HOLA!"),0);
+				sleep(10);
 				break;
 			case LEER:
 					//&pid = PID;
@@ -372,7 +378,6 @@ void * escucharConexiones(){
 			default:
 				log_info(logSWAP,"Mensaje incorrecto");
 		}
-		free(mensajeRecibido);
 
 	return NULL;
 }
@@ -389,7 +394,7 @@ int main ()  {
 	inicializarListas();
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	escucharConexiones();
+	escucharConexiones(servidor);
 
 
 

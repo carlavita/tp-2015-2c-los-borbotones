@@ -228,3 +228,85 @@ int main ()  {
 
     return 0; //CARLA AMOR Y PAZ POR MI 0 :D
 }
+void parsermCod(char *path){
+	FILE* fid;
+	if ((fid = fopen(path, "r")) == NULL) {
+		printf("Error al abrir el archivo \n");
+	}else{
+
+	char *p;
+
+	char string[100];
+
+	while (!feof(fid)) //Recorre el archivo
+	{
+		fgets(string, 100, fid);
+
+		p = strtok(string, ";");
+
+
+		if (p != NULL) {
+			char *string = string_new();
+			string_append(&string, p);
+			char** substrings = string_split(string, " ");
+
+			if (esIniciar(substrings[0])) {
+				printf("comando iniciar, parametro %d \n", atoi(substrings[1]));
+				free(substrings[0]);
+				free(substrings[1]);
+				free(substrings);
+			}
+			if (esLeer(substrings[0])) {
+				printf("comando leer, parametro %d \n", atoi(substrings[1]));
+				free(substrings[0]);
+				free(substrings[1]);
+				free(substrings);
+			}
+			if (esEscribir(substrings[0])) {
+				printf("comando Escribir, parametros %d  %s \n",
+						atoi(substrings[1]), substrings[2]);
+				/*
+				free(substrings[0]);
+				free(substrings[1]);
+				free(substrings[2]);
+				free(substrings);
+			*/}
+			if (esIO(substrings[0])) {
+				printf("comando entrada salida, parametro %d \n",
+						atoi(substrings[1]));
+				free(substrings[0]);
+				free(substrings[1]);
+				free(substrings);
+			}
+			if (esFinalizar(substrings[0])) {
+							printf("comando Finalizar no tiene parametros \n");
+							free(substrings[0]);
+							free(substrings);
+						}
+
+
+		}
+
+
+	}
+	fclose(fid);
+
+}
+}
+
+bool esLeer(char* linea) {
+	return string_starts_with(linea, TOKENLEER);
+}
+bool esEscribir(char* linea) {
+	return string_starts_with(linea, TOKENESCRIBIR);
+}
+
+bool esIniciar(char* linea) {
+	return string_starts_with(linea, TOKENINICIAR);
+}
+bool esIO(char* linea) {
+	return string_starts_with(linea, TOKENIO);
+}
+bool esFinalizar(char* linea) {
+	return string_starts_with(linea, TOKENFINALIZAR);
+}

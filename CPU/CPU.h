@@ -30,6 +30,12 @@
 #define PATH_CONFIG "archivoConfig.conf"
 #define PATH_LOG "ArchivoLogueoCPU.txt"
 
+#define TOKENINICIAR "iniciar"
+#define TOKENLEER "leer"
+#define TOKENESCRIBIR "escribir"
+#define TOKENFINALIZAR "finalizar"
+#define TOKENIO "entrada-salida"
+
 
 typedef struct
 {
@@ -55,4 +61,11 @@ int conexion_con_memoria();
 int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
 char *parsearLinea(char * lineaLeida);
 
+//Funciones para parser
+bool esLeer(char* linea);
+bool esIniciar(char* linea);
+bool esFinalizar(char* linea);
+bool esEscribir(char* linea);
+bool esIO(char* linea);
+void parsermCod(char *path);// Abre el path y parsea el contenido completo
 #endif /* CPU_H_ */

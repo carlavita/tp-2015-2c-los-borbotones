@@ -33,6 +33,7 @@ int main ()  {
 	creacionDisco();
 	inicializarListas();
 	archivoDisco = fopen (configuracionSWAP.NombreSwap, "rw");
+
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	for (;;){
 		escucharMensajes(servidor);
@@ -60,9 +61,8 @@ int iniciar(int idProceso ,int cantidadPaginas){
 	int paginaInicial;
 	t_tablaProcesos* proceso = malloc(sizeof(t_tablaProcesos));
 	int posicionEnLista;
-	//paginaInicial = controlInsercionPaginas(cantidadPaginas);
-	paginaInicial = 0;
-		switch (paginaInicial)  {
+	paginaInicial = controlInsercionPaginas(cantidadPaginas);
+	switch (paginaInicial)  {
 		case -1: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
 		log_info(logSWAP,"Iniciando Compactacion");
 		compactacion();
@@ -102,7 +102,7 @@ int iniciar(int idProceso ,int cantidadPaginas){
 			/* LOGEO EN INICIAR */
 				log_info(logSWAP,"Proceso mPRoc asignado");
 				log_info(logSWAP,"PID asignado: %d",idProceso);
-				log_info(logSWAP,"Byte Inicial %d",(paginaInicial-1)*configuracionSWAP.TamanioPagina);
+				log_info(logSWAP,"Byte Inicial %d",paginaInicial*configuracionSWAP.TamanioPagina);
 				log_info(logSWAP,"Tamaño en bytes de asignacion %d",cantidadPaginas*configuracionSWAP.TamanioPagina);
 				return 14;
 			break;
@@ -119,7 +119,7 @@ int finalizar (int PID){
 	int cantidadEscrituras = procesoFinalizado->cantidadEscrituras ;
 	int cantidadLecturas = procesoFinalizado->cantidadLecturas ;
 	int ultimaPagina = procesoFinalizado->ultimaPagina ;
-	int bytesUsadosPorPID = ((ultimaPagina - primerPagina) * configuracionSWAP.TamanioPagina) - 1;
+	int bytesUsadosPorPID = ((ultimaPagina + 1 - primerPagina) * configuracionSWAP.TamanioPagina);
 	//char * contenido = '\0';
 	char * contenido = string_repeat('\0',bytesUsadosPorPID);
 
@@ -299,7 +299,7 @@ int busquedaPIDEnLista(int PID){
 	int posicion = 0;
 	t_tablaProcesos* proceso;
 	proceso = list_get(listaProcesos,posicion);
-	while (!proceso->pid == PID) {
+	while (proceso->pid != PID) {
 		posicion++;
 		proceso = list_get(listaProcesos,posicion);
 		}
@@ -310,7 +310,7 @@ int busquedaPaginaEnLista(int numeroPagina){
 	int posicion = 0;
 	t_tablaPaginasLibres* paginaLibre;
 	paginaLibre = list_get(listaPaginasLibres,posicion);
-	while (!paginaLibre->desdePagina == numeroPagina) {
+	while (paginaLibre->desdePagina != numeroPagina) {
 		posicion++;
 		paginaLibre = list_get(listaProcesos,posicion);
 		}

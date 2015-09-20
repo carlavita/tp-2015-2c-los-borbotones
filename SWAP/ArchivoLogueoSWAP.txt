@@ -1,14 +1,14 @@
-[INFO] 22:23:24:967 SWAP/(9713:9713): Inicio Proceso SWAP
-[INFO] 22:23:25:152 SWAP/(9713:9713): Leyendo Archivo de Configuracion
-[INFO] 22:23:25:153 SWAP/(9713:9713): 6000
-[INFO] 22:23:25:153 SWAP/(9713:9713): Archivo de Configuracion Leido correctamente
-[INFO] 22:23:25:789 SWAP/(9713:9713): Creando archivo de tamanio: 131072
-[INFO] 22:23:25:836 SWAP/(9713:9713): Archivo Creado correctamente
-[INFO] 22:23:59:976 SWAP/(9713:9713): Proceso mPRoc asignado
-[INFO] 22:24:00:468 SWAP/(9713:9713): PID asignado: 1
-[INFO] 22:24:00:834 SWAP/(9713:9713): Byte Inicial 0
-[INFO] 22:24:01:391 SWAP/(9713:9713): Tamaño en bytes de asignacion 131072
-[INFO] 22:24:03:990 SWAP/(9713:9713): Proceso mPRoc liberado
-[INFO] 22:24:03:991 SWAP/(9713:9713): PID liberado: 1
-[INFO] 22:24:03:991 SWAP/(9713:9713): Byte Inicial 0
-[INFO] 22:24:03:991 SWAP/(9713:9713): Tamaño en bytes liberados 130815
+[INFO] 16:11:10:463 SWAP/(2919:2919): Inicio Proceso SWAP
+[INFO] 16:11:10:726 SWAP/(2919:2919): Leyendo Archivo de Configuracion
+[INFO] 16:11:10:744 SWAP/(2919:2919): 6000
+[INFO] 16:11:10:744 SWAP/(2919:2919): Archivo de Configuracion Leido correctamente
+[INFO] 16:11:11:423 SWAP/(2919:2919): Creando archivo de tamanio: 131072
+[INFO] 16:11:11:468 SWAP/(2919:2919): Archivo Creado correctamente
+[INFO] 16:11:15:955 SWAP/(2919:2919): Proceso mPRoc asignado
+[INFO] 16:11:15:955 SWAP/(2919:2919): PID asignado: 1
+[INFO] 16:11:15:955 SWAP/(2919:2919): Byte Inicial 0
+[INFO] 16:11:15:956 SWAP/(2919:2919): Tamaño en bytes de asignacion 1280
+[INFO] 16:12:09:698 SWAP/(2919:2919): Proceso mPRoc asignado
+[INFO] 16:12:11:7 SWAP/(2919:2919): PID asignado: 2
+[INFO] 16:12:12:67 SWAP/(2919:2919): Byte Inicial 1280
+[INFO] 16:12:12:691 SWAP/(2919:2919): Tamaño en bytes de asignacion 2560

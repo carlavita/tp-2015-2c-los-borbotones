@@ -1,0 +1,8 @@
+iniciar 10;
+leer 20;
+leer 22;
+escribir 200 "textoloco";
+entrada-salida 90;
+leer 28;
+escribir 30 "saraza";
+finalizar  2;

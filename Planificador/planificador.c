@@ -17,13 +17,17 @@ int main(void) {
 	/*Log*/
 	remove(PATHLOG);
 	logger = log_create(PATHLOG, "Planificador", true, LOG_LEVEL_INFO);
+	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Iniciando proceso planificador");
-
+	log_info(logger, "Leyendo Archivo de Configuracion");
+	pthread_mutex_unlock(&mutexLog);
 	/*Archivo de configuración*/
 
-	log_info(logger, "Leyendo Archivo de Configuracion");
 	levantarConfiguracion();
+	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Archivo de Configuracion Leido correctamente");
+	pthread_mutex_unlock(&mutexLog);
+
 	/*Inicialicacion*/
 
 	inicializarListas();
@@ -56,19 +60,23 @@ void inicializarListas() {
 	BLOQUEADOS = list_create();
 	FINALIZADOS = list_create();
 	listaCPU = list_create();
+	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Se inicializaron las Listas de planificacion \n");
+	pthread_mutex_unlock(&mutexLog);
 
 }
-void inicializarSemaforos(){
+void inicializarSemaforos() {
 	sem_init(&semaforoListos, 0, 0); //Semaforo productor consumidor de prcesos listos
 	sem_init(&semaforoCPU, 0, 0);
-	pthread_mutex_init(&mutexListaCpu,NULL);
-	pthread_mutex_init(&mutexListas,NULL);
-	pthread_mutex_init(&mutexLog,NULL);
+	pthread_mutex_init(&mutexListaCpu, NULL);
+	pthread_mutex_init(&mutexListas, NULL);
+	pthread_mutex_init(&mutexLog, NULL);
+	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Se inicializaron los semaforos \n");
+	pthread_mutex_unlock(&mutexLog);
 
 }
-void destruirSemaforosYmutex(){
+void destruirSemaforosYmutex() {
 	sem_destroy(&semaforoListos);
 	sem_destroy(&semaforoCPU);
 	pthread_mutex_destroy(&mutexListaCpu);
@@ -76,8 +84,10 @@ void destruirSemaforosYmutex(){
 	pthread_mutex_destroy(&mutexLog);
 }
 void levantarConfiguracion() {
-
+	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Lectura de variables del archivo de configuracion");
+	pthread_mutex_unlock(&mutexLog);
+
 	t_config * CONFIG = config_create(PATH_CONFIG);
 
 	if (CONFIG != NULL) {
@@ -117,7 +127,7 @@ void mostrarConsola(void *ptr) {
 		switch (option) {
 		case 1:
 //todo:descomentar			system("clear");
-//todo
+
 			correrPath();
 			printf(
 					"soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
@@ -146,7 +156,11 @@ void mostrarConsola(void *ptr) {
 			break;
 
 		case 0:
+			pthread_mutex_lock(&mutexLog);
+
 			log_info(logger, "* Apaga Consola * \n");
+			pthread_mutex_unlock(&mutexLog);
+
 			puts("Gracias por venir, vuelva pronto! :)");
 			// todo: destruir semaforos?
 			esperaEnter();
@@ -173,8 +187,10 @@ void esperaEnter() {
 void servidorCPU(void *ptr) {
 
 	printf(" estoy en el hilo servidor de CPU\n");
-	//todo crear servidor para un cliente cpu...despues multiplexamos a las distintas cpus
+
+	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Dentro del hilo conexion a cpu");
+	pthread_mutex_unlock(&mutexLog);
 
 	int sock; //socket asociado a CPU
 	fd_set socks;
@@ -185,7 +201,6 @@ void servidorCPU(void *ptr) {
 
 	/*Inicializa fd set*/
 	//		fd_set temp;
-
 	/* Genera socket y multiplexa conexiones con select*/
 
 	/* Get the address info */
@@ -198,7 +213,7 @@ void servidorCPU(void *ptr) {
 
 		perror("getaddrinfo");
 		//exit(1);
-	//	return 1;al
+		//	return 1;al
 
 	}
 
@@ -243,7 +258,9 @@ void servidorCPU(void *ptr) {
 		readsocks = socks;
 
 		printf("Escucha pedidos de CPU \n");
+		pthread_mutex_lock(&mutexLog);
 		log_info(logger, "Escuchando conexiones \n ");
+		pthread_mutex_unlock(&mutexLog);
 
 		if (select(maxsock + 1, &readsocks, NULL, NULL, NULL) == -1) {
 			perror("select");
@@ -321,16 +338,20 @@ void handle(int newsock, fd_set *set) {
 
 			break;
 		case PROCIO:
-			// todo liberar cpu y sem_post(&semaforoCPU);
+			// todo liberar cpu y sem_post(&semaforoCPU); aca tambien me vas a tener que pasar como si fuera fin de rafaga
 			printf("el proceso esta realizando su entrada-salida\n");
 			ejecutarIO(newsock);
 			break;
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
+
+			pthread_mutex_lock(&mutexLog);
+			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
+			pthread_mutex_unlock(&mutexLog);
 			break;
 		case FINDERAFAGA:
-					// todo liberar cpu y sem_post(&semaforoCPU);
-					break;
+			// todo liberar cpu y sem_post(&semaforoCPU);
+			break;
 		default:
 			printf("codigo no reconocido\n");
 			break;
@@ -341,7 +362,9 @@ void handle(int newsock, fd_set *set) {
 	if (!status) {
 		// conexión cerrada
 		printf("la conexion del socket: %d termino \n", newsock);
+		pthread_mutex_lock(&mutexLog);
 		log_info(logger, "Cierro conexion con CPU");
+		pthread_mutex_unlock(&mutexLog);
 		close(newsock); // ¡Hasta luego!
 		FD_CLR(newsock, set); // eliminar del conjunto maestro
 	}
@@ -361,22 +384,34 @@ void correrPath() {
 
 int crearPcb(char* path) {
 
-	t_pcb* pcb = malloc(sizeof(t_pcb*));
+	//t_pcb* pcb = malloc(sizeof(t_pcb*));
+	t_pcb* pcb = malloc(sizeof(t_pcb));
 	pthread_mutex_lock(&mutexListas);
 	PID++;
 	pcb->pid = PID;
 	pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
-//	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
+	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
 
 	printf("PID mProc: %d \n", pcb->pid);
 	printf("Proxima instruccion mProc: %d \n", pcb->proxInst);
 	printf("Path mProc: %s \n", pcb->pathProc);
-	//printf("Path mProc: %d \n", pcb->cantidadLineas);
+	printf("Path mProc: %d \n", pcb->cantidadLineas);
 	/*Lo agrega a la lista de listos*/
 	list_add(LISTOS, pcb);
-	printf("PID %d sumado a la cola de ready\n", pcb->pid);
+	t_pcb *mProc = list_get(LISTOS, 0);
+
+	/*printf("PID %d sumado a la cola de ready\n", pcb->pid);
+	printf("PID mProc despues: %d \n", mProc->pid);
+	printf("Proxima instruccion mProc: %d \n", mProc->proxInst);
+	printf("Path mProc: %s \n", mProc->pathProc);
+	printf("Path mProc: %d \n", mProc->cantidadLineas);
+*/
+	pthread_mutex_lock(&mutexLog);
+	log_info(logger, "PID creado %d , path %s \n", pcb->pid, pcb->pathProc);
+	pthread_mutex_unlock(&mutexLog);
+
 	pthread_mutex_unlock(&mutexListas);
 	sem_post(&semaforoListos); //Habilita al planificador
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
@@ -417,7 +452,7 @@ void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
 	 list_add(EJECUTANDO,pcb);
 	 pthread_mutex_unlock(&mutexListas);*/
 
-	//cpu->pid = pcb->pid; //todo, ver si me sirve que la cpu tenga el pid
+	//cpu->pid = pcb->pid;
 	// todo enviarPcb(cpu->socket,pcb );
 }
 
@@ -573,10 +608,10 @@ void ejecutarPS() {
 	int cantidadListos = list_size(LISTOS);
 	int cantidadEjecutando = list_size(EJECUTANDO);
 
-	printf("Cantidad de listos : %d \n , cantidad de ejecutando: %d \n ",
-			cantidadListos, cantidadEjecutando);
-	list_add_all(PROCESOS, LISTOS);
+	printf("Cantidad de listos : %d \n;  ", cantidadListos);
+	printf("Cantidad de ejecutando: %d \n ", cantidadEjecutando);
 
+	list_add_all(PROCESOS, LISTOS);
 	list_add_all(PROCESOS, EJECUTANDO);
 	list_add_all(PROCESOS, BLOQUEADOS);
 	list_add_all(PROCESOS, FINALIZADOS);
@@ -591,16 +626,14 @@ void ejecutarPS() {
 	while (mProc != NULL) {
 		switch (mProc->status) {
 		case LISTO:
-			printf("mProc %d: )", mProc->pid);
-			printf(" %s  -> ", mProc->pathProc);
-			printf("%s \n",	"Listo \n");
+			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
+					"Listo \n");
 			//printf("%s",mProc->pathProc);
 
 			break;
 		case EJECUTA:
-			printf("mProc %d: \n)", mProc->pid);
-			printf(" %s  -> \n", mProc->pathProc);
-			printf("%s \n",	"Ejecutando \n");
+			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
+					"Ejecutando \n");
 			//printf("%s",mProc->pathProc);
 			break;
 		case BLOQUEADO:
@@ -617,7 +650,6 @@ void ejecutarPS() {
 			break;
 		}
 //			printf("mProc %d: %s  ->  %d \n", mProc->pid, mProc->pathProc, mProc->status);
-		//todo pasar el int y que muestre el nombre del estado. loguear
 
 		indexLista++;
 		mProc = list_get(PROCESOS, indexLista);
@@ -656,26 +688,26 @@ void ejecutarCPU() {
 
 }
 
-void finalizarPid(){
+void finalizarPid() {
 
-	        int idProc;
-	        printf("Ingrese el ID del mCod a finalizar \n");
-	        scanf("%d",&idProc);
-	        printf("el proceso con id: %d del mCod finalizará \n",idProc);
+	int idProc;
+	printf("Ingrese el ID del mCod a finalizar \n");
+	scanf("%d", &idProc);
+	printf("el proceso con id: %d del mCod finalizará \n", idProc);
 
-	        //el puntero de instrucciones tiene que posicionarse en la ultima del programa mCod en ejecucion
-	        pthread_mutex_lock(&mutexListas);
+	//el puntero de instrucciones tiene que posicionarse en la ultima del programa mCod en ejecucion
+	pthread_mutex_lock(&mutexListas);
 
-	        t_pcb* pcbProc;
-	        pcbProc = buscarEnListaPorPID(EJECUTANDO,idProc);
-	        int ultimaInst;
-	        ultimaInst= pcbProc->cantidadLineas;
-	        pcbProc->proxInst= ultimaInst;
+	t_pcb* pcbProc;
+	pcbProc = buscarEnListaPorPID(EJECUTANDO, idProc);
+	int ultimaInst;
+	ultimaInst = pcbProc->cantidadLineas;
+	pcbProc->proxInst = ultimaInst;
 
-	        pthread_mutex_unlock(&mutexListas);
+	pthread_mutex_unlock(&mutexListas);
 
-	        //mandar a cpu??
-	}
+	//mandar a cpu??
+}
 int obtenerCantidadLineasPath(char* path) {
 
 	FILE* mCod = fopen(path, "r");

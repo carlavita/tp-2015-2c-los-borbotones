@@ -1,1 +1,3 @@
-Linkear con commons y pthread
+readme MaRTA
+
+para que funcione el archivo config puse la ruta del archivo...

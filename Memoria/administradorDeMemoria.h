@@ -33,7 +33,7 @@ typedef struct
 {
 	int pid;
 	int numeroPagina;
-	char * direccion;
+	int frame;
 }t_TLB;    //LA TLB VA A SER UN ARRAY DE N entradas.(por ahora)
 
 typedef struct
@@ -50,7 +50,7 @@ void crearServidor();
 t_TLB * generarTLB(int entradasTLB);
 void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB* tlb);
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
-void generarTablaDePaginas(int * memoriaReservadaDeMemPpal);
+void generarTablaDePaginas(int * memoriaReservadaDeMemPpal,int pid, int cantidadDePaginas);
 void generarCantidadDeFramesAsignadosAlProceso(int pid,int cantidadDePaginas);
 void avisarAlSwap(int clienteSwap);
 void generarEstructurasAdministrativas(int pid,int paginas);

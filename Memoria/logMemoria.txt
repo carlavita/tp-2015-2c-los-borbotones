@@ -1,12 +1,12 @@
-[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): Inicio lectura de archivo de configuración
-[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): 64000
-[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): Finalizo lectura de archivo de configuración
-[INFO] 12:20:08:292 Administrador de memoria/(7936:7936): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 12:20:08:293 Administrador de memoria/(7936:7936): La TLB no esta activada por configuración
-[INFO] 12:20:08:293 Administrador de memoria/(7936:7936): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): termino hiloSigUsr1
-[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): Termino hiloSigUsr2
-[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): Comienzo de las diferentes conexiones
-[INFO] 12:20:08:315 Administrador de memoria/(7936:7936): La memoria se conecto satisfactoriamente al SWAP
-[ERROR] 12:20:29:73 Administrador de memoria/(7936:7936): Mensaje recibido: 4
+[INFO] 11:57:38:808 Administrador de memoria/(3323:3323): Inicio lectura de archivo de configuración
+[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): 64000
+[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): Finalizo lectura de archivo de configuración
+[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 11:57:38:830 Administrador de memoria/(3323:3323): La TLB no esta activada por configuración
+[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 11:57:38:851 Administrador de memoria/(3323:3323): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): termino hiloSigUsr1
+[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): Termino hiloSigUsr2
+[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): Comienzo de las diferentes conexiones
+[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): La memoria se conecto satisfactoriamente al SWAP
+[ERROR] 11:57:54:387 Administrador de memoria/(3323:3323): Mensaje recibido: 4

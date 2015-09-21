@@ -51,7 +51,7 @@ void * inicioHiloSigUsr2()
 int main()
 {
 	remove("logMemoria.txt");//Cada vez que arranca el proceso borro el archivo de log.
-	logMemoria = log_create("logMemoria.txt","Administrador de memoria",false,LOG_LEVEL_INFO);
+	logMemoria = log_create("logMemoria.txt","Administrador de memoria",true,LOG_LEVEL_INFO);
 	leerConfiguracion();
 	generarEstructuraAdministrativaPIDFrame();
 	creacionTLB(&configMemoria, logMemoria, tlb);
@@ -65,7 +65,6 @@ int main()
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
 
-//	generarTablaDePaginas(memoriaReservadaDeMemPpal);
 	for(;;) procesamientoDeMensajes(clienteSwap,servidorCPU);
 
 }
@@ -98,8 +97,9 @@ t_TLB * generarTLB(int entradasTLB)
 	int entrada = 0;
 	while ( entrada < entradasTLB)
 	{
-		tlb[entrada].direccion = '\0';
-		tlb[entrada].pid = 0;//cuando vengan los procesos, ire cambiando ese pid.
+		tlb[entrada].frame = -1;
+		tlb[entrada].numeroPagina = -1;
+		tlb[entrada].pid = -1;//cuando vengan los procesos, ire cambiando ese pid.
 		 ++entrada;
 	}
 	return tlb;
@@ -145,15 +145,13 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria)
 	}
 	return clienteSwap;
 }
-void generarTablaDePaginas(int * memoriaReservadaDeMemPpal)
+void generarTablaDePaginas(int * memoriaReservadaDeMemPpal,int pid, int cantidadDePaginas)
 {
 	int  pagina = 0;
-	int *cantidadDePaginas = malloc(sizeof(int *));
 
-	recv(clienteSwap,cantidadDePaginas,sizeof(int),0);
 	int frame = 0;
 	int maximaCantidadDeFrames = configMemoria.cantidadDeMarcos;
-   while(pagina < *cantidadDePaginas)
+   while(pagina < cantidadDePaginas)
    {
 	   if(frame == maximaCantidadDeFrames) return;
 	   else
@@ -218,18 +216,21 @@ void enviarIniciarSwap(int cliente, int pid, int pagina,
 	recvACK(cliente);
 	pid = 1;
 	pagina = 4;
+	log_info(logMemoria,"Envio pid al SWAP, PID:%d",pid);
 	send(cliente, &pid, sizeof(int), 0);
 	recvACK(cliente);
+	log_info(logMemoria,"SWAP recibio el pid de forma correcta");
+	log_info(logMemoria,"Envio pagina al SWAP, PAGINA N°:%d",pagina);
 	send(cliente, &pagina, sizeof(int), 0);
 	recvACK(cliente);
+	log_info(logMemoria,"SWAP recibio la pagina de forma correcta");
 	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+	log_info(logMemoria,"Se recibio este codigo de error: %d",mensajeHeaderSwap.idmensaje);
 	if (mensajeHeaderSwap.idmensaje == 14) {
 		log_info(logMemoria, "Se proceso correctamente el mensaje");
 		send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 	} else if (mensajeHeaderSwap.idmensaje == 15)
 		log_error(logMemoria, "Fallo envio mensaje");
-
-	printf("RECIBI: HOLA! del puto del swap");
 	fflush(stdout);
 }
 
@@ -263,19 +264,20 @@ void procesamientoDeMensajes(int cliente,int servidor)
 {
 	int tamanioDatosSwap;
    char mensajeRecibido[PACKAGESIZE];
-   int pagina,pid;
-   int mensaje1, mensaje2, mensaje3;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
+   int CantidadDePaginas,pid;
+   int * memoriaReservadaDeMemPpal = malloc(sizeof(configMemoria.cantidadDeMarcos * configMemoria.tamanioMarcos));
+   int statusMensajeRecibidoDeLaCPU, mensaje2, mensaje3;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
 //   int mensaje = recv(servidor,mensajeRecibido,sizeof(mensajeRecibido),0); //NUMERO de OPERACION
    t_mensajeHeader mensajeHeader,mensajeHeaderSwap;
-    mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
+    statusMensajeRecibidoDeLaCPU = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
     printf("mensaje recibido: %d",mensajeHeader.idmensaje);
     fflush(stdout);
-    log_error(logMemoria,"Mensaje recibido: %d",mensaje1);
+    log_error(logMemoria,"Mensaje recibido: %d",statusMensajeRecibidoDeLaCPU);
     /*PRUEBA!!!!, SACAR */
 
 
     /********************/
-   if(mensaje1 < 0) log_info(logMemoria,"Error al recibir de la CPU");
+   if(statusMensajeRecibidoDeLaCPU < 0) log_info(logMemoria,"Error al recibir de la CPU");
    else
    {
 	  // char * m = malloc(sizeof(char *));
@@ -289,20 +291,27 @@ void procesamientoDeMensajes(int cliente,int servidor)
 			 cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);
 			 while(cantidadDePaginasRecibidas == -1) cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);*/
 			//generarEstructurasAdministrativas(*pid,*pagina);
-			enviarIniciarSwap(cliente, pid, pagina, mensajeHeaderSwap, servidor,logMemoria);
-			   /*free(pagina);
+
+			generarTablaDePaginas(memoriaReservadaDeMemPpal,pid,CantidadDePaginas);
+			log_info(logMemoria,"Inicio del aviso al proceso SWAp del comando INICIAR");
+			enviarIniciarSwap(cliente, pid, CantidadDePaginas, mensajeHeaderSwap, servidor,logMemoria);
+			log_info(logMemoria,"Fin del aviso al proceso SWAp del comando INICIAR");
+			/*free(pagina);
 			   free(pid);*/
 			break;
 		case LEER:
-			comandLeerPrimeraParte(mensaje1, servidor, pagina, cliente, pid,mensaje2);
+			log_info(logMemoria,"Inicio leer");
+			comandLeerPrimeraParte(statusMensajeRecibidoDeLaCPU, servidor, CantidadDePaginas, cliente, pid,mensaje2);
+			log_info(logMemoria,"Finalizo primera parte del comando LEER");
 			comandoLeerSegundaParte(cliente, tamanioDatosSwap, mensaje3,mensajeRecibido, servidor);
+			log_info(logMemoria,"Finalizo comando LEER");
 			break;
 		case ESCRIBIR:
 
 			break;
 		case FINALIZAR:
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
-			envioFinalizarSwap(mensajeHeaderSwap, cliente, pid, pagina);
+			envioFinalizarSwap(mensajeHeaderSwap, cliente, pid, CantidadDePaginas);
 			break;
 		default:
 			log_info(logMemoria,"Mensaje incorrecto");

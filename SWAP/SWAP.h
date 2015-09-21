@@ -52,7 +52,7 @@ int paginasLibres;
 void * creacionDisco();
 void leerArchivoConfiguracion();
 void * inicializarListas();
-
+void inicializarDisco();
 
 /*** FUNCIONES ELEMENTALES ***/
 int iniciar(int idProceso ,int cantidadPaginas);

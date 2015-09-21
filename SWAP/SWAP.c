@@ -21,7 +21,6 @@
 
 
 
-
 int main ()  {
 	remove("ArchivoLogueoSWAP.txt");
 	logSWAP = log_create("ArchivoLogueoSWAP.txt","SWAP",true,LOG_LEVEL_INFO);
@@ -32,7 +31,8 @@ int main ()  {
 	paginasLibres = configuracionSWAP.CantidadPaginas;
 	creacionDisco();
 	inicializarListas();
-	archivoDisco = fopen (configuracionSWAP.NombreSwap, "rw");
+	archivoDisco = fopen(configuracionSWAP.NombreSwap, "w");
+	inicializarDisco();
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	for (;;){
@@ -43,7 +43,7 @@ int main ()  {
 
 
 	//servidorMemoria();
-
+	fclose(archivoDisco);
 	exit(0);
 }
 
@@ -152,18 +152,18 @@ int finalizar (int PID){
 }
 
 
-char* leer (int PID,int nroPagina){
+char * leer (int PID,int nroPagina){
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = nroPagina * tamanioPagina;
-	char * contenido;
+	char  * contenido;
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
-	fread(contenido,tamanioPagina,1,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
+	fgets(contenido,10,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 
 	/* LOGEO EN ESCRITURA */
 		log_info(logSWAP,"Lectura solicitada");
 		log_info(logSWAP,"PID solicitado: %d",PID);
 		log_info(logSWAP,"Byte Inicial %d",primerBytePagina);
-		log_info(logSWAP,"Tamaño solicitado para lectura %d",strlen(contenido));
+		log_info(logSWAP,"Tamaño solicitado para lectura %d",string_length(contenido));
 		log_info(logSWAP,"El contenido de escritura es %s", contenido);
 
 	//DEVUELVO PAGINA LEIDA
@@ -175,6 +175,7 @@ char* leer (int PID,int nroPagina){
 }
 
 void * escribir (int PID, int nroPagina, char* contenidoPagina){
+
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int primerBytePagina = nroPagina * tamanioPagina;
 	/* LOGEO EN ESCRITURA */
@@ -185,11 +186,13 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	log_info(logSWAP,"El contenido de escritura es %s", contenidoPagina);
 
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
-	fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
+	//fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
+	fputs(contenidoPagina,archivoDisco);
 
 	int posicionPID = busquedaPIDEnLista(PID);
 	t_tablaProcesos *procesoObtenido = list_get(listaProcesos,posicionPID);
 	procesoObtenido->cantidadEscrituras = procesoObtenido->cantidadEscrituras + 1;
+
 	return NULL;
 }
 
@@ -257,6 +260,13 @@ void * inicializarListas(){
 	return NULL;
 }
 
+void inicializarDisco() {
+	int tamanioDisco = configuracionSWAP.CantidadPaginas
+			* configuracionSWAP.TamanioPagina;
+	char* contenido;
+	contenido = string_repeat(' ', tamanioDisco);
+	fputs(contenido, archivoDisco);
+}
 
 
 

@@ -1,14 +1,29 @@
-[INFO] 16:11:10:463 SWAP/(2919:2919): Inicio Proceso SWAP
-[INFO] 16:11:10:726 SWAP/(2919:2919): Leyendo Archivo de Configuracion
-[INFO] 16:11:10:744 SWAP/(2919:2919): 6000
-[INFO] 16:11:10:744 SWAP/(2919:2919): Archivo de Configuracion Leido correctamente
-[INFO] 16:11:11:423 SWAP/(2919:2919): Creando archivo de tamanio: 131072
-[INFO] 16:11:11:468 SWAP/(2919:2919): Archivo Creado correctamente
-[INFO] 16:11:15:955 SWAP/(2919:2919): Proceso mPRoc asignado
-[INFO] 16:11:15:955 SWAP/(2919:2919): PID asignado: 1
-[INFO] 16:11:15:955 SWAP/(2919:2919): Byte Inicial 0
-[INFO] 16:11:15:956 SWAP/(2919:2919): Tamaño en bytes de asignacion 1280
-[INFO] 16:12:09:698 SWAP/(2919:2919): Proceso mPRoc asignado
-[INFO] 16:12:11:7 SWAP/(2919:2919): PID asignado: 2
-[INFO] 16:12:12:67 SWAP/(2919:2919): Byte Inicial 1280
-[INFO] 16:12:12:691 SWAP/(2919:2919): Tamaño en bytes de asignacion 2560
+[INFO] 22:45:44:562 SWAP/(5920:5920): Inicio Proceso SWAP
+[INFO] 22:45:45:60 SWAP/(5920:5920): Leyendo Archivo de Configuracion
+[INFO] 22:45:45:60 SWAP/(5920:5920): 6000
+[INFO] 22:45:45:60 SWAP/(5920:5920): Archivo de Configuracion Leido correctamente
+[INFO] 22:45:46:30 SWAP/(5920:5920): Creando archivo de tamanio: 131072
+[INFO] 22:45:46:69 SWAP/(5920:5920): Archivo Creado correctamente
+[INFO] 22:45:48:752 SWAP/(5920:5920): Proceso mPRoc asignado
+[INFO] 22:45:48:752 SWAP/(5920:5920): PID asignado: 1
+[INFO] 22:45:48:752 SWAP/(5920:5920): Byte Inicial 0
+[INFO] 22:45:48:752 SWAP/(5920:5920): Tamaño en bytes de asignacion 2560
+[INFO] 22:45:49:499 SWAP/(5920:5920): Proceso mPRoc asignado
+[INFO] 22:45:49:499 SWAP/(5920:5920): PID asignado: 2
+[INFO] 22:45:49:499 SWAP/(5920:5920): Byte Inicial 2560
+[INFO] 22:45:49:500 SWAP/(5920:5920): Tamaño en bytes de asignacion 1280
+[INFO] 22:45:50:867 SWAP/(5920:5920): Escritura solicitada
+[INFO] 22:45:50:867 SWAP/(5920:5920): PID solicitado: 1
+[INFO] 22:45:50:867 SWAP/(5920:5920): Byte Inicial 0
+[INFO] 22:45:50:867 SWAP/(5920:5920): Tamaño solicitado para escritura 4
+[INFO] 22:45:50:867 SWAP/(5920:5920): El contenido de escritura es HOLA
+[INFO] 22:45:52:454 SWAP/(5920:5920): Escritura solicitada
+[INFO] 22:45:52:454 SWAP/(5920:5920): PID solicitado: 2
+[INFO] 22:45:52:455 SWAP/(5920:5920): Byte Inicial 768
+[INFO] 22:45:52:455 SWAP/(5920:5920): Tamaño solicitado para escritura 14
+[INFO] 22:45:52:455 SWAP/(5920:5920): El contenido de escritura es SOY PROCESO II
+[INFO] 22:46:38:407 SWAP/(5920:5920): Lectura solicitada
+[INFO] 22:46:39:678 SWAP/(5920:5920): PID solicitado: 2
+[INFO] 22:46:41:258 SWAP/(5920:5920): Byte Inicial 768
+[INFO] 22:46:42:940 SWAP/(5920:5920): Tamaño solicitado para lectura 0
+[INFO] 22:46:48:607 SWAP/(5920:5920): El contenido de escritura es 

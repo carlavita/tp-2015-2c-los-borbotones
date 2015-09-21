@@ -60,6 +60,7 @@ void inicializarListas() {
 	BLOQUEADOS = list_create();
 	FINALIZADOS = list_create();
 	listaCPU = list_create();
+	IO = list_create();
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Se inicializaron las Listas de planificacion \n");
 	pthread_mutex_unlock(&mutexLog);
@@ -68,6 +69,7 @@ void inicializarListas() {
 void inicializarSemaforos() {
 	sem_init(&semaforoListos, 0, 0); //Semaforo productor consumidor de prcesos listos
 	sem_init(&semaforoCPU, 0, 0);
+	sem_init(&semaforoIO, 0, 0);
 	pthread_mutex_init(&mutexListaCpu, NULL);
 	pthread_mutex_init(&mutexListas, NULL);
 	pthread_mutex_init(&mutexLog, NULL);
@@ -403,11 +405,11 @@ int crearPcb(char* path) {
 	t_pcb *mProc = list_get(LISTOS, 0);
 
 	/*printf("PID %d sumado a la cola de ready\n", pcb->pid);
-	printf("PID mProc despues: %d \n", mProc->pid);
-	printf("Proxima instruccion mProc: %d \n", mProc->proxInst);
-	printf("Path mProc: %s \n", mProc->pathProc);
-	printf("Path mProc: %d \n", mProc->cantidadLineas);
-*/
+	 printf("PID mProc despues: %d \n", mProc->pid);
+	 printf("Proxima instruccion mProc: %d \n", mProc->proxInst);
+	 printf("Path mProc: %s \n", mProc->pathProc);
+	 printf("Path mProc: %d \n", mProc->cantidadLineas);
+	 */
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "PID creado %d , path %s \n", pcb->pid, pcb->pathProc);
 	pthread_mutex_unlock(&mutexLog);
@@ -445,15 +447,15 @@ t_pcb* planificarFifo() {
 }
 
 void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
-	/*// Elimina el PID de la cola de listos
-	 removerEnListaPorPid(LISTOS,pcb->pid);
-	 //Pasa  a lista de ejecución
-	 pthread_mutex_lock(&mutexListas);
-	 list_add(EJECUTANDO,pcb);
-	 pthread_mutex_unlock(&mutexListas);*/
+	//int msjEjecutar;
+	t_mensajeHeader msjEjecutar;
+	msjEjecutar.idmensaje = EJECUTARPROC;
+	send(cpu->socket, &msjEjecutar, sizeof(int), 0);
+	printf("Envio de pedido de ejecucion a la cpu libre \n");
+	send(cpu->socket, pcb, sizeof(t_pcb), 0);
+	printf(
+			"Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
 
-	//cpu->pid = pcb->pid;
-	// todo enviarPcb(cpu->socket,pcb );
 }
 
 void removerEnListaPorPid(t_list *lista, int pid) {
@@ -515,20 +517,18 @@ void *planificador(void *info_proc) {
 			printf("el id de la cpu libre es: %d \n", cpuLibre->id);
 
 			cpuLibre->pid = pcb->pid;
-			//}
-			//else {
-			//printf("sin cpu libre \n", cpuLibre->id);
-			//sem_wait(&semaforoCPU);
 
 		}
-		int msjEjecutar;
-		msjEjecutar = EJECUTARPROC;
-		send(cpuLibre->socket, &msjEjecutar, sizeof(int), 0);
-		printf("Envio de pedido de ejecucion a la cpu libre \n");
-		send(cpuLibre->socket, pcb, sizeof(t_pcb), 0);
-		printf(
-				"Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
-	}
+
+		enviarACpu(pcb, cpuLibre);
+		/*int msjEjecutar;
+		 msjEjecutar = EJECUTARPROC;
+		 send(cpuLibre->socket, &msjEjecutar, sizeof(int), 0);
+		 printf("Envio de pedido de ejecucion a la cpu libre \n");
+		 send(cpuLibre->socket, pcb, sizeof(t_pcb), 0);
+		 printf(
+		 "Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
+		 */}
 
 	return 0;
 
@@ -537,19 +537,23 @@ void *planificador(void *info_proc) {
 void ejecutarIO(int socketCPU) {
 	// TODO, VER ESTO
 	//recepciono de la pcu el msj con el Tiempo(en segundos) que hay que hacer el IO
-	t_rtaIO mjeIO;
-	recv(socketCPU, &mjeIO, sizeof(t_rtaIO), 0);
+	//t_rtaIO mjeIO;
+	t_io* infoIO = malloc(sizeof(t_io));
+	recv(socketCPU, &infoIO, sizeof(t_io), 0);
 	pthread_mutex_lock(&mutexListas);
 	//busco el proc por si pid, se borra de ejecutados y lo mando a bloqueados
-	//t_pbc *pcb = removerEnListaPorPid(EJECUTANDO,mjeIO.pid);
+	//todo falta actualizar el puntero a proxima instruccion cuando lo recibe de cpu
+	t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO, infoIO->pid);
 
-	//pcb->status = BLOQUEADO;
+	pcb->status = BLOQUEADO;
+	list_add(BLOQUEADOS, pcb);
+	removerEnListaPorPid(EJECUTANDO, infoIO->pid);
+
+	list_add(IO, infoIO);
 	pthread_mutex_unlock(&mutexListas);
 	//por T segundos
-	sleep(mjeIO.tiempo); // TODO: HAY QUE ENCOLAR LOS BLOQUEOS
-
-	//Ahora enviarlo a la cola de listos
-
+	sem_post(&semaforoIO);	// Habilita al hilo de entrada salida.
+	free(infoIO);
 }
 
 void eliminarCPU(int socket_cpu) {
@@ -607,9 +611,14 @@ void ejecutarPS() {
 	t_list* PROCESOS = list_create();
 	int cantidadListos = list_size(LISTOS);
 	int cantidadEjecutando = list_size(EJECUTANDO);
+	int cantidadBloqueados = list_size(BLOQUEADOS);
+	int cantidadFinalizados = list_size(FINALIZADOS);
 
 	printf("Cantidad de listos : %d \n;  ", cantidadListos);
 	printf("Cantidad de ejecutando: %d \n ", cantidadEjecutando);
+	printf("Cantidad de bloqueados: %d \n ", cantidadBloqueados);
+	printf("Cantidad de procesos finalizados/finalizando: %d \n ",
+			cantidadFinalizados);
 
 	list_add_all(PROCESOS, LISTOS);
 	list_add_all(PROCESOS, EJECUTANDO);
@@ -641,11 +650,17 @@ void ejecutarPS() {
 					"Bloqueado \n");
 			//printf("%s",mProc->pathProc);
 			break;
-		case FINALIZADO:
+		case FINALIZADOOK:
 			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
-					"Finalizado \n");
+					"Finalizado Sin errores \n");
 			//printf("%s",mProc->pathProc);
 			break;
+		case FINALIZADOERROR:
+			printf("mProc %d: %s  ->  %s \n", mProc->pid, mProc->pathProc,
+					"Finalizado Con errores \n");
+			//printf("%s",mProc->pathProc);
+			break;
+
 		default:
 			break;
 		}
@@ -706,7 +721,7 @@ void finalizarPid() {
 
 	pthread_mutex_unlock(&mutexListas);
 
-	//mandar a cpu??
+	//todo mandar a cpu??
 }
 int obtenerCantidadLineasPath(char* path) {
 
@@ -727,4 +742,23 @@ int obtenerCantidadLineasPath(char* path) {
 	fclose(mCod);
 
 	return lineasPath;
+}
+void *procesarEntradasSalidas(void *info_proc) {
+	t_io* mjeIO;
+	// hilo consumidor de entrada salida
+	t_pcb* pcb = malloc(sizeof(t_pcb));
+	while (true) {
+		sem_wait(&semaforoIO);
+		pthread_mutex_lock(&mutexListas);
+
+		mjeIO = list_remove(IO, 0);
+
+		sleep(mjeIO->tiempoIO); //HAY QUE ENCOLAR LOS BLOQUEOS
+		pcb = list_remove(BLOQUEADOS, 0);
+		list_add(LISTOS, pcb);
+
+		free(mjeIO);
+	}
+	//todo Ahora enviarlo a la cola de listos
+
 }

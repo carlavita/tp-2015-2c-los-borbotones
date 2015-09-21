@@ -1,7 +1,7 @@
-[INFO] 21:55:39:979 CPU/(10170:10170): Inicio Proceso CPU
-[INFO] 21:55:39:983 CPU/(10170:10170): Leyendo Archivo de Configuracion
-[INFO] 21:55:39:984 CPU/(10170:10170): 6008
-[INFO] 21:55:39:988 CPU/(10170:10170): Archivo de Configuracion Leido correctamente
-[INFO] 21:55:39:989 CPU/(10170:10170): Conectando a memoria
+[INFO] 21:45:36:990 CPU/(15886:15886): Inicio Proceso CPU
+[INFO] 21:45:37:4 CPU/(15886:15886): Leyendo Archivo de Configuracion
+[INFO] 21:45:37:6 CPU/(15886:15886): 6008
+[INFO] 21:45:37:13 CPU/(15886:15886): Archivo de Configuracion Leido correctamente
+[INFO] 21:45:37:20 CPU/(15886:15886): Conectando a memoria
 
-[INFO] 21:55:39:995 CPU/(10170:10170): Conectando a planificador
+[INFO] 21:45:37:30 CPU/(15886:15886): Conectando a planificador

@@ -79,14 +79,15 @@ void Conexion_con_planificador(){
 
 		int enviar = 1;
 		char message[PACKAGESIZE];
-		int mensaje;
+		//int mensaje;
+		t_mensajeHeader mensaje;
 		printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 		while (enviar){
 			printf("recibir\n");
 		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
 			if (status > 0){
 
-				switch ( mensaje) {
+				switch ( mensaje.idmensaje) {
 
 					case CORRERPATH:
 
@@ -121,7 +122,7 @@ void Conexion_con_planificador(){
 						break;
 
 					default:
-						printf("error al recibir");
+						printf("error al recibir\n");
 						enviar = 0;
 
 					}

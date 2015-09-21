@@ -64,7 +64,9 @@
 #define LISTO 1
 #define EJECUTA 2
 #define BLOQUEADO 3
-#define FINALIZADO 4
+#define FINALIZADOOK 4
+#define FINALIZADOERROR 5
+
 typedef struct {
 	char* puertoEscucha;
 	int algoritmo;
@@ -90,6 +92,10 @@ typedef struct {
 	int porcentajeUso;
 } t_cpu;
 
+typedef struct {
+	int pid;
+	int tiempoIO;
+} t_io;
 /*typedef struct
  {
  int pid;//revisar si es necesario este campo
@@ -99,12 +105,12 @@ typedef struct {
 
  }t_contextoEjecucion;*/
 
-typedef struct {
+/*typedef struct {
 	int pid;
 	int tiempo;
 
 } t_rtaIO;
-
+*/
 int val; //variable para saber el valor del semaforoListos
 
 int PID = 0; // Para numerar los procesos
@@ -120,7 +126,7 @@ t_list* EJECUTANDO;
 t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
 t_list* listaCPU;
-
+t_list* IO;
 //Mutex
 pthread_mutex_t mutexListas; //Listas
 pthread_mutex_t mutexListaCpu; //Lista de cpus
@@ -129,6 +135,7 @@ pthread_mutex_t mutexLog;//Mutex para archivo de logueo
 
 sem_t semaforoListos; // productor - consumidor de listos
 sem_t semaforoCPU; // si no hay CPUs libres espera
+sem_t semaforoIO;// productor-consumidor IO
 /**
  * @NAME: levantarConfiguracion()
  * @DESC:Levanta parametros de configuracion

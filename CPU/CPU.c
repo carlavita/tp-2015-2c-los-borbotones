@@ -8,17 +8,28 @@
 
 #include "CPU.h"
 
-//#define SALUDO 0// todo los mensajes van a ir al protocolo
-#define CHECKPOINT 1// todo los mensajes van a ir al protocolo
 
-typedef struct
-{
-	int codMje;
 
-}t_mensaje_header; // todo, esto va a ir en el protocolo.h
+int main ()  {
+	pthread_t cpu;
+	int cpuID;
 
-void  LeerArchivoConfiguracion()
-{
+	remove(PATH_LOG);
+	logCPU = log_create(PATH_LOG,"CPU",true,LOG_LEVEL_INFO);
+	log_info(logCPU,"Inicio Proceso CPU");
+
+	LeerArchivoConfiguracion();
+	serverMemoria = conexion_con_memoria();
+	Conexion_con_planificador();
+	cpuID = pthread_create(&cpu,NULL,ejecucion,NULL);
+    pthread_join(cpu,NULL);
+
+    return 0; //CARLA AMOR Y PAZ POR MI 0 :D
+}
+
+
+void  LeerArchivoConfiguracion(){
+
 	t_config* cfgCPU = malloc(sizeof(t_config));
 	log_info(logCPU,"Leyendo Archivo de Configuracion");
 	cfgCPU = config_create(PATH_CONFIG);
@@ -32,9 +43,10 @@ void  LeerArchivoConfiguracion()
 	log_info (logCPU,"%s",configuracionCPU.PuertoPlanificador);
 	log_info(logCPU,"Archivo de Configuracion Leido correctamente");
 
-	}
+}
 
 int conexion_con_memoria(){
+
 	printf("Conectando a memoria \n");
 	log_info(logCPU,"Conectando a memoria\n");
 
@@ -48,15 +60,17 @@ int conexion_con_memoria(){
 
 	// conectando a memoria
 
-			getaddrinfo(configuracionCPU.IPMemoria, configuracionCPU.PuertoMemoria, &hints, &serverInfo);
-					int serverSocketMemoria;
-					serverSocketMemoria = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-					printf("socket memoria %d \n", serverSocketMemoria);
-					connect(serverSocketMemoria, serverInfo->ai_addr, serverInfo->ai_addrlen);
-					freeaddrinfo(serverInfo);	// No lo necesitamos mas
+		getaddrinfo(configuracionCPU.IPMemoria, configuracionCPU.PuertoMemoria, &hints, &serverInfo);
+		int serverSocketMemoria;
+		serverSocketMemoria = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
+		printf("socket memoria %d \n", serverSocketMemoria);
+		connect(serverSocketMemoria, serverInfo->ai_addr, serverInfo->ai_addrlen);
+		freeaddrinfo(serverInfo);	// No lo necesitamos mas
 
 	return serverSocketMemoria;
 }
+
+
 void Conexion_con_planificador(){
 
 	printf("Conectando a planificador \n");
@@ -98,7 +112,7 @@ void Conexion_con_planificador(){
 						t_mensajeHeader inicia;
 						inicia.idmensaje = INICIAR;
 						status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-/*SACAR*/
+						/*SACAR*/
 						//status = send(serverMemoria, message, strlen(message) + 1, 0);
 
 						break;
@@ -113,11 +127,25 @@ void Conexion_con_planificador(){
 						recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
 						printf("recibido el contexto del proceso de planificador con su id %d \n",pcbProc.pid);
 						printf("recibido el contexto del proceso de planificador con su path %s \n",pcbProc.pathProc);
-						printf("recibido el contexto del proceso de planificador\n");
- //todo prueba borrar!
+
+
+						parsermCod(pcbProc.pathProc);
+
+						//todo prueba borrar!
 						t_mensajeHeader inicia1;
 						inicia.idmensaje = INICIAR;
 						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
+
+
+						//rtas al planificador en base a lo que se manda a ejecutar del proceso
+						//una  para terminarrafaga->parametros->
+						//otra para enviar a io->parametros->
+						//otra para terminarconfalla->parametros->
+						//finalizarprocok->parametros->
+						//finalizarprocfalla->parametros->
+
+						//rtas a memoria
+
 
 						break;
 
@@ -128,36 +156,8 @@ void Conexion_con_planificador(){
 					}
 
 
-
-
-
-/*
-				if (mensaje == CORRERPATH){
-				printf("recibido el mensaje correr path desde el planificador\n");
-
-				printf("reenvío mensaje a memoria\n");
-
-				strcpy(message,"Correr path\n");
-
-				status = send(serverMemoria, message, strlen(message) + 1, 0);
-				}
-				else if (mensaje == SALUDO){
-						printf("recibido el mensaje saludo de planificador\n");
-
-
-					}
-
-			}else{
-				printf("error al recibir");
-				enviar = 0;
-			}*/
+			}
 		}
-	}
-			/*while(enviar){
-				fgets(message, PACKAGESIZE, stdin);			// Lee una linea en el stdin (lo que escribimos en la consola) hasta encontrar un \n (y lo incluye) o llegar a PACKAGESIZE.
-				if (!strcmp(message,"exit\n")) enviar = 0;			// Chequeo que el usuario no quiera salir
-				if (enviar) send(serverSocket, message, strlen(message) + 1, 0); 	// Solo envio si el usuario no quiere salir.
-			}*/
 
 		close(serverSocket);
 		printf("Conexion a planificador cerrada \n");
@@ -183,7 +183,7 @@ char *parsearLinea(char * lineaLeida){
 	return lineaParseada;
 }
 
-void *ejecucion (void *ptr);
+//todo revisar
 void *ejecucion (void *ptr){
 //FILE *fd;
 	//fd = fopen("/home/utnso/codigo/test.cod","r");
@@ -198,22 +198,29 @@ void *ejecucion (void *ptr){
 
 void iniciar (int paginas, int mProcID){
 	printf("mProc %d - Iniciado \n", mProcID);
-	sleep(1);}
+	sleep(1);
+}
+
 
 void escribir (int pagina, char *texto, int mProcID){
 	printf("mProc %d - Pagina %d escrita: HOLA \n", mProcID, pagina);
-	sleep(5);}
+	sleep(5);
+}
+
 
 void leer (int pagina, int mProcID){
 	printf("mProc %d - Pagina %d leida: HOLA \n", mProcID, pagina);
-	sleep(5);}
+	sleep(5);
+}
+
 
 void finalizar (int mProcID){
 	printf("mProc %d - Finalizado \n", mProcID);
-	sleep(1);}
+	sleep(1);
+}
 
 
-int main ()  {
+/*int main ()  {
 	pthread_t cpu;
 	int cpuID;
 
@@ -228,7 +235,8 @@ int main ()  {
     pthread_join(cpu,NULL);
 
     return 0; //CARLA AMOR Y PAZ POR MI 0 :D
-}
+}*/
+
 void parsermCod(char *path){
 	FILE* fid;
 	if ((fid = fopen(path, "r")) == NULL) {

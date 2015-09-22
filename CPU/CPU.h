@@ -61,6 +61,15 @@ int conexion_con_memoria();
 int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
 char *parsearLinea(char * lineaLeida);
 
+
+void *ejecucion (void *ptr);
+void iniciar (int paginas, int mProcID);
+void escribir (int pagina, char *texto, int mProcID);
+void leer (int pagina, int mProcID);
+void finalizar (int mProcID);
+
+
+
 //Funciones para parser
 bool esLeer(char* linea);
 bool esIniciar(char* linea);

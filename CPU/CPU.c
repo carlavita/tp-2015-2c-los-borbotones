@@ -152,7 +152,7 @@ void Conexion_con_planificador(){
 						//finalizarprocok->parametros->pid, cpuid??
 
 						//todo logica de finalizar proceso ok
-						t_mensajeHeader rta;
+						/*t_mensajeHeader rta;
 						rta.idmensaje = FINALIZAPROCOK;
 						status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
 						printf("envio finalizar ok del proceso con id: %d  ", pcbProc.pid);
@@ -165,12 +165,29 @@ void Conexion_con_planificador(){
 						int idCPU;
 						idCPU = cpuID;
 						status = send(serverSocket, &(idCPU), sizeof(int), 0);
-						printf("de la cpu con id: %d \n", idCPU);
+						printf("de la cpu con id: %d \n", idCPU);*/
+
+						//todo rtas a memoria
 
 						//finalizarprocfalla->parametros-> pid, cpuid
 
-						//rtas a memoria
+						t_mensajeHeader rtaE;
+						rtaE.idmensaje = PROCFALLA;
+						status = send(serverSocket, &(rtaE.idmensaje), sizeof(t_mensajeHeader), 0);
+						printf("envio falla del proceso con id: %d  ", pcbProc.pid);
 
+						//todo conviene usar un struct con pid y cpuid
+						t_finalizarPID rtaF;
+						rtaF.pid = pcbProc.pid;
+						status = send(serverSocket, &(rtaF.pid), sizeof(t_finalizarPID), 0);
+
+						//todo verificar si mandar este id
+						int idCPUs;
+						idCPUs = cpuID;
+						status = send(serverSocket, &(idCPUs), sizeof(int), 0);
+						printf("de la cpu con id: %d \n", idCPUs);
+
+						//todo rtas a memoria
 
 						break;
 

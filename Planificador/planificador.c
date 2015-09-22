@@ -345,6 +345,15 @@ void handle(int newsock, fd_set *set) {
 		case PROCFALLA:
 
 			printf("el proceso falló en su ejecucion\n");
+			//todo utilizar mejor struct  con pid del proceso y id de cpu
+			t_finalizarPID rtaP;
+			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
+			printf(" con id: %d \n",rtaP.pid);
+			//no lo detecta cpuID en su lista de ids por su socket de comunicacion??
+
+			int idCPUs;
+			recv(newsock, &(idCPUs), sizeof(int), 0);
+			printf(" de la cpu: %d \n",idCPUs);
 
 			//borrarEstructurasDelProc();
 
@@ -427,9 +436,7 @@ int crearPcb(char* path) {
 	pthread_mutex_unlock(&mutexListas);
 	sem_post(&semaforoListos); //Habilita al planificador
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
-	printf(
-			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
-			val);
+	printf("Soy el semaforo despues de habilitar a planificador con el valor: %d\n",val);
 
 	return pcb->pid;
 }
@@ -457,14 +464,13 @@ t_pcb* planificarFifo() {
 }
 
 void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
-	//int msjEjecutar;
+
 	t_mensajeHeader msjEjecutar;
 	msjEjecutar.idmensaje = EJECUTARPROC;
 	send(cpu->socket, &msjEjecutar, sizeof(int), 0);
 	printf("Envio de pedido de ejecucion a la cpu libre \n");
 	send(cpu->socket, pcb, sizeof(t_pcb), 0);
-	printf(
-			"Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
+	printf("Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
 
 }
 

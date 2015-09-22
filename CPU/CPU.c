@@ -93,7 +93,6 @@ void Conexion_con_planificador(){
 
 		int enviar = 1;
 		char message[PACKAGESIZE];
-		//int mensaje;
 		t_mensajeHeader mensaje;
 		printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 		while (enviar){
@@ -136,13 +135,30 @@ void Conexion_con_planificador(){
 						inicia.idmensaje = INICIAR;
 						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
 
+						/*armar funcion de rta */
 
 						//rtas al planificador en base a lo que se manda a ejecutar del proceso
-						//una  para terminarrafaga->parametros->
-						//otra para enviar a io->parametros->
-						//otra para terminarconfalla->parametros->
-						//finalizarprocok->parametros->
-						//finalizarprocfalla->parametros->
+						//terminarrafaga->parametros->pid, idcpu, mensaje de cada instruccion hecha
+
+
+						//enviar a io->parametros->pid,idcpu,Tiempo
+
+
+						//terminarconfalla->parametros->pid, cpuid
+
+
+						//finalizarprocok->parametros->pid, cpuid??
+
+						t_mensajeHeader rta;
+						rta.idmensaje = FINALIZAPROCOK;
+						status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
+						printf("envio de finalizar ok del proceso con id: %d \n", pcbProc.pid);
+
+						t_finalizarPID rtaFin;
+						rtaFin.pid = pcbProc.pid;
+						status = send(serverSocket, &(rtaFin.pid), sizeof(t_finalizarPID), 0);
+
+						//finalizarprocfalla->parametros-> pid, cpuid
 
 						//rtas a memoria
 
@@ -219,23 +235,6 @@ void finalizar (int mProcID){
 	sleep(1);
 }
 
-
-/*int main ()  {
-	pthread_t cpu;
-	int cpuID;
-
-	remove(PATH_LOG);
-	logCPU = log_create(PATH_LOG,"CPU",true,LOG_LEVEL_INFO);
-	log_info(logCPU,"Inicio Proceso CPU");
-
-	LeerArchivoConfiguracion();
-	serverMemoria = conexion_con_memoria();
-	Conexion_con_planificador();
-	cpuID = pthread_create(&cpu,NULL,ejecucion,NULL);
-    pthread_join(cpu,NULL);
-
-    return 0; //CARLA AMOR Y PAZ POR MI 0 :D
-}*/
 
 void parsermCod(char *path){
 	FILE* fid;

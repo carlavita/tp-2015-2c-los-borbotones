@@ -329,7 +329,11 @@ void handle(int newsock, fd_set *set) {
 
 		case FINALIZAPROCOK:
 
-			printf("el proceso finalizo correctamente su rafaga\n");
+			printf("el proceso finalizo correctamente su rafaga");
+			t_finalizarPID rtaProc;
+			recv(newsock, &(rtaProc), sizeof(int), 0);
+
+			printf(" con id: %d \n",rtaProc.pid);
 			//actualizarPcb();
 
 			break;

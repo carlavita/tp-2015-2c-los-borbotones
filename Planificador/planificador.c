@@ -330,16 +330,22 @@ void handle(int newsock, fd_set *set) {
 		case FINALIZAPROCOK:
 
 			printf("el proceso finalizo correctamente su rafaga");
+			//todo utilizar mejor struct  con pid del proceso y id de cpu
 			t_finalizarPID rtaProc;
-			recv(newsock, &(rtaProc), sizeof(int), 0);
-
+			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n",rtaProc.pid);
+			//no lo detecta cpuID en su lista de ids por su socket de comunicacion??
+
+			int idCPU;
+			recv(newsock, &(idCPU), sizeof(int), 0);
+			printf(" de la cpu: %d \n",idCPU);
 			//actualizarPcb();
 
 			break;
 		case PROCFALLA:
 
 			printf("el proceso falló en su ejecucion\n");
+
 			//borrarEstructurasDelProc();
 
 			break;

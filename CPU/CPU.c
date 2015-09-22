@@ -11,18 +11,20 @@
 
 
 int main ()  {
-	pthread_t cpu;
-	int cpuID;
+	pthread_t hiloCPU;
+	//int cpuID
 
 	remove(PATH_LOG);
 	logCPU = log_create(PATH_LOG,"CPU",true,LOG_LEVEL_INFO);
 	log_info(logCPU,"Inicio Proceso CPU");
 
 	LeerArchivoConfiguracion();
+
 	serverMemoria = conexion_con_memoria();
 	Conexion_con_planificador();
-	cpuID = pthread_create(&cpu,NULL,ejecucion,NULL);
-    pthread_join(cpu,NULL);
+//	cpuID = pthread_create(&hiloCPU,NULL,ejecucion,NULL);//todo revisar porque el idCPU no puede ser el valor de retorno de creacion del hilo
+	printf("el id de la CPU es:%d \n",cpuID);
+  //  pthread_join(hiloCPU,NULL);
 
     return 0; //CARLA AMOR Y PAZ POR MI 0 :D
 }
@@ -138,7 +140,7 @@ void Conexion_con_planificador(){
 						/*armar funcion de rta */
 
 						//rtas al planificador en base a lo que se manda a ejecutar del proceso
-						//terminarrafaga->parametros->pid, idcpu, mensaje de cada instruccion hecha
+						//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
 
 
 						//enviar a io->parametros->pid,idcpu,Tiempo
@@ -149,14 +151,21 @@ void Conexion_con_planificador(){
 
 						//finalizarprocok->parametros->pid, cpuid??
 
+						//todo logica de finalizar proceso ok
 						t_mensajeHeader rta;
 						rta.idmensaje = FINALIZAPROCOK;
 						status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio de finalizar ok del proceso con id: %d \n", pcbProc.pid);
+						printf("envio finalizar ok del proceso con id: %d  ", pcbProc.pid);
 
 						t_finalizarPID rtaFin;
 						rtaFin.pid = pcbProc.pid;
 						status = send(serverSocket, &(rtaFin.pid), sizeof(t_finalizarPID), 0);
+
+						//todo verificar si mandar este id
+						int idCPU;
+						idCPU = cpuID;
+						status = send(serverSocket, &(idCPU), sizeof(int), 0);
+						printf("de la cpu con id: %d \n", idCPU);
 
 						//finalizarprocfalla->parametros-> pid, cpuid
 
@@ -201,13 +210,13 @@ char *parsearLinea(char * lineaLeida){
 
 //todo revisar
 void *ejecucion (void *ptr){
-//FILE *fd;
-	//fd = fopen("/home/utnso/codigo/test.cod","r");
+	FILE *fd;
+	fd = fopen("/home/utnso/codigo/test.cod","r");
 	iniciar(3,12);
 	escribir(3,"HOLA",12);
 	leer(3,12);
 	finalizar(12);
-	//fclose(fd);
+	fclose(fd);
 	return 0;
 }
 

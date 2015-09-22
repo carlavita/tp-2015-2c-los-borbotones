@@ -51,6 +51,7 @@ typedef struct
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 int serverMemoria = 0;
+int cpuID = 1;//seteado para probar-->despues pasar a N cpus creados cos sus respectivos hilos
 
 
 //funciones de la cpu

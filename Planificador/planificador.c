@@ -334,11 +334,8 @@ void handle(int newsock, fd_set *set) {
 			t_finalizarPID rtaProc;
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n",rtaProc.pid);
-			//no lo detecta cpuID en su lista de ids por su socket de comunicacion??
+			printf(" de la cpu: %d \n",rtaProc.idCPU);
 
-			int idCPU;
-			recv(newsock, &(idCPU), sizeof(int), 0);
-			printf(" de la cpu: %d \n",idCPU);
 			//actualizarPcb();
 
 			break;
@@ -349,11 +346,7 @@ void handle(int newsock, fd_set *set) {
 			t_finalizarPID rtaP;
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n",rtaP.pid);
-			//no lo detecta cpuID en su lista de ids por su socket de comunicacion??
-
-			int idCPUs;
-			recv(newsock, &(idCPUs), sizeof(int), 0);
-			printf(" de la cpu: %d \n",idCPUs);
+			printf(" de la cpu: %d \n",rtaP.idCPU);
 
 			//borrarEstructurasDelProc();
 

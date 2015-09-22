@@ -35,6 +35,9 @@
 #define ERROR 15
 
 
+//estados de linea de mCod
+
+
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -59,6 +62,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
 	int pid;
+	int idCPU;
 }t_finalizarPID;
 
 

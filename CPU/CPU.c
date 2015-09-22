@@ -159,13 +159,9 @@ void Conexion_con_planificador(){
 
 						t_finalizarPID rtaFin;
 						rtaFin.pid = pcbProc.pid;
-						status = send(serverSocket, &(rtaFin.pid), sizeof(t_finalizarPID), 0);
-
-						//todo verificar si mandar este id
-						int idCPU;
-						idCPU = cpuID;
-						status = send(serverSocket, &(idCPU), sizeof(int), 0);
-						printf("de la cpu con id: %d \n", idCPU);*/
+						rtaFin.idCPU = cpuID;
+						status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
+						printf("de la cpu con id: %d \n",rtaFin.idCPU);*/
 
 						//todo rtas a memoria
 
@@ -179,14 +175,9 @@ void Conexion_con_planificador(){
 						//todo conviene usar un struct con pid y cpuid
 						t_finalizarPID rtaF;
 						rtaF.pid = pcbProc.pid;
-						status = send(serverSocket, &(rtaF.pid), sizeof(t_finalizarPID), 0);
-
-						//todo verificar si mandar este id
-						int idCPUs;
-						idCPUs = cpuID;
-						status = send(serverSocket, &(idCPUs), sizeof(int), 0);
-						printf("de la cpu con id: %d \n", idCPUs);
-
+						rtaF.idCPU = cpuID;
+						status = send(serverSocket, &(rtaF), sizeof(t_finalizarPID), 0);
+						printf("de la cpu con id: %d \n", rtaF.idCPU);
 						//todo rtas a memoria
 
 						break;

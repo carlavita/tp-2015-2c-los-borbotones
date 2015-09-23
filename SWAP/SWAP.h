@@ -20,6 +20,7 @@ struct
 	char * NombreSwap;
 	int CantidadPaginas ;
 	int TamanioPagina;
+	int RetardoSWAP;
 	int RetardoCompactacion;
 
 } t_config_ProcesoSWAP;
@@ -42,7 +43,7 @@ typedef struct
 
 t_log * logSWAP;
 t_config_ProcesoSWAP configuracionSWAP;
-FILE * archivoDisco;
+
 t_list * listaProcesos;
 t_list * listaPaginasLibres;
 int paginasLibres;

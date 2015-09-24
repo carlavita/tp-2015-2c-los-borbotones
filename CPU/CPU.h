@@ -15,6 +15,7 @@
 #include <commons/string.h>
 #include <commons/config.h>
 #include <commons/txt.h>
+#include <commons/collections/list.h>
 #include <pthread.h>
 #include <string.h>
 #include <sys/types.h>
@@ -26,6 +27,7 @@
 #include <protocolo.h>
 
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
+#define MAXRTA 256
 
 #define PATH_CONFIG "archivoConfig.conf"
 #define PATH_LOG "ArchivoLogueoCPU.txt"
@@ -40,13 +42,21 @@
 typedef struct
 {
 	char* IPPlanificador;
-	//int PuertoPlanificador;
 	char* PuertoPlanificador;
 	char* IPMemoria ;
 	char* PuertoMemoria;
 	int CantidadHilos;
 	int Retardo;
 } t_config_ProcesoCPU;
+
+
+typedef struct __attribute__((packed))
+{
+	int instruccion;
+	char resultado[MAXRTA];
+
+}t_rtaEjecucion;
+
 
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
@@ -61,6 +71,7 @@ void Conexion_con_planificador();
 int conexion_con_memoria();
 int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
 char *parsearLinea(char * lineaLeida);
+t_list* ejecutarmProc(t_pcb pcbProc);
 
 
 void *ejecucion (void *ptr);

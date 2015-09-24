@@ -129,8 +129,9 @@ void Conexion_con_planificador(){
 						printf("recibido el contexto del proceso de planificador con su id %d \n",pcbProc.pid);
 						printf("recibido el contexto del proceso de planificador con su path %s \n",pcbProc.pathProc);
 
+				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
+						listaEjecucion = ejecutarmProc(pcbProc);*/
 
-						parsermCod(pcbProc.pathProc);
 
 						//todo prueba borrar!
 						t_mensajeHeader inicia1;
@@ -195,6 +196,22 @@ void Conexion_con_planificador(){
 		close(serverSocket);
 		printf("Conexion a planificador cerrada \n");
 		log_info(logCPU,"Conexion a planificador cerrada");
+
+}
+
+
+//funcion que recibe el pcb del mProc parsea el mismo y todo devuelve una lista formada por instruccion resultado
+t_list* ejecutarmProc(t_pcb pcbProc){
+
+	printf("en la funcion ejecutar proceso  \n");
+	parsermCod(pcbProc.pathProc);
+	printf("termino la funcion ejecutar proceso  \n");
+	t_list* listaRtasEjecucion;
+	listaRtasEjecucion = list_create();
+
+	//esta lista de carga todas las rtas de cada linea de ejecucion del proceso
+
+	return listaRtasEjecucion;
 
 }
 

@@ -31,20 +31,29 @@ int main ()  {
 	leerArchivoConfiguracion();
 	paginasLibres = configuracionSWAP.CantidadPaginas;
 	creacionDisco();
+	archivoDisco = fopen(configuracionSWAP.NombreSwap, "r+");
 	inicializarListas();
 
-	inicializarDisco();
+//	inicializarDisco();
 
-	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	for (;;){
-		escucharMensajes(servidor);
-			}
+		iniciar(1,10);
+		iniciar(2,5);
+		escribir(2,1,"FER PUTO");
+		char * contenido = malloc(1024);
+		contenido = leer(2,1);
+		printf("El contenido lecturado es %d",contenido);
+		int sta =finalizar(1);
+		int stat = finalizar(2);
+	//int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
+	//for (;;){
+		//escucharMensajes(servidor);
+			//}
 
 
 
 	log_info(logSWAP,"Fin Proceso SWAP");
 	//servidorMemoria();
-
+	fclose(archivoDisco);
 	exit(0);
 }
 
@@ -84,6 +93,12 @@ int iniciar(int idProceso ,int cantidadPaginas){
 		proceso->cantidadEscrituras = 0;
 		proceso->cantidadLecturas = 0;
 		list_add(listaProcesos,proceso);
+
+		char* contenido;
+			contenido = string_repeat(' ', cantidadPaginas * configuracionSWAP.TamanioPagina);
+			fseek(archivoDisco,paginaInicial*configuracionSWAP.TamanioPagina,SEEK_SET);
+			fputs(contenido,archivoDisco);
+
 			paginasLibres = paginasLibres - cantidadPaginas;
 
 			/* ACTUALIZO MI LISTA DE PAGINAS LIBRES */
@@ -123,13 +138,13 @@ int finalizar (int PID){
 	int bytesUsadosPorPID = ((ultimaPagina + 1 - primerPagina) * configuracionSWAP.TamanioPagina);
 	//char * contenido = '\0';
 	char * contenido = string_repeat('\0',bytesUsadosPorPID);
-	FILE * archivoDisco = fopen(configuracionSWAP.NombreSwap, "w");
+
 
 	//ACA VA LA ELIMINACION DEL CONTENIDO DEL SWAP DE ESAS PAGINAS
 			fseek(archivoDisco,primerPagina* configuracionSWAP.TamanioPagina,SEEK_SET);
 			//fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
 			fputs(contenido,archivoDisco);
-			fclose(archivoDisco);
+
 
 	//ELIMINO DE LISTA DE PRCESOS Y AGREGO A LISTA DE PAGINAS LIBRES
 		//AGREGO LAS PAGINAS LIBERADAS A LA LISTA
@@ -165,13 +180,13 @@ char * leer (int PID,int nroPagina){
 	int primerBytePagina = (nroPagina + procesoObtenido->primerPagina) * tamanioPagina;
 	char * contenido = malloc(tamanioPagina);
 
-	FILE * archivoDisco = fopen(configuracionSWAP.NombreSwap, "r+");
+
 	//rewind(archivoDisco);
 
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
 	fgets(contenido,tamanioPagina,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 
-	fclose(archivoDisco);
+
 
 	/* LOGEO EN ESCRITURA */
 		log_info(logSWAP,"Lectura solicitada");
@@ -187,7 +202,7 @@ char * leer (int PID,int nroPagina){
 	return contenido;
 }
 
-void * escribir (int PID, int nroPagina, char* contenidoPagina){
+int escribir (int PID, int nroPagina, char* contenidoPagina){
 
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
 	int posicionPID = busquedaPIDEnLista(PID);
@@ -200,7 +215,7 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	log_info(logSWAP,"Tamaño solicitado para escritura %d",string_length(contenidoPagina));
 	log_info(logSWAP,"El contenido de escritura es %s", contenidoPagina);
 
-	FILE * archivoDisco = fopen(configuracionSWAP.NombreSwap, "r+");
+
 
 	char* contenido = malloc(tamanioPagina - string_length(contenidoPagina));
 	contenido = string_repeat(' ', tamanioPagina - string_length(contenidoPagina) );
@@ -211,11 +226,11 @@ void * escribir (int PID, int nroPagina, char* contenidoPagina){
 	fputs(contenidoPagina,archivoDisco);
 	fputs(contenido,archivoDisco);
 
-	fclose(archivoDisco);
+
 
 	procesoObtenido->cantidadEscrituras = procesoObtenido->cantidadEscrituras + 1;
 	sleep(configuracionSWAP.RetardoSWAP);
-	return NULL;
+	return 14;
 }
 
 
@@ -292,9 +307,9 @@ void inicializarDisco() {
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
 	contenido = string_repeat(' ', tamanioDisco);
-	FILE * archivoDisco = fopen(configuracionSWAP.NombreSwap, "wt");
+
 	fputs(contenido,archivoDisco);
-	fclose(archivoDisco);
+
 }
 
 
@@ -409,6 +424,19 @@ void escucharMensajes(int servidor){
 
 				break;
 			case ESCRIBIR:
+				log_info(logSWAP,"Se recibio el mensaje ESCRIBIR");
+				sendACK(servidor);
+				recv(servidor,&pid,sizeof(int),0);
+				sendACK(servidor);
+				recv(servidor,&paginas,sizeof(int),0);
+				sendACK(servidor);
+				int sizeContenido;
+				recv(servidor,&sizeContenido, sizeof(int),0);
+				sendACK(servidor);
+				char * contenidoEscribir = malloc(sizeContenido);
+				recv(servidor,&contenidoEscribir,sizeof(char*),0);
+				int status = escribir(pid,paginas,contenidoEscribir);
+				send(servidor,status,sizeof(int),0);
 
 				break;
 			case FINALIZAR:

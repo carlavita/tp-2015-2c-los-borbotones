@@ -47,7 +47,7 @@ t_config_ProcesoSWAP configuracionSWAP;
 t_list * listaProcesos;
 t_list * listaPaginasLibres;
 int paginasLibres;
-
+FILE * archivoDisco;
 
 /*** FUNCIONES DE INICIALIZACION ***/
 void * creacionDisco();
@@ -59,7 +59,7 @@ void inicializarDisco();
 int iniciar(int idProceso ,int cantidadPaginas);
 int finalizar (int PID);
 char * leer (int PID ,int nroPagina);
-void * escribir (int PID, int nroPagina, char* contenidoPagina);
+int escribir (int PID, int nroPagina, char* contenidoPagina);
 void * compactacion();
 
 /*** FUNCIONES DE BUSQUEDA Y AUXILIARES***/

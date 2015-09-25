@@ -34,20 +34,12 @@ int main ()  {
 	archivoDisco = fopen(configuracionSWAP.NombreSwap, "r+");
 	inicializarListas();
 
-//	inicializarDisco();
+	inicializarDisco();
 
-		iniciar(1,10);
-		iniciar(2,5);
-		escribir(2,1,"FER PUTO");
-		char * contenido = malloc(1024);
-		contenido = leer(2,1);
-		printf("El contenido lecturado es %d",contenido);
-		int sta =finalizar(1);
-		int stat = finalizar(2);
-	//int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	//for (;;){
-		//escucharMensajes(servidor);
-			//}
+	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
+	for (;;){
+		escucharMensajes(servidor);
+			}
 
 
 
@@ -94,10 +86,10 @@ int iniciar(int idProceso ,int cantidadPaginas){
 		proceso->cantidadLecturas = 0;
 		list_add(listaProcesos,proceso);
 
-		char* contenido;
+	/*	char* contenido;
 			contenido = string_repeat(' ', cantidadPaginas * configuracionSWAP.TamanioPagina);
 			fseek(archivoDisco,paginaInicial*configuracionSWAP.TamanioPagina,SEEK_SET);
-			fputs(contenido,archivoDisco);
+			fputs(contenido,archivoDisco);*/
 
 			paginasLibres = paginasLibres - cantidadPaginas;
 
@@ -306,7 +298,7 @@ void inicializarDisco() {
 	int tamanioDisco = configuracionSWAP.CantidadPaginas
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
-	contenido = string_repeat(' ', tamanioDisco);
+	contenido = string_repeat('\0', tamanioDisco);
 
 	fputs(contenido,archivoDisco);
 
@@ -361,14 +353,14 @@ int busquedaPIDEnLista(int PID){
 }
 
 int busquedaPaginaEnLista(int numeroPagina){
-	int posicion = 0;
+	int poss = 0;
 	t_tablaPaginasLibres* paginaLibre;
-	paginaLibre = list_get(listaPaginasLibres,posicion);
+	paginaLibre = list_get(listaPaginasLibres,poss);
 	while (paginaLibre->desdePagina != numeroPagina) {
-		posicion++;
-		paginaLibre = list_get(listaProcesos,posicion);
+		poss++;
+		paginaLibre = list_get(listaProcesos,poss);
 		}
-	return posicion;
+	return poss;
 
 }
 

@@ -159,7 +159,6 @@ void mostrarConsola(void *ptr) {
 
 		case 0:
 			pthread_mutex_lock(&mutexLog);
-
 			log_info(logger, "* Apaga Consola * \n");
 			pthread_mutex_unlock(&mutexLog);
 
@@ -329,8 +328,8 @@ void handle(int newsock, fd_set *set) {
 
 		case FINALIZAPROCOK:
 
-			printf("el proceso finalizo correctamente su rafaga");
-			//todo utilizar mejor struct  con pid del proceso y id de cpu
+			printf("el proceso finalizo correctamente su ejecucion");
+
 			t_finalizarPID rtaProc;
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n",rtaProc.pid);
@@ -342,7 +341,7 @@ void handle(int newsock, fd_set *set) {
 		case PROCFALLA:
 
 			printf("el proceso falló en su ejecucion\n");
-			//todo utilizar mejor struct  con pid del proceso y id de cpu
+
 			t_finalizarPID rtaP;
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n",rtaP.pid);
@@ -355,15 +354,22 @@ void handle(int newsock, fd_set *set) {
 			// todo liberar cpu y sem_post(&semaforoCPU); aca tambien me vas a tener que pasar como si fuera fin de rafaga
 			printf("el proceso esta realizando su entrada-salida\n");
 			ejecutarIO(newsock);
+
 			break;
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
-
+			printf("Fin de quantum CPU ");//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
 			pthread_mutex_unlock(&mutexLog);
+
 			break;
 		case FINDERAFAGA:
+
+			printf("el proceso finalizo correctamente su rafaga");
+			pthread_mutex_lock(&mutexLog);
+			log_info(logger, "Fin de rafaga del proceso: "); //todo, agregar id proceso
+			pthread_mutex_unlock(&mutexLog);
 			// todo liberar cpu y sem_post(&semaforoCPU);
 			break;
 		default:
@@ -732,6 +738,7 @@ void finalizarPid() {
 
 	//todo mandar a cpu??
 }
+
 int obtenerCantidadLineasPath(char* path) {
 
 	FILE* mCod = fopen(path, "r");
@@ -752,6 +759,7 @@ int obtenerCantidadLineasPath(char* path) {
 
 	return lineasPath;
 }
+
 void *procesarEntradasSalidas(void *info_proc) {
 	t_io* mjeIO;
 	// hilo consumidor de entrada salida

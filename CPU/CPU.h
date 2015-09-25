@@ -63,6 +63,8 @@ t_log * logCPU;
 int serverMemoria = 0;
 int cpuID = 1;//seteado para probar-->despues pasar a N cpus creados cos sus respectivos hilos
 
+//semaforos
+pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 
 //funciones de la cpu
 
@@ -72,6 +74,7 @@ int conexion_con_memoria();
 int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
 char *parsearLinea(char * lineaLeida);
 t_list* ejecutarmProc(t_pcb pcbProc);
+void inicializarSemaforosCPU();
 
 
 void *ejecucion (void *ptr);

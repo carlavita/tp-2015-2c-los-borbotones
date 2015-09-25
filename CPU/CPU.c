@@ -19,6 +19,7 @@ int main ()  {
 	log_info(logCPU,"Inicio Proceso CPU");
 
 	LeerArchivoConfiguracion();
+	inicializarSemaforosCPU();
 
 	serverMemoria = conexion_con_memoria();
 	Conexion_con_planificador();
@@ -33,24 +34,39 @@ int main ()  {
 void  LeerArchivoConfiguracion(){
 
 	t_config* cfgCPU = malloc(sizeof(t_config));
+	pthread_mutex_lock(&mutexLogueo);
 	log_info(logCPU,"Leyendo Archivo de Configuracion");
+	pthread_mutex_unlock(&mutexLogueo);
 	cfgCPU = config_create(PATH_CONFIG);
 	configuracionCPU.IPPlanificador = config_get_string_value(cfgCPU,"IP_PLANIFICADOR");
 	configuracionCPU.PuertoPlanificador = config_get_string_value(cfgCPU,"PUERTO_PLANIFICADOR");
 	configuracionCPU.IPMemoria = config_get_string_value(cfgCPU,"IP_MEMORIA");
 	configuracionCPU.PuertoMemoria = config_get_string_value(cfgCPU,"PUERTO_MEMORIA");
-
 	configuracionCPU.CantidadHilos = config_get_int_value(cfgCPU,"CANTIDAD_HILOS");
 	configuracionCPU.Retardo = config_get_int_value(cfgCPU,"RETARDO");
+	pthread_mutex_lock(&mutexLogueo);
 	log_info (logCPU,"%s",configuracionCPU.PuertoPlanificador);
 	log_info(logCPU,"Archivo de Configuracion Leido correctamente");
+	pthread_mutex_unlock(&mutexLogueo);
+
+}
+
+void inicializarSemaforosCPU(){
+
+	pthread_mutex_init(&mutexLogueo, NULL);
+
+	pthread_mutex_lock(&mutexLogueo);
+	log_info(logCPU, "Se inicializaron los semaforos \n");
+	pthread_mutex_unlock(&mutexLogueo);
 
 }
 
 int conexion_con_memoria(){
 
 	printf("Conectando a memoria \n");
+	pthread_mutex_lock(&mutexLogueo);
 	log_info(logCPU,"Conectando a memoria\n");
+	pthread_mutex_unlock(&mutexLogueo);
 
 		struct addrinfo hints;
 		struct addrinfo *serverInfo;
@@ -75,8 +91,10 @@ int conexion_con_memoria(){
 
 void Conexion_con_planificador(){
 
-	printf("Conectando a planificador \n");
-	log_info(logCPU,"Conectando a planificador");
+		printf("Conectando a planificador \n");
+		pthread_mutex_lock(&mutexLogueo);
+		log_info(logCPU,"Conectando a planificador");
+		pthread_mutex_unlock(&mutexLogueo);
 
 		struct addrinfo hints;
 		struct addrinfo *serverInfo;
@@ -131,14 +149,14 @@ void Conexion_con_planificador(){
 
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 						listaEjecucion = ejecutarmProc(pcbProc);*/
-
+						parsermCod(pcbProc.pathProc);
 
 						//todo prueba borrar!
 						t_mensajeHeader inicia1;
 						inicia.idmensaje = INICIAR;
 						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
 
-						/*armar funcion de rta */
+						/*estas rtas van dentro de una funcion segun la ejecucion de mproc*/
 
 						//rtas al planificador en base a lo que se manda a ejecutar del proceso
 						//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
@@ -195,7 +213,9 @@ void Conexion_con_planificador(){
 
 		close(serverSocket);
 		printf("Conexion a planificador cerrada \n");
+		pthread_mutex_lock(&mutexLogueo);
 		log_info(logCPU,"Conexion a planificador cerrada");
+		pthread_mutex_unlock(&mutexLogueo);
 
 }
 

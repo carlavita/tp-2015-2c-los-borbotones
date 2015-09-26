@@ -57,6 +57,11 @@ typedef struct __attribute__((packed))
 
 }t_rtaEjecucion;
 
+typedef struct {
+	int pid;
+	int tiempoIO;
+} t_io;
+
 
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;

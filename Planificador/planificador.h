@@ -92,25 +92,13 @@ typedef struct {
 	int porcentajeUso;
 } t_cpu;
 
+//todo pasar a protocolo.h
 typedef struct {
 	int pid;
 	int tiempoIO;
 } t_io;
-/*typedef struct
- {
- int pid;//revisar si es necesario este campo
- char* pathProc;
- int proxInst;
- int quantum;
 
- }t_contextoEjecucion;*/
 
-/*typedef struct {
-	int pid;
-	int tiempo;
-
-} t_rtaIO;
-*/
 int val; //variable para saber el valor del semaforoListos
 
 int PID = 0; // Para numerar los procesos

@@ -156,25 +156,39 @@ void Conexion_con_planificador(){
 						inicia.idmensaje = INICIAR;
 						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
 
-						/*estas rtas van dentro de una funcion segun la ejecucion de mproc*/
+						/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
 						//rtas al planificador en base a lo que se manda a ejecutar del proceso
 						//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
 
 
-						//enviar a io->parametros->pid,idcpu,Tiempo
+						//fin de quantum->parametros->pid, cpuid,mensaje de cada instruccion hecha y el tiempo consumido
+
+
+						//PROCIO->parametros->pid,Tiempo, todo no falta el id de cpu?
+						t_mensajeHeader mjeIO;
+						mjeIO.idmensaje = PROCIO;
+						status = send(serverSocket, &(mjeIO.idmensaje), sizeof(t_mensajeHeader), 0);
+						printf("envio de entrada-salida del proceso con id: %d ", pcbProc.pid);
+
+						t_io rtaIO;
+						rtaIO.pid = pcbProc.pid;
+						rtaIO.tiempoIO = 4; //todo seteado para probar-->proviene del parseo del mproc
+						status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
+						printf("y tiempo: %d \n",rtaIO.tiempoIO);
+						//todo rtas a memoria
 
 
 						//terminarconfalla->parametros->pid, cpuid
 
 
-						//finalizarprocok->parametros->pid, cpuid??
+						//finalizarprocok->parametros->pid, cpuid
 
 						//todo logica de finalizar proceso ok
 						/*t_mensajeHeader rta;
 						rta.idmensaje = FINALIZAPROCOK;
 						status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio finalizar ok del proceso con id: %d  ", pcbProc.pid);
+						printf("envio finalizar ok del proceso con id: %d ", pcbProc.pid);
 
 						t_finalizarPID rtaFin;
 						rtaFin.pid = pcbProc.pid;
@@ -186,17 +200,16 @@ void Conexion_con_planificador(){
 
 						//finalizarprocfalla->parametros-> pid, cpuid
 
-						t_mensajeHeader rtaE;
+					/*	t_mensajeHeader rtaE;
 						rtaE.idmensaje = PROCFALLA;
 						status = send(serverSocket, &(rtaE.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio falla del proceso con id: %d  ", pcbProc.pid);
+						printf("envio falla del proceso con id: %d ", pcbProc.pid);
 
-						//todo conviene usar un struct con pid y cpuid
 						t_finalizarPID rtaF;
 						rtaF.pid = pcbProc.pid;
 						rtaF.idCPU = cpuID;
 						status = send(serverSocket, &(rtaF), sizeof(t_finalizarPID), 0);
-						printf("de la cpu con id: %d \n", rtaF.idCPU);
+						printf("de la cpu con id: %d \n", rtaF.idCPU);*/
 						//todo rtas a memoria
 
 						break;

@@ -328,7 +328,7 @@ void handle(int newsock, fd_set *set) {
 
 		case FINALIZAPROCOK:
 
-			printf("el proceso finalizo correctamente su ejecucion");
+			printf("el proceso finalizo correctamente su ejecucion \n");
 
 			t_finalizarPID rtaProc;
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
@@ -340,11 +340,11 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case PROCFALLA:
 
-			printf("el proceso falló en su ejecucion\n");
+			printf("el proceso falló en su ejecucion \n");
 
 			t_finalizarPID rtaP;
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
-			printf(" con id: %d \n",rtaP.pid);
+			printf(" con id: %d",rtaP.pid);
 			printf(" de la cpu: %d \n",rtaP.idCPU);
 
 			//borrarEstructurasDelProc();
@@ -352,13 +352,18 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case PROCIO:
 			// todo liberar cpu y sem_post(&semaforoCPU); aca tambien me vas a tener que pasar como si fuera fin de rafaga
-			printf("el proceso esta realizando su entrada-salida\n");
+			printf("el proceso esta realizando su entrada-salida \n");
+			t_io rtaIO;
+			recv(newsock, &(rtaIO), sizeof(t_io), 0);
+			printf(" con id: %d",rtaIO.pid);
+			printf(" con tiempo: %d \n",rtaIO.tiempoIO);
+			//todo no falta el id de cpu?
 			ejecutarIO(newsock);
 
 			break;
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
-			printf("Fin de quantum CPU ");//todo, agregar id cpu
+			printf("Fin de quantum CPU \n");//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
 			pthread_mutex_unlock(&mutexLog);
@@ -366,7 +371,7 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case FINDERAFAGA:
 
-			printf("el proceso finalizo correctamente su rafaga");
+			printf("el proceso finalizo correctamente su rafaga \n");
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de rafaga del proceso: "); //todo, agregar id proceso
 			pthread_mutex_unlock(&mutexLog);
@@ -551,7 +556,7 @@ void *planificador(void *info_proc) {
 
 void ejecutarIO(int socketCPU) {
 	// TODO, VER ESTO
-	//recepciono de la pcu el msj con el Tiempo(en segundos) que hay que hacer el IO
+	//recepciono de la cpu el msj con el Tiempo(en segundos) que hay que hacer el IO
 	//t_rtaIO mjeIO;
 	t_io* infoIO = malloc(sizeof(t_io));
 	recv(socketCPU, &infoIO, sizeof(t_io), 0);

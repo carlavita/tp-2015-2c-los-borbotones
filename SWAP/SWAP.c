@@ -36,10 +36,18 @@ int main ()  {
 
 	inicializarDisco();
 
-	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	for (;;){
-		escucharMensajes(servidor);
-			}
+	iniciar(1,10);
+	finalizar(1);
+	iniciar(2,10);
+	finalizar(2);
+	iniciar(3,100);
+	iniciar(4,50);
+	finalizar(4);
+
+	//int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
+	//for (;;){
+		//escucharMensajes(servidor);
+			//}
 
 
 
@@ -158,7 +166,9 @@ int finalizar (int PID){
 					log_info(logSWAP,"Cantidad de Escrituras solicitadas: %d", cantidadEscrituras);
 					log_info(logSWAP,"Cantidad de Lecturas solicitadas: %d", cantidadLecturas);
 
-	ordenarLista(); //LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
+	ordenarLista();//LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
+	unificacionEspacioContiguo();
+
 
 	return 14;
 }
@@ -372,6 +382,25 @@ bool _ordenamiento_porPaginasLibres(t_tablaPaginasLibres* paginasLibres, t_tabla
 	return NULL;
 }
 
+
+void * unificacionEspacioContiguo(){
+	t_tablaPaginasLibres* pagLibre;
+	t_tablaPaginasLibres* paginaSiguiente;
+	int contador = 0;
+	while ((contador < list_size(listaPaginasLibres)) && (list_size(listaPaginasLibres) > 1)){
+	pagLibre = list_get(listaPaginasLibres,contador);
+	paginaSiguiente = list_get(listaPaginasLibres,contador+1);
+	if (paginaSiguiente->desdePagina - pagLibre->hastaPagina == 1){
+		pagLibre->hastaPagina = paginaSiguiente->hastaPagina;
+		list_remove(listaPaginasLibres,contador+1);
+	}
+	else
+	{
+		contador++;
+	}
+	}
+	return NULL;
+}
 
 
 /****************** FUNCIONES SOCKETS *****************/

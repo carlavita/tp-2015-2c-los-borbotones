@@ -67,6 +67,7 @@ int controlInsercionPaginas(int cantidadPaginas) ;
 int busquedaPIDEnLista(int PID);
 int busquedaPaginaEnLista(int numeroPagina);
 void * ordenarLista();
+void * unificacionEspacioContiguo();
 
 /*** FUNCIONES DE SOCKETS ***/
 void escucharMensajes(int servidor);

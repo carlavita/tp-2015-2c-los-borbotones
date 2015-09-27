@@ -35,6 +35,21 @@ int main ()  {
 	inicializarListas();
 
 	inicializarDisco();
+/*
+  PRUEBAS SWAP CON COMPACTACION
+	iniciar(1,10);
+	iniciar(2,10);
+	iniciar(3,10);
+	iniciar(4,32);
+	finalizar(2);
+	escribir(3,1,"HOLA");
+	escribir(4,3,"BUNE");
+	escribir(4,5,"PEPE");
+	iniciar(5,12);
+	leer(3,1);
+	leer(4,3);
+	leer(4,5);
+*/
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	for (;;){
@@ -256,6 +271,7 @@ void * compactacion(){
 				fseek(archivoDisco,primerBytePID,SEEK_SET);
 				fgets(contenido,tamanioProceso,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 
+				fseek(archivoDisco,primerBytePID,SEEK_SET);
 				char * contenidoNuevo = string_repeat('\0',tamanioProceso);
 				fputs(contenidoNuevo,archivoDisco);
 
@@ -351,7 +367,7 @@ void inicializarDisco() {
 	int tamanioDisco = configuracionSWAP.CantidadPaginas
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
-	contenido = string_repeat(' ', tamanioDisco);
+	contenido = string_repeat('\0', tamanioDisco);
 
 	fputs(contenido,archivoDisco);
 
@@ -460,7 +476,7 @@ int buscarBloqueAMover (int DesdePosicion, int HastaPosicion){
 					procesoObtenido = list_get(listaProcesos,contador);
 						if ((procesoObtenido->primerPagina > DesdePosicion) && (procesoObtenido->ultimaPagina < HastaPosicion) ){
 							posicion = contador;
-							contador = list_size(listaPaginasLibres);
+							contador = list_size(listaProcesos);
 						}
 						else{
 							contador++;

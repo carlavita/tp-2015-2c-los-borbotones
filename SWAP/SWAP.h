@@ -68,6 +68,8 @@ int busquedaPIDEnLista(int PID);
 int busquedaPaginaEnLista(int numeroPagina);
 void * ordenarLista();
 void * unificacionEspacioContiguo();
+void ordenarListaPorPagina();
+int buscarBloqueAMover (int DesdePosicion, int HastaPosicion);
 
 /*** FUNCIONES DE SOCKETS ***/
 void escucharMensajes(int servidor);

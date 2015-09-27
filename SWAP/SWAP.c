@@ -36,18 +36,10 @@ int main ()  {
 
 	inicializarDisco();
 
-	iniciar(1,10);
-	finalizar(1);
-	iniciar(2,10);
-	finalizar(2);
-	iniciar(3,100);
-	iniciar(4,50);
-	finalizar(4);
-
-	//int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	//for (;;){
-		//escucharMensajes(servidor);
-			//}
+	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
+	for (;;){
+		escucharMensajes(servidor);
+			}
 
 
 
@@ -186,7 +178,7 @@ char * leer (int PID,int nroPagina){
 	//rewind(archivoDisco);
 
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
-	fgets(contenido,tamanioPagina,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
+	fgets(contenido,tamanioPagina + 1,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 
 
 
@@ -220,7 +212,7 @@ int escribir (int PID, int nroPagina, char* contenidoPagina){
 
 
 	char* contenido = malloc(tamanioPagina - string_length(contenidoPagina));
-	contenido = string_repeat(' ', tamanioPagina - string_length(contenidoPagina) );
+	contenido = string_repeat('\0', tamanioPagina - string_length(contenidoPagina) );
 
 
 	fseek(archivoDisco,primerBytePagina,SEEK_SET);
@@ -237,10 +229,61 @@ int escribir (int PID, int nroPagina, char* contenidoPagina){
 
 
 void * compactacion(){
+
+		ordenarListaPorPagina();
+	while (list_size(listaPaginasLibres) > 1){
+		t_tablaPaginasLibres* pagLibre = list_get(listaPaginasLibres,0);
+		t_tablaPaginasLibres* paginaSiguiente = list_get(listaPaginasLibres,1);
+
+		int DesdeBusqueda = pagLibre->desdePagina;
+		int BloquesLibres = pagLibre->hastaPagina - pagLibre->desdePagina;
+		int HastaBusqueda = paginaSiguiente->desdePagina;
+		bool buscarEnPid = true;
+		while(buscarEnPid){
+			/* ACA HAGO ALGO*/
+			int pos = buscarBloqueAMover(DesdeBusqueda,HastaBusqueda);
+
+			if (pos > -1){
+			t_tablaProcesos *procesoObtenido = list_get(listaProcesos,pos);
+			int primerBytePID = procesoObtenido->primerPagina * configuracionSWAP.TamanioPagina;
+			int cantidadPaginas = procesoObtenido->ultimaPagina - procesoObtenido->primerPagina;
+			int tamanioProceso = cantidadPaginas * configuracionSWAP.TamanioPagina;
+			char * contenido = malloc(tamanioProceso);
+
+
+				//rewind(archivoDisco);
+
+				fseek(archivoDisco,primerBytePID,SEEK_SET);
+				fgets(contenido,tamanioProceso,archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
+
+				char * contenidoNuevo = string_repeat('\0',tamanioProceso);
+				fputs(contenidoNuevo,archivoDisco);
+
+				fseek(archivoDisco,DesdeBusqueda*configuracionSWAP.TamanioPagina,SEEK_SET);
+				fputs(contenido,archivoDisco);
+				procesoObtenido->primerPagina = procesoObtenido->primerPagina - BloquesLibres - 1;
+				procesoObtenido->ultimaPagina = procesoObtenido->ultimaPagina - BloquesLibres - 1;
+				free(contenido);
+				free(contenidoNuevo);
+
+
+			DesdeBusqueda = procesoObtenido->ultimaPagina + 1;
+
+			}
+			else
+			{
+				buscarEnPid = false;
+			}
+		}
+			pagLibre->desdePagina = DesdeBusqueda;
+			pagLibre->hastaPagina = DesdeBusqueda + BloquesLibres;
+			ordenarLista();
+			unificacionEspacioContiguo();
+		}
+
 	sleep(configuracionSWAP.RetardoCompactacion);//SIMULO TIEMPO DE COMPACTACION
 	return NULL;
 }
-
 
 
 
@@ -308,7 +351,7 @@ void inicializarDisco() {
 	int tamanioDisco = configuracionSWAP.CantidadPaginas
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
-	contenido = string_repeat('\0', tamanioDisco);
+	contenido = string_repeat(' ', tamanioDisco);
 
 	fputs(contenido,archivoDisco);
 
@@ -382,12 +425,19 @@ bool _ordenamiento_porPaginasLibres(t_tablaPaginasLibres* paginasLibres, t_tabla
 	return NULL;
 }
 
+void ordenarListaPorPagina(){
+	bool _ordenamiento_porPaginaInicial(t_tablaProcesos* procesoMayor, t_tablaProcesos* procesoMenor) {
+		return procesoMayor ->primerPagina < procesoMenor->primerPagina;
+		}
+		list_sort(listaPaginasLibres,(void*) _ordenamiento_porPaginaInicial);
+		}
+
 
 void * unificacionEspacioContiguo(){
 	t_tablaPaginasLibres* pagLibre;
 	t_tablaPaginasLibres* paginaSiguiente;
 	int contador = 0;
-	while ((contador < list_size(listaPaginasLibres)) && (list_size(listaPaginasLibres) > 1)){
+	while ((contador + 1 < list_size(listaPaginasLibres)) && (list_size(listaPaginasLibres) > 1)){
 	pagLibre = list_get(listaPaginasLibres,contador);
 	paginaSiguiente = list_get(listaPaginasLibres,contador+1);
 	if (paginaSiguiente->desdePagina - pagLibre->hastaPagina == 1){
@@ -400,6 +450,24 @@ void * unificacionEspacioContiguo(){
 	}
 	}
 	return NULL;
+}
+
+int buscarBloqueAMover (int DesdePosicion, int HastaPosicion){
+	t_tablaProcesos *procesoObtenido;
+	int posicion = -1;
+	int contador = 0;
+	while (contador < list_size(listaProcesos)){
+					procesoObtenido = list_get(listaProcesos,contador);
+						if ((procesoObtenido->primerPagina > DesdePosicion) && (procesoObtenido->ultimaPagina < HastaPosicion) ){
+							posicion = contador;
+							contador = list_size(listaPaginasLibres);
+						}
+						else{
+							contador++;
+						}
+				}
+
+	return posicion;
 }
 
 

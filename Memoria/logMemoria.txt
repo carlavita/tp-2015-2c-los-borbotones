@@ -1,12 +1,11 @@
-[INFO] 11:57:38:808 Administrador de memoria/(3323:3323): Inicio lectura de archivo de configuración
-[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): 64000
-[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): Finalizo lectura de archivo de configuración
-[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 11:57:38:830 Administrador de memoria/(3323:3323): La TLB no esta activada por configuración
-[INFO] 11:57:38:830 Administrador de memoria/(3323:3323): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 11:57:38:851 Administrador de memoria/(3323:3323): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): termino hiloSigUsr1
-[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): Termino hiloSigUsr2
-[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): Comienzo de las diferentes conexiones
-[INFO] 11:57:38:852 Administrador de memoria/(3323:3323): La memoria se conecto satisfactoriamente al SWAP
-[ERROR] 11:57:54:387 Administrador de memoria/(3323:3323): Mensaje recibido: 4
+[INFO] 21:17:38:405 Administrador de memoria/(4977:4977): Inicio lectura de archivo de configuración
+[INFO] 21:17:38:405 Administrador de memoria/(4977:4977): 64000
+[INFO] 21:17:38:405 Administrador de memoria/(4977:4977): Finalizo lectura de archivo de configuración
+[INFO] 21:17:38:405 Administrador de memoria/(4977:4977): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 21:17:38:405 Administrador de memoria/(4977:4977): La TLB no esta activada por configuración
+[INFO] 21:17:38:406 Administrador de memoria/(4977:4977): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 21:17:38:447 Administrador de memoria/(4977:4977): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 21:17:38:447 Administrador de memoria/(4977:4977): termino hiloSigUsr1
+[INFO] 21:17:38:447 Administrador de memoria/(4977:4977): Termino hiloSigUsr2
+[INFO] 21:17:38:447 Administrador de memoria/(4977:4977): Comienzo de las diferentes conexiones
+[INFO] 21:17:38:447 Administrador de memoria/(4977:4977): La memoria se conecto satisfactoriamente al SWAP

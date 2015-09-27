@@ -135,7 +135,7 @@ int iniciar(int idProceso ,int cantidadPaginas){
 int finalizar (int PID){
 
 	/* OBTENDO LA INFORMACION DEL PRCESO A FINALIZAR Y ALMACENO EN VARIABLES LOCALES */
-	int posicionPIDLista = busquedaPIDEnLista(PID);
+	int posicionPIDLista = 1;//busquedaPIDEnLista(PID);
 	t_tablaProcesos* procesoFinalizado = list_get(listaProcesos,posicionPIDLista);
 	int cantidadPaginas =procesoFinalizado->cantidadPaginas;
 	int primerPagina = procesoFinalizado->primerPagina;
@@ -184,9 +184,9 @@ int finalizar (int PID){
 char * leer (int PID,int nroPagina){
 
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
-	int posicionPID = busquedaPIDEnLista(PID);
+	int posicionPID = 1;//busquedaPIDEnLista(PID);
 		t_tablaProcesos *procesoObtenido = list_get(listaProcesos,posicionPID);
-	int primerBytePagina = (nroPagina + procesoObtenido->primerPagina) * tamanioPagina;
+	int primerBytePagina = (nroPagina + /*procesoObtenido->primerPagina*/1) * tamanioPagina;
 	char * contenido = malloc(tamanioPagina);
 
 
@@ -206,7 +206,7 @@ char * leer (int PID,int nroPagina){
 
 	//DEVUELVO PAGINA LEIDA
 
-	procesoObtenido->cantidadLecturas = procesoObtenido->cantidadLecturas + 1;
+	//procesoObtenido->cantidadLecturas = procesoObtenido->cantidadLecturas + 1;
 	sleep(configuracionSWAP.RetardoSWAP);
 	return contenido;
 }
@@ -506,7 +506,7 @@ void escucharMensajes(int servidor){
 				sendACK(servidor);
 				recv(servidor,&paginas,sizeof(int),0);
 				sendACK(servidor);
-			 status = iniciar(pid,paginas);
+			 status = iniciar(1/*pid*/,paginas);
 				t_mensajeHeader iniciar;
 					iniciar.idmensaje = status;
 					send(servidor,&iniciar,sizeof(t_mensajeHeader),0);

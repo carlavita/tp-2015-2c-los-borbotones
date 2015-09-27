@@ -130,7 +130,14 @@ void Conexion_con_planificador(){
 						/*SACAR*/
 						t_mensajeHeader inicia;
 						inicia.idmensaje = INICIAR;
+						send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+						//send(serverMemoria,1,sizeof(1),0);
+						sleep(20);
+						printf("LEER \n");
+						fflush(stdout);
+						inicia.idmensaje = LEER;
 						status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+						sleep(10);
 						/*SACAR*/
 						//status = send(serverMemoria, message, strlen(message) + 1, 0);
 

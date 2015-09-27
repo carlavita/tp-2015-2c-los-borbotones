@@ -213,16 +213,16 @@ void envioFinalizarSwap(t_mensajeHeader mensajeHeaderSwap, int cliente, int pid,
 void enviarIniciarSwap(int cliente, int pid, int pagina,
 		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
 	avisarAlSwap(cliente);
-	recvACK(cliente);
+	//recvACK(cliente);
 	pid = 1;
 	pagina = 4;
 	log_info(logMemoria,"Envio pid al SWAP, PID:%d",pid);
 	send(cliente, &pid, sizeof(int), 0);
-	recvACK(cliente);
+	//recvACK(cliente);
 	log_info(logMemoria,"SWAP recibio el pid de forma correcta");
 	log_info(logMemoria,"Envio pagina al SWAP, PAGINA N°:%d",pagina);
 	send(cliente, &pagina, sizeof(int), 0);
-	recvACK(cliente);
+	//recvACK(cliente);
 	log_info(logMemoria,"SWAP recibio la pagina de forma correcta");
 	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 	log_info(logMemoria,"Se recibio este codigo de error: %d",mensajeHeaderSwap.idmensaje);
@@ -234,49 +234,23 @@ void enviarIniciarSwap(int cliente, int pid, int pagina,
 	fflush(stdout);
 }
 
-void comandLeerPrimeraParte(int mensaje1, int servidor, int pagina, int cliente,
-		int pid, int mensaje2) {
-	mensaje1 = recv(servidor, &pagina, sizeof(pagina), 0);
-	while (mensaje1 == -1)
-		mensaje1 = recv(servidor, &pagina, sizeof(pagina), 0);
-	send(cliente, &pid, sizeof(pid), 0);
-	recvACK(cliente);
-	mensaje2 = recv(cliente, "OK", sizeof("OK"), 0); // NO VALE MANDARLO EN MINISCULA O ALGO PARECIDO!
-	while (mensaje2 == -1)
-		mensaje2 = recv(cliente, "OK", sizeof("OK"), 0);
-	send(cliente, &pagina, sizeof(pagina), 0);
-	recvACK(cliente);
-}
-
-void comandoLeerSegundaParte(int cliente, int tamanioDatosSwap, int mensaje3,
-		char mensajeRecibido[PACKAGESIZE], int servidor) {
-	recv(cliente, &tamanioDatosSwap, sizeof(int), 0);
-	sendACK(cliente);
-	char contenido[tamanioDatosSwap];
-	recv(cliente, &contenido, tamanioDatosSwap, 0);
-	mensaje3 = recv(cliente, mensajeRecibido, sizeof(mensajeRecibido), 0);
-	while (mensaje3 == -1)
-		recv(cliente, mensajeRecibido, sizeof(mensajeRecibido), 0);
-	send(servidor, mensajeRecibido, sizeof(mensajeRecibido), 0);
-}
 
 void procesamientoDeMensajes(int cliente,int servidor)
 {
-	int tamanioDatosSwap;
+
+   int tamanioDatosSwap;
    char mensajeRecibido[PACKAGESIZE];
    int CantidadDePaginas,pid;
+   int cantidadDePaginasRecibidas;
    int * memoriaReservadaDeMemPpal = malloc(sizeof(configMemoria.cantidadDeMarcos * configMemoria.tamanioMarcos));
-   int statusMensajeRecibidoDeLaCPU, mensaje2, mensaje3;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
-//   int mensaje = recv(servidor,mensajeRecibido,sizeof(mensajeRecibido),0); //NUMERO de OPERACION
+   int statusMensajeRecibidoDeLaCPU, mensaje2, pidRecibido;//MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
+// int mensaje = recv(servidor,mensajeRecibido,sizeof(mensajeRecibido),0); //NUMERO de OPERACION
    t_mensajeHeader mensajeHeader,mensajeHeaderSwap;
     statusMensajeRecibidoDeLaCPU = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
     printf("mensaje recibido: %d",mensajeHeader.idmensaje);
     fflush(stdout);
-    log_error(logMemoria,"Mensaje recibido: %d",statusMensajeRecibidoDeLaCPU);
-    /*PRUEBA!!!!, SACAR */
+  //  log_error(logMemoria,"Mensaje recibido: %d",statusMensajeRecibidoDeLaCPU);
 
-
-    /********************/
    if(statusMensajeRecibidoDeLaCPU < 0) log_info(logMemoria,"Error al recibir de la CPU");
    else
    {
@@ -286,13 +260,13 @@ void procesamientoDeMensajes(int cliente,int servidor)
 	   switch (mensajeHeader.idmensaje)
 	{
 		case INICIAR:
-			/*	   pidRecibido = recv(servidor,pid,sizeof(pid),0);
-			 while(pidRecibido == -1)	pidRecibido = recv(servidor,pid,sizeof(pid),0);
-			 cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);
-			 while(cantidadDePaginasRecibidas == -1) cantidadDePaginasRecibidas = recv(servidor,pagina,sizeof(pagina),0);*/
+			/*	   pidRecibido = recv(servidor,&pid,sizeof(pid),0);
+			 while(pidRecibido == -1)	pidRecibido = recv(servidor,&pid,sizeof(pid),0);
+			 cantidadDePaginasRecibidas = recv(servidor,&CantidadDePaginas,sizeof(CantidadDePaginas),0);
+			 while(cantidadDePaginasRecibidas == -1) cantidadDePaginasRecibidas = recv(servidor,CantidadDePaginas,sizeof(CantidadDePaginas),0);*/
 			//generarEstructurasAdministrativas(*pid,*pagina);
-
-			generarTablaDePaginas(memoriaReservadaDeMemPpal,pid,CantidadDePaginas);
+			log_info(logMemoria,"Proceso mProc creado, PID: %d, Cantidad de paginas asignadas: %d",pid,cantidadDePaginasRecibidas);
+			//generarTablaDePaginas(memoriaReservadaDeMemPpal,pid,CantidadDePaginas);
 			log_info(logMemoria,"Inicio del aviso al proceso SWAp del comando INICIAR");
 			enviarIniciarSwap(cliente, pid, CantidadDePaginas, mensajeHeaderSwap, servidor,logMemoria);
 			log_info(logMemoria,"Fin del aviso al proceso SWAp del comando INICIAR");
@@ -300,20 +274,45 @@ void procesamientoDeMensajes(int cliente,int servidor)
 			   free(pid);*/
 			break;
 		case LEER:
-			log_info(logMemoria,"Inicio leer");
-			comandLeerPrimeraParte(statusMensajeRecibidoDeLaCPU, servidor, CantidadDePaginas, cliente, pid,mensaje2);
-			log_info(logMemoria,"Finalizo primera parte del comando LEER");
-			comandoLeerSegundaParte(cliente, tamanioDatosSwap, mensaje3,mensajeRecibido, servidor);
+		{
+			log_info(logMemoria,"Solicitud de lectura recibida");
+			log_info(logMemoria,"2do checkpoint: Se envia directo al swap");
+			mensajeHeaderSwap.idmensaje = LEER;
+			send(cliente,&mensajeHeaderSwap,sizeof(mensajeHeaderSwap),0);
+			statusMensajeRecibidoDeLaCPU = recv(servidor, &CantidadDePaginas, sizeof(CantidadDePaginas), 0);
+            while (statusMensajeRecibidoDeLaCPU == -1)
+			  statusMensajeRecibidoDeLaCPU = recv(servidor, &CantidadDePaginas, sizeof(CantidadDePaginas), 0);
+			send(cliente, &pid, sizeof(pid), 0);
+			send(cliente, &CantidadDePaginas, sizeof(CantidadDePaginas), 0);
+			recv(cliente, &tamanioDatosSwap, sizeof(int), 0);
+			char contenido[tamanioDatosSwap];
+			recv(cliente, &contenido, tamanioDatosSwap, 0);
+			statusMensajeRecibidoDeLaCPU = recv(cliente, &mensajeRecibido, sizeof(PACKAGESIZE), 0);
+			while (statusMensajeRecibidoDeLaCPU == -1)
+				recv(cliente, &mensajeRecibido, sizeof(mensajeRecibido), 0);
+			send(servidor, mensajeRecibido, sizeof(mensajeRecibido), 0);
 			log_info(logMemoria,"Finalizo comando LEER");
+		}
 			break;
 		case ESCRIBIR:
-
+			log_info(logMemoria,"Solicitud de escritura recbidia");
+			log_info(logMemoria,"2do chekcpoint NO APLICA");
+			send(cliente,1/*&pid*/,sizeof(int),0);
+			send(cliente,4/*pagina*/,sizeof(int),0);
+			int sizeContenido = 10;//deberia ser lo que recibo de la CPU
+			recv(cliente,&sizeContenido, sizeof(int),0);
+			recv(cliente,"HOLA"/*&contenidoEscribir*/,sizeof("HOLA"),0);
+			int status;
+			recv(cliente,&status,sizeof(int),0);//RECIBO DEL SWAP COMO TERMINO LA OPERACION
+			send(servidor,&status,sizeof(int),0);//MANDO A LA CPU  COMO TERMINO LA OPERACION
 			break;
 		case FINALIZAR:
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			envioFinalizarSwap(mensajeHeaderSwap, cliente, pid, CantidadDePaginas);
 			break;
 		default:
+			log_error(logMemoria,"mensaje N°: %d",mensajeHeaderSwap.idmensaje);
+			log_info(logMemoria,"Mensaje que no es del SWAP N°:%d",mensajeHeader.idmensaje);
 			log_info(logMemoria,"Mensaje incorrecto");
 	}
   }

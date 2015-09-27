@@ -1,50 +1,17 @@
-[INFO] 00:50:54:789 SWAP/(7572:7572): Inicio Proceso SWAP
-[INFO] 00:50:55:7 SWAP/(7572:7572): Leyendo Archivo de Configuracion
-[INFO] 00:50:55:7 SWAP/(7572:7572): 6000
-[INFO] 00:50:55:7 SWAP/(7572:7572): Archivo de Configuracion Leido correctamente
-[INFO] 00:50:55:339 SWAP/(7572:7572): Creando archivo de tamanio: 256
-[INFO] 00:50:55:421 SWAP/(7572:7572): Archivo Creado correctamente
-[INFO] 00:50:56:769 SWAP/(7572:7572): Proceso mProc rechazado por falta de espacido, su PID es 1
-[INFO] 00:50:57:391 SWAP/(7572:7572): Proceso mPRoc asignado
-[INFO] 00:50:57:391 SWAP/(7572:7572): PID asignado: 1
-[INFO] 00:50:57:391 SWAP/(7572:7572): Byte Inicial 0
-[INFO] 00:50:57:391 SWAP/(7572:7572): Tamaño en bytes de asignacion 128
-[INFO] 00:50:57:817 SWAP/(7572:7572): Proceso mPRoc asignado
-[INFO] 00:50:57:818 SWAP/(7572:7572): PID asignado: 2
-[INFO] 00:50:57:818 SWAP/(7572:7572): Byte Inicial 128
-[INFO] 00:50:57:818 SWAP/(7572:7572): Tamaño en bytes de asignacion 40
-[INFO] 00:50:58:530 SWAP/(7572:7572): Escritura solicitada
-[INFO] 00:50:58:530 SWAP/(7572:7572): PID solicitado: 2
-[INFO] 00:50:58:530 SWAP/(7572:7572): Byte Inicial 132
-[INFO] 00:50:58:530 SWAP/(7572:7572): Tamaño solicitado para escritura 3
-[INFO] 00:50:58:530 SWAP/(7572:7572): El contenido de escritura es PRO
-[INFO] 00:50:59:40 SWAP/(7572:7572): Escritura solicitada
-[INFO] 00:50:59:40 SWAP/(7572:7572): PID solicitado: 2
-[INFO] 00:50:59:40 SWAP/(7572:7572): Byte Inicial 148
-[INFO] 00:50:59:40 SWAP/(7572:7572): Tamaño solicitado para escritura 4
-[INFO] 00:50:59:40 SWAP/(7572:7572): El contenido de escritura es ABCD
-[INFO] 00:50:59:876 SWAP/(7572:7572): Proceso mPRoc liberado
-[INFO] 00:50:59:876 SWAP/(7572:7572): PID liberado: 1
-[INFO] 00:50:59:876 SWAP/(7572:7572): Byte Inicial 0
-[INFO] 00:50:59:876 SWAP/(7572:7572): Tamaño en bytes liberados 128
-[INFO] 00:50:59:876 SWAP/(7572:7572): Cantidad de Escrituras solicitadas: 0
-[INFO] 00:50:59:876 SWAP/(7572:7572): Cantidad de Lecturas solicitadas: 0
-[INFO] 00:51:00:276 SWAP/(7572:7572): Iniciando Compactacion
-[INFO] 00:51:00:276 SWAP/(7572:7572): Compactacion finalizada
-[INFO] 00:51:00:636 SWAP/(7572:7572): Lectura solicitada
-[INFO] 00:51:00:636 SWAP/(7572:7572): PID solicitado: 2
-[INFO] 00:51:00:636 SWAP/(7572:7572): Byte Inicial 4
-[INFO] 00:51:00:636 SWAP/(7572:7572): Tamaño solicitado para lectura 4
-[INFO] 00:51:00:636 SWAP/(7572:7572): El contenido de lectura es PRO 
-[INFO] 00:51:00:999 SWAP/(7572:7572): Lectura solicitada
-[INFO] 00:51:00:999 SWAP/(7572:7572): PID solicitado: 2
-[INFO] 00:51:00:999 SWAP/(7572:7572): Byte Inicial 20
-[INFO] 00:51:00:0 SWAP/(7572:7572): Tamaño solicitado para lectura 4
-[INFO] 00:51:00:0 SWAP/(7572:7572): El contenido de lectura es ABCD
-[INFO] 00:51:01:448 SWAP/(7572:7572): Proceso mPRoc liberado
-[INFO] 00:51:01:448 SWAP/(7572:7572): PID liberado: 2
-[INFO] 00:51:01:448 SWAP/(7572:7572): Byte Inicial 0
-[INFO] 00:51:01:448 SWAP/(7572:7572): Tamaño en bytes liberados 40
-[INFO] 00:51:01:448 SWAP/(7572:7572): Cantidad de Escrituras solicitadas: 2
-[INFO] 00:51:01:448 SWAP/(7572:7572): Cantidad de Lecturas solicitadas: 2
-[INFO] 00:51:02:518 SWAP/(7572:7572): Fin Proceso SWAP
+[INFO] 19:09:11:174 SWAP/(4034:4034): Inicio Proceso SWAP
+[INFO] 19:09:11:174 SWAP/(4034:4034): Leyendo Archivo de Configuracion
+[INFO] 19:09:11:174 SWAP/(4034:4034): 6000
+[INFO] 19:09:11:174 SWAP/(4034:4034): Archivo de Configuracion Leido correctamente
+[INFO] 19:09:11:174 SWAP/(4034:4034): Creando archivo de tamanio: 256
+[INFO] 19:09:11:182 SWAP/(4034:4034): Archivo Creado correctamente
+[INFO] 19:09:48:395 SWAP/(4034:4034): Se recibio mensaje INICIAR
+[INFO] 19:09:58:395 SWAP/(4034:4034): Proceso mPRoc asignado
+[INFO] 19:09:58:395 SWAP/(4034:4034): PID asignado: 1
+[INFO] 19:09:58:396 SWAP/(4034:4034): Byte Inicial 0
+[INFO] 19:09:58:396 SWAP/(4034:4034): Tamaño en bytes de asignacion 16
+[INFO] 19:10:10:90 SWAP/(4034:4034): Se recibio mensaje INICIAR
+[INFO] 19:10:20:525 SWAP/(4034:4034): Lectura solicitada
+[INFO] 19:10:20:525 SWAP/(4034:4034): PID solicitado: 0
+[INFO] 19:10:20:526 SWAP/(4034:4034): Byte Inicial -15969516
+[INFO] 19:10:20:526 SWAP/(4034:4034): Tamaño solicitado para lectura 0
+[INFO] 19:10:20:526 SWAP/(4034:4034): El contenido de lectura es 

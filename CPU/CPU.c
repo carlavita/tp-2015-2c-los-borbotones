@@ -144,6 +144,9 @@ void Conexion_con_planificador(){
 						break;
 					case SALUDO:
 						printf("recibido el mensaje saludo de planificador\n");
+						pthread_mutex_lock(&mutexLogueo);
+						log_info(logCPU,"se recibe el msj de saludo de planificador:");
+						pthread_mutex_unlock(&mutexLogueo);
 
 						break;
 					case EJECUTARPROC:
@@ -154,8 +157,8 @@ void Conexion_con_planificador(){
 
 						t_pcb pcbProc;
 						recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
-						printf("recibido el contexto del proceso de planificador con su id %d \n",pcbProc.pid);
-						printf("recibido el contexto del proceso de planificador con su path %s \n",pcbProc.pathProc);
+						printf("recibido el contexto del proceso con su id %d \n",pcbProc.pid);
+						printf("recibido el contexto del proceso con su path %s \n",pcbProc.pathProc);
 
 						pthread_mutex_lock(&mutexLogueo);
 						log_info(logCPU,"ejecutando el proceso con id:%d",pcbProc.pid);
@@ -174,13 +177,19 @@ void Conexion_con_planificador(){
 
 						//rtas al planificador en base a lo que se manda a ejecutar del proceso
 						//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
+						/* t_mensajeHeader mjeFR;
+						mjeFR.idmensaje = FINDERAFAGA;
+						status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
+						printf("envio de fin de rafaga del proceso con id: %d ", pcbProc.pid); */
 
+						//todo armar struct comun a planif y cpu de envio de fin de quantum
+						//todo rtas a memoria
 
 						//fin de quantum->parametros->pid, cpuid,mensaje de cada instruccion hecha y el tiempo consumido
 
-						/*t_mensajeHeader mjeFR;
-						mjeFR.idmensaje = FINDEQUANTUM;
-						status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
+						/*t_mensajeHeader mjeFQ;
+						mjeFQ.idmensaje = FINDEQUANTUM;
+						status = send(serverSocket, &(mjeFQ.idmensaje), sizeof(t_mensajeHeader), 0);
 						printf("envio de fin de quantum del proceso con id: %d ", pcbProc.pid);*/
 
 						//todo armar struct comun a planif y cpu de envio de fin de quantum

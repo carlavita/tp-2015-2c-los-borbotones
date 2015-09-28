@@ -148,11 +148,18 @@ void Conexion_con_planificador(){
 						break;
 					case EJECUTARPROC:
 						printf("recibido el mensaje de ejecutar proceso de planificador\n");
+						pthread_mutex_lock(&mutexLogueo);
+						log_info(logCPU,"se recibe el msj de ejecucion de un proceso:");
+						pthread_mutex_unlock(&mutexLogueo);
 
 						t_pcb pcbProc;
 						recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
 						printf("recibido el contexto del proceso de planificador con su id %d \n",pcbProc.pid);
 						printf("recibido el contexto del proceso de planificador con su path %s \n",pcbProc.pathProc);
+
+						pthread_mutex_lock(&mutexLogueo);
+						log_info(logCPU,"ejecutando el proceso con id:%d",pcbProc.pid);
+						pthread_mutex_unlock(&mutexLogueo);
 
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 						listaEjecucion = ejecutarmProc(pcbProc);*/
@@ -171,9 +178,17 @@ void Conexion_con_planificador(){
 
 						//fin de quantum->parametros->pid, cpuid,mensaje de cada instruccion hecha y el tiempo consumido
 
+						/*t_mensajeHeader mjeFR;
+						mjeFR.idmensaje = FINDEQUANTUM;
+						status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
+						printf("envio de fin de quantum del proceso con id: %d ", pcbProc.pid);*/
+
+						//todo armar struct comun a planif y cpu de envio de fin de quantum
+						//todo rtas a memoria
+
 
 						//PROCIO->parametros->pid,Tiempo, todo no falta el id de cpu?
-						t_mensajeHeader mjeIO;
+						/*t_mensajeHeader mjeIO;
 						mjeIO.idmensaje = PROCIO;
 						status = send(serverSocket, &(mjeIO.idmensaje), sizeof(t_mensajeHeader), 0);
 						printf("envio de entrada-salida del proceso con id: %d ", pcbProc.pid);
@@ -182,7 +197,7 @@ void Conexion_con_planificador(){
 						rtaIO.pid = pcbProc.pid;
 						rtaIO.tiempoIO = 4; //todo seteado para probar-->proviene del parseo del mproc
 						status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
-						printf("y tiempo: %d \n",rtaIO.tiempoIO);
+						printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
 						//todo rtas a memoria
 
 
@@ -192,7 +207,7 @@ void Conexion_con_planificador(){
 						//finalizarprocok->parametros->pid, cpuid
 
 						//todo logica de finalizar proceso ok
-						/*t_mensajeHeader rta;
+						t_mensajeHeader rta;
 						rta.idmensaje = FINALIZAPROCOK;
 						status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
 						printf("envio finalizar ok del proceso con id: %d ", pcbProc.pid);
@@ -201,7 +216,7 @@ void Conexion_con_planificador(){
 						rtaFin.pid = pcbProc.pid;
 						rtaFin.idCPU = cpuID;
 						status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
-						printf("de la cpu con id: %d \n",rtaFin.idCPU);*/
+						printf("de la cpu con id: %d \n",rtaFin.idCPU);
 
 						//todo rtas a memoria
 
@@ -223,6 +238,10 @@ void Conexion_con_planificador(){
 
 					default:
 						printf("error al recibir\n");
+						pthread_mutex_lock(&mutexLogueo);
+						log_info(logCPU,"erro al recibir por codigo no reconocido");
+						pthread_mutex_unlock(&mutexLogueo);
+
 						enviar = 0;
 
 					}

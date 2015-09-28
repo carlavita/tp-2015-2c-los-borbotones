@@ -357,12 +357,16 @@ void handle(int newsock, fd_set *set) {
 			recv(newsock, &(rtaIO), sizeof(t_io), 0);
 			printf(" con id: %d",rtaIO.pid);
 			printf(" con tiempo: %d \n",rtaIO.tiempoIO);
+			pthread_mutex_lock(&mutexLog);
+			log_info(logger, "el proceso esta realizando su entrada-salida ");
+			pthread_mutex_unlock(&mutexLog);
 			//todo no falta el id de cpu?
 			ejecutarIO(newsock);
 
 			break;
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
+
 			printf("Fin de quantum CPU \n");//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu

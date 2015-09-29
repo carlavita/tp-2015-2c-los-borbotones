@@ -59,11 +59,24 @@ typedef struct __attribute__((packed))
 	int cantidadLineas;
 	int status;
 }t_pcb;
+
 typedef struct __attribute__((packed))
 {
 	int pid;
 	int idCPU;
 }t_finalizarPID;
+
+typedef struct __attribute__((packed))
+{
+	int pid;
+	int paginas;
+}t_iniciarPID;
+
+typedef struct __attribute__((packed))
+{
+	int pid;
+	int pagina;
+}t_leer;
 
 
 // Funciones

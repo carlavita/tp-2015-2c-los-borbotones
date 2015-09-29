@@ -69,15 +69,9 @@ typedef struct {
 	int porcentajeUso;
 } t_cpu;
 
-//todo pasar a protocolo.h
-typedef struct {
-	int pid;
-	int tiempoIO;
-} t_io;
 
 
 int val; //variable para saber el valor del semaforoListos
-
 int PID = 0; // Para numerar los procesos
 int CPUID = 0; // Para numerar las CPUs
 int ServidorP = 0; //todo socket cpu, solo por pruebas

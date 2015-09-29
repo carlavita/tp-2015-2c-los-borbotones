@@ -79,6 +79,12 @@ typedef struct __attribute__((packed))
 }t_leer;
 
 
+typedef struct __attribute__((packed))
+{
+	int pid;
+	int tiempoIO;
+} t_io;
+
 // Funciones
 void sendACK(int socket);
 void recvACK(int socket);

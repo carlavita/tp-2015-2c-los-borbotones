@@ -297,6 +297,9 @@ void servidorCPU(void *ptr) {
 						int mensaje = SALUDO;
 						status = send(newsock, &mensaje, sizeof(int), 0);
 						printf("status send inicial %d \n", status);
+						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
+						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,status);
+
 					}
 				} else {
 
@@ -421,6 +424,8 @@ int crearPcb(char* path) {
 	pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
+
+
 	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
 
 	printf("PID mProc: %d \n", pcb->pid);
@@ -749,8 +754,14 @@ void finalizarPid() {
 }
 
 int obtenerCantidadLineasPath(char* path) {
+	char *path_absoluto = string_new();
 
-	FILE* mCod = fopen(path, "r");
+	string_append(&path_absoluto, PATH_MCODE);
+	//string_append(&path_absoluto,"/home/utnso/workspace/Planificador/mCod/");
+	string_append(&path_absoluto, path);
+
+	//FILE* mCod = fopen(path, "r");
+	FILE* mCod = fopen(path_absoluto, "r");
 	int caracter, lineasPath = 0;
 
 	do {

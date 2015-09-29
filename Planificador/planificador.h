@@ -29,6 +29,7 @@
 #include <socket.h>
 
 #define PATH_CONFIG "Planificador.config"
+#define PATH_MCODE "/home/utnso/workspace/Planificador/mCod/"
 //#define PATH_CONFIG "/home/utnso/workspace/Planificador/Planificador.config"
 
 #define PATHLOG "LOGPlanificador.config"

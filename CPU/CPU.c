@@ -128,7 +128,7 @@ void Conexion_con_planificador(){
 						printf("reenvío mensaje a memoria\n");
 						strcpy(message,"Correr path\n");
 						/*SACAR*/
-						t_mensajeHeader inicia;
+						/*t_mensajeHeader inicia;
 						inicia.idmensaje = INICIAR;
 						send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
 						//send(serverMemoria,1,sizeof(1),0);
@@ -138,14 +138,17 @@ void Conexion_con_planificador(){
 						inicia.idmensaje = LEER;
 						status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
 						sleep(10);
-						/*SACAR*/
+						*//*SACAR*/
 						//status = send(serverMemoria, message, strlen(message) + 1, 0);
 
 						break;
 					case SALUDO:
-						printf("recibido el mensaje saludo de planificador\n");
+						recv(serverSocket, &PATH, sizeof(PATH), 0);
+						printf("recibido el mensaje saludo de planificador \n");
 						pthread_mutex_lock(&mutexLogueo);
 						log_info(logCPU,"se recibe el msj de saludo de planificador:");
+						log_info(logCPU,"PATH MCOD: %s", PATH);
+
 						pthread_mutex_unlock(&mutexLogueo);
 
 						break;
@@ -166,14 +169,14 @@ void Conexion_con_planificador(){
 
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 						listaEjecucion = ejecutarmProc(pcbProc);*/
-						parsermCod(pcbProc.pathProc);
+						parsermCod(pcbProc.pathProc, pcbProc.pid);
 
 						//todo prueba borrar!
-						t_mensajeHeader inicia1;
+						/*t_mensajeHeader inicia1;
 						inicia.idmensaje = INICIAR;
 						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
 
-						/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
+*/						/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
 						//rtas al planificador en base a lo que se manda a ejecutar del proceso
 						//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
@@ -272,7 +275,7 @@ void Conexion_con_planificador(){
 t_list* ejecutarmProc(t_pcb pcbProc){
 
 	printf("en la funcion ejecutar proceso  \n");
-	parsermCod(pcbProc.pathProc);
+	parsermCod(pcbProc.pathProc, pcbProc.pid);
 	printf("termino la funcion ejecutar proceso  \n");
 	t_list* listaRtasEjecucion;
 	listaRtasEjecucion = list_create();
@@ -316,7 +319,16 @@ void *ejecucion (void *ptr){
 
 void iniciar (int paginas, int mProcID){
 	printf("mProc %d - Iniciado \n", mProcID);
-	sleep(1);
+	t_mensajeHeader inicia;
+	t_iniciarPID mensajeIniciar;
+	mensajeIniciar.paginas = paginas;
+	mensajeIniciar.pid = mProcID;
+	inicia.idmensaje = INICIAR;
+	send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+	recvACK(serverMemoria);
+	send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
+
+	sleep(configuracionCPU.Retardo);
 }
 
 
@@ -327,20 +339,54 @@ void escribir (int pagina, char *texto, int mProcID){
 
 
 void leer (int pagina, int mProcID){
-	printf("mProc %d - Pagina %d leida: HOLA \n", mProcID, pagina);
-	sleep(5);
+	t_mensajeHeader inicia;
+	t_leer mensajeLeer;
+
+	inicia.idmensaje = LEER;
+	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
+
+	int status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+	if (status > 0){
+	recvACK(serverMemoria);
+	mensajeLeer.pid = mProcID;
+	mensajeLeer.pagina = pagina;
+	status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
+	}
+
+	sleep(configuracionCPU.Retardo);
 }
 
 
 void finalizar (int mProcID){
+
+	t_mensajeHeader header;
+	t_finalizarPID mensajeFinalizar;
+
+	header.idmensaje = FINALIZAR;
 	printf("mProc %d - Finalizado \n", mProcID);
+
+	int status = send(serverMemoria, &(header.idmensaje), sizeof(t_mensajeHeader), 0);
+	if (status > 0){
+	recvACK(serverMemoria);
+	mensajeFinalizar.pid = mProcID;
+
+	status = send(serverMemoria, &mensajeFinalizar, sizeof(t_leer), 0);
+	}
+
+	sleep(configuracionCPU.Retardo);
 	sleep(1);
 }
 
 
-void parsermCod(char *path){
+void parsermCod(char *path, int pid){
+	char *path_absoluto = string_new();
+
+		string_append(&path_absoluto, PATH);
+		string_append(&path_absoluto, path);
+
 	FILE* fid;
-	if ((fid = fopen(path, "r")) == NULL) {
+	//if ((fid = fopen(path, "r")) == NULL) {
+		if ((fid = fopen(path_absoluto, "r")) == NULL) {
 		printf("Error al abrir el archivo \n");
 	}else{
 
@@ -362,12 +408,14 @@ void parsermCod(char *path){
 
 			if (esIniciar(substrings[0])) {
 				printf("comando iniciar, parametro %d \n", atoi(substrings[1]));
+				iniciar(atoi(substrings[1]),pid);
 				free(substrings[0]);
 				free(substrings[1]);
 				free(substrings);
 			}
 			if (esLeer(substrings[0])) {
 				printf("comando leer, parametro %d \n", atoi(substrings[1]));
+				leer(atoi(substrings[1]),pid);
 				free(substrings[0]);
 				free(substrings[1]);
 				free(substrings);
@@ -390,6 +438,7 @@ void parsermCod(char *path){
 			}
 			if (esFinalizar(substrings[0])) {
 							printf("comando Finalizar no tiene parametros \n");
+							finalizar(pid);
 							free(substrings[0]);
 							free(substrings);
 						}

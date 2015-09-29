@@ -38,6 +38,7 @@
 #define TOKENFINALIZAR "finalizar"
 #define TOKENIO "entrada-salida"
 
+char PATH[256];
 
 typedef struct
 {
@@ -96,5 +97,5 @@ bool esIniciar(char* linea);
 bool esFinalizar(char* linea);
 bool esEscribir(char* linea);
 bool esIO(char* linea);
-void parsermCod(char *path);// Abre el path y parsea el contenido completo
+void parsermCod(char *path, int pid);// Abre el path y parsea el contenido completo
 #endif /* CPU_H_ */

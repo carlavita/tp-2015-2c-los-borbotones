@@ -1,17 +1,4 @@
-[INFO] 19:09:11:174 SWAP/(4034:4034): Inicio Proceso SWAP
-[INFO] 19:09:11:174 SWAP/(4034:4034): Leyendo Archivo de Configuracion
-[INFO] 19:09:11:174 SWAP/(4034:4034): 6000
-[INFO] 19:09:11:174 SWAP/(4034:4034): Archivo de Configuracion Leido correctamente
-[INFO] 19:09:11:174 SWAP/(4034:4034): Creando archivo de tamanio: 256
-[INFO] 19:09:11:182 SWAP/(4034:4034): Archivo Creado correctamente
-[INFO] 19:09:48:395 SWAP/(4034:4034): Se recibio mensaje INICIAR
-[INFO] 19:09:58:395 SWAP/(4034:4034): Proceso mPRoc asignado
-[INFO] 19:09:58:395 SWAP/(4034:4034): PID asignado: 1
-[INFO] 19:09:58:396 SWAP/(4034:4034): Byte Inicial 0
-[INFO] 19:09:58:396 SWAP/(4034:4034): Tamaño en bytes de asignacion 16
-[INFO] 19:10:10:90 SWAP/(4034:4034): Se recibio mensaje INICIAR
-[INFO] 19:10:20:525 SWAP/(4034:4034): Lectura solicitada
-[INFO] 19:10:20:525 SWAP/(4034:4034): PID solicitado: 0
-[INFO] 19:10:20:526 SWAP/(4034:4034): Byte Inicial -15969516
-[INFO] 19:10:20:526 SWAP/(4034:4034): Tamaño solicitado para lectura 0
-[INFO] 19:10:20:526 SWAP/(4034:4034): El contenido de lectura es 
+[INFO] 00:54:06:528 SWAP/(7689:7689): Inicio Proceso SWAP
+[INFO] 00:54:06:531 SWAP/(7689:7689): Leyendo Archivo de Configuracion
+[INFO] 00:54:06:533 SWAP/(7689:7689): 6000
+[INFO] 00:54:06:534 SWAP/(7689:7689): Archivo de Configuracion Leido correctamente

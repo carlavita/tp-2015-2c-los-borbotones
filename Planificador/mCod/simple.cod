@@ -5,4 +5,4 @@ escribir 200 34;
 leer 90;
 leer 28;
 leer 30;
-finalizar  2;
+finalizar;

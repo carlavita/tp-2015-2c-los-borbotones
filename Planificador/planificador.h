@@ -30,7 +30,6 @@
 
 #define PATH_CONFIG "Planificador.config"
 #define PATH_MCODE "/home/utnso/workspace/Planificador/mCod/"
-//#define PATH_CONFIG "/home/utnso/workspace/Planificador/Planificador.config"
 
 #define PATHLOG "LOGPlanificador.config"
 #define PATH_SIZE 256
@@ -41,21 +40,6 @@
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
 #define PUERTO_SIZE 7 //(MAXIMO 6 MAS EL FIN DE CADENA)
 
-/*
-
- #define SALUDO 0
- #define CHECKPOINT 1
-
- //mensajes del Planificador a CPU
- #define EJECUTARPROC 2
-
- //mensajes del CPU a Planificador
- #define FINALIZAPROCOK 3
- #define PROCFALLA 4
- #define PROCIO 5
- #define FINDERAFAGA 6
- #define FINDEQUANTUM 7
- */
 
 // constantes para algoritmos
 #define FIFO 1
@@ -72,18 +56,10 @@ typedef struct {
 	char* puertoEscucha;
 	int algoritmo;
 	int quantum;
+	char* pathmCod;
 
 } t_configPlanificador;
 
-/*
- typedef struct
- {
- int pid;
- char pathProc[256];
- int proxInst;
- int quantum;
- }t_pcb;
- */
 
 typedef struct {
 	//int estado;//(0 libre, 1 ocupada)
@@ -103,7 +79,7 @@ typedef struct {
 int val; //variable para saber el valor del semaforoListos
 
 int PID = 0; // Para numerar los procesos
-int CPUID = 0;
+int CPUID = 0; // Para numerar las CPUs
 int ServidorP = 0; //todo socket cpu, solo por pruebas
 t_configPlanificador configPlanificador;
 t_log *logger;

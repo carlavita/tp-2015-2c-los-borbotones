@@ -66,6 +66,7 @@ void inicializarListas() {
 	pthread_mutex_unlock(&mutexLog);
 
 }
+
 void inicializarSemaforos() {
 	sem_init(&semaforoListos, 0, 0); //Semaforo productor consumidor de prcesos listos
 	sem_init(&semaforoCPU, 0, 0);
@@ -78,6 +79,7 @@ void inicializarSemaforos() {
 	pthread_mutex_unlock(&mutexLog);
 
 }
+
 void destruirSemaforosYmutex() {
 	sem_destroy(&semaforoListos);
 	sem_destroy(&semaforoCPU);
@@ -85,6 +87,7 @@ void destruirSemaforosYmutex() {
 	pthread_mutex_destroy(&mutexListas);
 	pthread_mutex_destroy(&mutexLog);
 }
+
 void levantarConfiguracion() {
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Lectura de variables del archivo de configuracion");
@@ -100,10 +103,14 @@ void levantarConfiguracion() {
 		configPlanificador.algoritmo = config_get_int_value(CONFIG,
 				"ALGORITMO");
 		configPlanificador.quantum = config_get_int_value(CONFIG, "QUANTUM");
+		configPlanificador.pathmCod = malloc(PATH_SIZE);
+		configPlanificador.pathmCod = config_get_string_value(CONFIG,"PATHMCOD");
 
 		printf(" puerto %s \n", configPlanificador.puertoEscucha);
 		printf(" algoritmo %d\n", configPlanificador.algoritmo);
 		printf(" quantum %d\n", configPlanificador.quantum);
+		printf(" path de los mcod %s \n", configPlanificador.pathmCod);
+
 	} else {
 		printf("estupido config, se cree tan importante");
 	}
@@ -757,7 +764,6 @@ int obtenerCantidadLineasPath(char* path) {
 	char *path_absoluto = string_new();
 
 	string_append(&path_absoluto, PATH_MCODE);
-	//string_append(&path_absoluto,"/home/utnso/workspace/Planificador/mCod/");
 	string_append(&path_absoluto, path);
 
 	//FILE* mCod = fopen(path, "r");

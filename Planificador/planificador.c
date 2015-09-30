@@ -104,7 +104,8 @@ void levantarConfiguracion() {
 				"ALGORITMO");
 		configPlanificador.quantum = config_get_int_value(CONFIG, "QUANTUM");
 		configPlanificador.pathmCod = malloc(PATH_SIZE);
-		configPlanificador.pathmCod = config_get_string_value(CONFIG,"PATHMCOD");
+		configPlanificador.pathmCod = config_get_string_value(CONFIG,
+				"PATHMCOD");
 
 		printf(" puerto %s \n", configPlanificador.puertoEscucha);
 		printf(" algoritmo %d\n", configPlanificador.algoritmo);
@@ -304,8 +305,10 @@ void servidorCPU(void *ptr) {
 						int mensaje = SALUDO;
 						status = send(newsock, &mensaje, sizeof(int), 0);
 						printf("status send inicial %d \n", status);
-						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
-						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,status);
+						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE),
+								0);
+						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,
+								status);
 
 					}
 				} else {
@@ -342,9 +345,23 @@ void handle(int newsock, fd_set *set) {
 
 			t_finalizarPID rtaProc;
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
-			printf(" con id: %d \n",rtaProc.pid);
-			printf(" de la cpu: %d \n",rtaProc.idCPU);
+			printf(" con id: %d \n", rtaProc.pid);
+			printf(" de la cpu: %d \n", rtaProc.idCPU);
 
+			pthread_mutex_lock(&mutexListas);
+
+			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
+
+			pcb->status = FINALIZADOOK;
+			list_add(FINALIZADOS, pcb);
+			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
+			pthread_mutex_unlock(&mutexListas);
+			//Habilita cpu
+			pthread_mutex_lock(&mutexListaCpu);
+			t_cpu * cpu = list_get(listaCPU, 0);//TODO buscar la cpu que corresponda
+			cpu->pid = -1;
+			pthread_mutex_unlock(&mutexListaCpu);
+			sem_post(&semaforoCPU);
 			//actualizarPcb();
 
 			break;
@@ -354,8 +371,8 @@ void handle(int newsock, fd_set *set) {
 
 			t_finalizarPID rtaP;
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
-			printf(" con id: %d",rtaP.pid);
-			printf(" de la cpu: %d \n",rtaP.idCPU);
+			printf(" con id: %d", rtaP.pid);
+			printf(" de la cpu: %d \n", rtaP.idCPU);
 
 			//borrarEstructurasDelProc();
 
@@ -365,8 +382,8 @@ void handle(int newsock, fd_set *set) {
 			printf("el proceso esta realizando su entrada-salida \n");
 			t_io rtaIO;
 			recv(newsock, &(rtaIO), sizeof(t_io), 0);
-			printf(" con id: %d",rtaIO.pid);
-			printf(" con tiempo: %d \n",rtaIO.tiempoIO);
+			printf(" con id: %d", rtaIO.pid);
+			printf(" con tiempo: %d \n", rtaIO.tiempoIO);
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "el proceso esta realizando su entrada-salida ");
 			pthread_mutex_unlock(&mutexLog);
@@ -377,7 +394,7 @@ void handle(int newsock, fd_set *set) {
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
 
-			printf("Fin de quantum CPU \n");//todo, agregar id cpu
+			printf("Fin de quantum CPU \n");			//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
 			pthread_mutex_unlock(&mutexLog);
@@ -432,7 +449,6 @@ int crearPcb(char* path) {
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
 
-
 	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
 
 	printf("PID mProc: %d \n", pcb->pid);
@@ -456,7 +472,9 @@ int crearPcb(char* path) {
 	pthread_mutex_unlock(&mutexListas);
 	sem_post(&semaforoListos); //Habilita al planificador
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
-	printf("Soy el semaforo despues de habilitar a planificador con el valor: %d\n",val);
+	printf(
+			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
+			val);
 
 	return pcb->pid;
 }
@@ -490,7 +508,8 @@ void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
 	send(cpu->socket, &msjEjecutar, sizeof(int), 0);
 	printf("Envio de pedido de ejecucion a la cpu libre \n");
 	send(cpu->socket, pcb, sizeof(t_pcb), 0);
-	printf("Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
+	printf(
+			"Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
 
 }
 

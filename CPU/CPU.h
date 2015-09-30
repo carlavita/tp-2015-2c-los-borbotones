@@ -63,7 +63,7 @@ t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 int serverMemoria = 0;
 int cpuID = 1;//seteado para probar-->despues pasar a N cpus creados cos sus respectivos hilos
-
+int serverSocket;
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 

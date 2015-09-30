@@ -5,18 +5,15 @@
  *      Author: Fernando Sanchez
  */
 
-
 #include "CPU.h"
 
-
-
-int main ()  {
+int main() {
 	pthread_t hiloCPU;
 	//int cpuID
 
 	remove(PATH_LOG);
-	logCPU = log_create(PATH_LOG,"CPU",true,LOG_LEVEL_INFO);
-	log_info(logCPU,"Inicio Proceso CPU");
+	logCPU = log_create(PATH_LOG, "CPU", true, LOG_LEVEL_INFO);
+	log_info(logCPU, "Inicio Proceso CPU");
 
 	LeerArchivoConfiguracion();
 	inicializarSemaforosCPU();
@@ -24,34 +21,37 @@ int main ()  {
 	serverMemoria = conexion_con_memoria();
 	Conexion_con_planificador();
 //	cpuID = pthread_create(&hiloCPU,NULL,ejecucion,NULL);//todo revisar porque el idCPU no puede ser el valor de retorno de creacion del hilo
-	printf("el id de la CPU es:%d \n",cpuID);
-  //  pthread_join(hiloCPU,NULL);
+	printf("el id de la CPU es:%d \n", cpuID);
+	//  pthread_join(hiloCPU,NULL);
 
-    return 0; //CARLA AMOR Y PAZ POR MI 0 :D
+	return 0; //CARLA AMOR Y PAZ POR MI 0 :D
 }
 
-
-void  LeerArchivoConfiguracion(){
+void LeerArchivoConfiguracion() {
 
 	t_config* cfgCPU = malloc(sizeof(t_config));
 	pthread_mutex_lock(&mutexLogueo);
-	log_info(logCPU,"Leyendo Archivo de Configuracion");
+	log_info(logCPU, "Leyendo Archivo de Configuracion");
 	pthread_mutex_unlock(&mutexLogueo);
 	cfgCPU = config_create(PATH_CONFIG);
-	configuracionCPU.IPPlanificador = config_get_string_value(cfgCPU,"IP_PLANIFICADOR");
-	configuracionCPU.PuertoPlanificador = config_get_string_value(cfgCPU,"PUERTO_PLANIFICADOR");
-	configuracionCPU.IPMemoria = config_get_string_value(cfgCPU,"IP_MEMORIA");
-	configuracionCPU.PuertoMemoria = config_get_string_value(cfgCPU,"PUERTO_MEMORIA");
-	configuracionCPU.CantidadHilos = config_get_int_value(cfgCPU,"CANTIDAD_HILOS");
-	configuracionCPU.Retardo = config_get_int_value(cfgCPU,"RETARDO");
+	configuracionCPU.IPPlanificador = config_get_string_value(cfgCPU,
+			"IP_PLANIFICADOR");
+	configuracionCPU.PuertoPlanificador = config_get_string_value(cfgCPU,
+			"PUERTO_PLANIFICADOR");
+	configuracionCPU.IPMemoria = config_get_string_value(cfgCPU, "IP_MEMORIA");
+	configuracionCPU.PuertoMemoria = config_get_string_value(cfgCPU,
+			"PUERTO_MEMORIA");
+	configuracionCPU.CantidadHilos = config_get_int_value(cfgCPU,
+			"CANTIDAD_HILOS");
+	configuracionCPU.Retardo = config_get_int_value(cfgCPU, "RETARDO");
 	pthread_mutex_lock(&mutexLogueo);
-	log_info (logCPU,"%s",configuracionCPU.PuertoPlanificador);
-	log_info(logCPU,"Archivo de Configuracion Leido correctamente");
+	log_info(logCPU, "%s", configuracionCPU.PuertoPlanificador);
+	log_info(logCPU, "Archivo de Configuracion Leido correctamente");
 	pthread_mutex_unlock(&mutexLogueo);
 
 }
 
-void inicializarSemaforosCPU(){
+void inicializarSemaforosCPU() {
 
 	pthread_mutex_init(&mutexLogueo, NULL);
 
@@ -61,218 +61,219 @@ void inicializarSemaforosCPU(){
 
 }
 
-int conexion_con_memoria(){
+int conexion_con_memoria() {
 
 	printf("Conectando a memoria \n");
 	pthread_mutex_lock(&mutexLogueo);
-	log_info(logCPU,"Conectando a memoria\n");
+	log_info(logCPU, "Conectando a memoria\n");
 	pthread_mutex_unlock(&mutexLogueo);
 
-		struct addrinfo hints;
-		struct addrinfo *serverInfo;
+	struct addrinfo hints;
+	struct addrinfo *serverInfo;
 
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = AF_UNSPEC;		// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
-		hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
-
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
+	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
 
 	// conectando a memoria
 
-		getaddrinfo(configuracionCPU.IPMemoria, configuracionCPU.PuertoMemoria, &hints, &serverInfo);
-		int serverSocketMemoria;
-		serverSocketMemoria = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-		printf("socket memoria %d \n", serverSocketMemoria);
-		connect(serverSocketMemoria, serverInfo->ai_addr, serverInfo->ai_addrlen);
-		freeaddrinfo(serverInfo);	// No lo necesitamos mas
+	getaddrinfo(configuracionCPU.IPMemoria, configuracionCPU.PuertoMemoria,
+			&hints, &serverInfo);
+	int serverSocketMemoria;
+	serverSocketMemoria = socket(serverInfo->ai_family, serverInfo->ai_socktype,
+			serverInfo->ai_protocol);
+	printf("socket memoria %d \n", serverSocketMemoria);
+	connect(serverSocketMemoria, serverInfo->ai_addr, serverInfo->ai_addrlen);
+	freeaddrinfo(serverInfo);	// No lo necesitamos mas
 
 	return serverSocketMemoria;
 }
 
+void Conexion_con_planificador() {
 
-void Conexion_con_planificador(){
+	printf("Conectando a planificador \n");
+	pthread_mutex_lock(&mutexLogueo);
+	log_info(logCPU, "Conectando a planificador");
+	pthread_mutex_unlock(&mutexLogueo);
 
-		printf("Conectando a planificador \n");
-		pthread_mutex_lock(&mutexLogueo);
-		log_info(logCPU,"Conectando a planificador");
-		pthread_mutex_unlock(&mutexLogueo);
+	struct addrinfo hints;
+	struct addrinfo *serverInfo;
 
-		struct addrinfo hints;
-		struct addrinfo *serverInfo;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
+	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
 
-		memset(&hints, 0, sizeof(hints));
-		hints.ai_family = AF_UNSPEC;		// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
-		hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
+	getaddrinfo(configuracionCPU.IPPlanificador,
+			configuracionCPU.PuertoPlanificador, &hints, &serverInfo);
+	//int serverSocket;
+	serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype,
+			serverInfo->ai_protocol);
+	printf("socket %d \n", serverSocket);
+	connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
+	freeaddrinfo(serverInfo);	// No lo necesitamos mas
 
-
-		getaddrinfo(configuracionCPU.IPPlanificador, configuracionCPU.PuertoPlanificador, &hints, &serverInfo);
-		int serverSocket;
-		serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype, serverInfo->ai_protocol);
-		printf("socket %d \n", serverSocket);
-		connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
-		freeaddrinfo(serverInfo);	// No lo necesitamos mas
-
-		int enviar = 1;
-		char message[PACKAGESIZE];
-		t_mensajeHeader mensaje;
-		printf("Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
-		while (enviar){
-			printf("recibir\n");
+	int enviar = 1;
+	char message[PACKAGESIZE];
+	t_mensajeHeader mensaje;
+	printf(
+			"Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
+	while (enviar) {
+		printf("recibir\n");
 		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
-			if (status > 0){
+		if (status > 0) {
 
-				switch ( mensaje.idmensaje) {
+			switch (mensaje.idmensaje) {
 
-					case CORRERPATH:
+			case CORRERPATH:
 
-						printf("recibido el mensaje correr path desde el planificador\n");
-						printf("reenvío mensaje a memoria\n");
-						strcpy(message,"Correr path\n");
-						/*SACAR*/
-						/*t_mensajeHeader inicia;
-						inicia.idmensaje = INICIAR;
-						send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-						//send(serverMemoria,1,sizeof(1),0);
-						sleep(20);
-						printf("LEER \n");
-						fflush(stdout);
-						inicia.idmensaje = LEER;
-						status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-						sleep(10);
-						*//*SACAR*/
-						//status = send(serverMemoria, message, strlen(message) + 1, 0);
+				printf(
+						"recibido el mensaje correr path desde el planificador\n");
+				printf("reenvío mensaje a memoria\n");
+				strcpy(message, "Correr path\n");
+				/*SACAR*/
+				/*t_mensajeHeader inicia;
+				 inicia.idmensaje = INICIAR;
+				 send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+				 //send(serverMemoria,1,sizeof(1),0);
+				 sleep(20);
+				 printf("LEER \n");
+				 fflush(stdout);
+				 inicia.idmensaje = LEER;
+				 status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+				 sleep(10);
+				 *//*SACAR*/
+				//status = send(serverMemoria, message, strlen(message) + 1, 0);
+				break;
+			case SALUDO:
+				recv(serverSocket, &PATH, sizeof(PATH), 0);
+				printf("recibido el mensaje saludo de planificador \n");
+				pthread_mutex_lock(&mutexLogueo);
+				log_info(logCPU, "se recibe el msj de saludo de planificador:");
+				log_info(logCPU, "PATH MCOD: %s", PATH);
 
-						break;
-					case SALUDO:
-						recv(serverSocket, &PATH, sizeof(PATH), 0);
-						printf("recibido el mensaje saludo de planificador \n");
-						pthread_mutex_lock(&mutexLogueo);
-						log_info(logCPU,"se recibe el msj de saludo de planificador:");
-						log_info(logCPU,"PATH MCOD: %s", PATH);
+				pthread_mutex_unlock(&mutexLogueo);
 
-						pthread_mutex_unlock(&mutexLogueo);
+				break;
+			case EJECUTARPROC:
+				printf(
+						"recibido el mensaje de ejecutar proceso de planificador\n");
+				pthread_mutex_lock(&mutexLogueo);
+				log_info(logCPU,
+						"se recibe el msj de ejecucion de un proceso:");
+				pthread_mutex_unlock(&mutexLogueo);
 
-						break;
-					case EJECUTARPROC:
-						printf("recibido el mensaje de ejecutar proceso de planificador\n");
-						pthread_mutex_lock(&mutexLogueo);
-						log_info(logCPU,"se recibe el msj de ejecucion de un proceso:");
-						pthread_mutex_unlock(&mutexLogueo);
+				t_pcb pcbProc;
+				recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
+				printf("recibido el contexto del proceso con su id %d \n",
+						pcbProc.pid);
+				printf("recibido el contexto del proceso con su path %s \n",
+						pcbProc.pathProc);
 
-						t_pcb pcbProc;
-						recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
-						printf("recibido el contexto del proceso con su id %d \n",pcbProc.pid);
-						printf("recibido el contexto del proceso con su path %s \n",pcbProc.pathProc);
-
-						pthread_mutex_lock(&mutexLogueo);
-						log_info(logCPU,"ejecutando el proceso con id:%d",pcbProc.pid);
-						pthread_mutex_unlock(&mutexLogueo);
+				pthread_mutex_lock(&mutexLogueo);
+				log_info(logCPU, "ejecutando el proceso con id:%d",
+						pcbProc.pid);
+				pthread_mutex_unlock(&mutexLogueo);
 
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
-						listaEjecucion = ejecutarmProc(pcbProc);*/
-						parsermCod(pcbProc.pathProc, pcbProc.pid);
+				 listaEjecucion = ejecutarmProc(pcbProc);*/
+				parsermCod(pcbProc.pathProc, pcbProc.pid);
 
-						//todo prueba borrar!
-						/*t_mensajeHeader inicia1;
-						inicia.idmensaje = INICIAR;
-						status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
+				//todo prueba borrar!
+				/*t_mensajeHeader inicia1;
+				 inicia.idmensaje = INICIAR;
+				 status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
 
-*/						/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
+				 *//*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
-						//rtas al planificador en base a lo que se manda a ejecutar del proceso
-						//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
-						/* t_mensajeHeader mjeFR;
-						mjeFR.idmensaje = FINDERAFAGA;
-						status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio de fin de rafaga del proceso con id: %d ", pcbProc.pid); */
+				//rtas al planificador en base a lo que se manda a ejecutar del proceso
+				//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
+				/* t_mensajeHeader mjeFR;
+				 mjeFR.idmensaje = FINDERAFAGA;
+				 status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
+				 printf("envio de fin de rafaga del proceso con id: %d ", pcbProc.pid); */
 
-						//todo armar struct comun a planif y cpu de envio de fin de quantum
-						//todo rtas a memoria
+				//todo armar struct comun a planif y cpu de envio de fin de quantum
+				//todo rtas a memoria
+				//fin de quantum->parametros->pid, cpuid,mensaje de cada instruccion hecha y el tiempo consumido
+				/*t_mensajeHeader mjeFQ;
+				 mjeFQ.idmensaje = FINDEQUANTUM;
+				 status = send(serverSocket, &(mjeFQ.idmensaje), sizeof(t_mensajeHeader), 0);
+				 printf("envio de fin de quantum del proceso con id: %d ", pcbProc.pid);*/
 
-						//fin de quantum->parametros->pid, cpuid,mensaje de cada instruccion hecha y el tiempo consumido
+				//todo armar struct comun a planif y cpu de envio de fin de quantum
+				//todo rtas a memoria
 
-						/*t_mensajeHeader mjeFQ;
-						mjeFQ.idmensaje = FINDEQUANTUM;
-						status = send(serverSocket, &(mjeFQ.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio de fin de quantum del proceso con id: %d ", pcbProc.pid);*/
+				//PROCIO->parametros->pid,Tiempo, todo no falta el id de cpu?
+				/*t_mensajeHeader mjeIO;
+				 mjeIO.idmensaje = PROCIO;
+				 status = send(serverSocket, &(mjeIO.idmensaje), sizeof(t_mensajeHeader), 0);
+				 printf("envio de entrada-salida del proceso con id: %d ", pcbProc.pid);
 
-						//todo armar struct comun a planif y cpu de envio de fin de quantum
-						//todo rtas a memoria
+				 t_io rtaIO;
+				 rtaIO.pid = pcbProc.pid;
+				 rtaIO.tiempoIO = 4; //todo seteado para probar-->proviene del parseo del mproc
+				 status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
+				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
+				//todo rtas a memoria
 
+				//terminarconfalla->parametros->pid, cpuid
 
-						//PROCIO->parametros->pid,Tiempo, todo no falta el id de cpu?
-						/*t_mensajeHeader mjeIO;
-						mjeIO.idmensaje = PROCIO;
-						status = send(serverSocket, &(mjeIO.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio de entrada-salida del proceso con id: %d ", pcbProc.pid);
+				//finalizarprocok->parametros->pid, cpuid
+				//todo logica de finalizar proceso ok
+				t_mensajeHeader rta;
+				rta.idmensaje = FINALIZAPROCOK;
+				status = send(serverSocket, &(rta.idmensaje),
+						sizeof(t_mensajeHeader), 0);
+				printf("envio finalizar ok del proceso con id: %d ",
+						pcbProc.pid);
 
-						t_io rtaIO;
-						rtaIO.pid = pcbProc.pid;
-						rtaIO.tiempoIO = 4; //todo seteado para probar-->proviene del parseo del mproc
-						status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
-						printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
-						//todo rtas a memoria
+				t_finalizarPID rtaFin;
+				rtaFin.pid = pcbProc.pid;
+				rtaFin.idCPU = cpuID;
+				status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID),
+						0);
+				printf("de la cpu con id: %d \n", rtaFin.idCPU);
 
+				//todo rtas a memoria
 
-						//terminarconfalla->parametros->pid, cpuid
+				//finalizarprocfalla->parametros-> pid, cpuid
 
+				/*	t_mensajeHeader rtaE;
+				 rtaE.idmensaje = PROCFALLA;
+				 status = send(serverSocket, &(rtaE.idmensaje), sizeof(t_mensajeHeader), 0);
+				 printf("envio falla del proceso con id: %d ", pcbProc.pid);
 
-						//finalizarprocok->parametros->pid, cpuid
+				 t_finalizarPID rtaF;
+				 rtaF.pid = pcbProc.pid;
+				 rtaF.idCPU = cpuID;
+				 status = send(serverSocket, &(rtaF), sizeof(t_finalizarPID), 0);
+				 printf("de la cpu con id: %d \n", rtaF.idCPU);*/
+				//todo rtas a memoria
+				break;
 
-						//todo logica de finalizar proceso ok
-						t_mensajeHeader rta;
-						rta.idmensaje = FINALIZAPROCOK;
-						status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio finalizar ok del proceso con id: %d ", pcbProc.pid);
+			default:
+				printf("error al recibir\n");
+				pthread_mutex_lock(&mutexLogueo);
+				log_info(logCPU, "erro al recibir por codigo no reconocido");
+				pthread_mutex_unlock(&mutexLogueo);
 
-						t_finalizarPID rtaFin;
-						rtaFin.pid = pcbProc.pid;
-						rtaFin.idCPU = cpuID;
-						status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
-						printf("de la cpu con id: %d \n",rtaFin.idCPU);
-
-						//todo rtas a memoria
-
-						//finalizarprocfalla->parametros-> pid, cpuid
-
-					/*	t_mensajeHeader rtaE;
-						rtaE.idmensaje = PROCFALLA;
-						status = send(serverSocket, &(rtaE.idmensaje), sizeof(t_mensajeHeader), 0);
-						printf("envio falla del proceso con id: %d ", pcbProc.pid);
-
-						t_finalizarPID rtaF;
-						rtaF.pid = pcbProc.pid;
-						rtaF.idCPU = cpuID;
-						status = send(serverSocket, &(rtaF), sizeof(t_finalizarPID), 0);
-						printf("de la cpu con id: %d \n", rtaF.idCPU);*/
-						//todo rtas a memoria
-
-						break;
-
-					default:
-						printf("error al recibir\n");
-						pthread_mutex_lock(&mutexLogueo);
-						log_info(logCPU,"erro al recibir por codigo no reconocido");
-						pthread_mutex_unlock(&mutexLogueo);
-
-						enviar = 0;
-
-					}
-
+				enviar = 0;
 
 			}
-		}
 
-		close(serverSocket);
-		printf("Conexion a planificador cerrada \n");
-		pthread_mutex_lock(&mutexLogueo);
-		log_info(logCPU,"Conexion a planificador cerrada");
-		pthread_mutex_unlock(&mutexLogueo);
+		}
+	}
+
+	close(serverSocket);
+	printf("Conexion a planificador cerrada \n");
+	pthread_mutex_lock(&mutexLogueo);
+	log_info(logCPU, "Conexion a planificador cerrada");
+	pthread_mutex_unlock(&mutexLogueo);
 
 }
 
-
 //funcion que recibe el pcb del mProc parsea el mismo y todo devuelve una lista formada por instruccion resultado
-t_list* ejecutarmProc(t_pcb pcbProc){
+t_list* ejecutarmProc(t_pcb pcbProc) {
 
 	printf("en la funcion ejecutar proceso  \n");
 	parsermCod(pcbProc.pathProc, pcbProc.pid);
@@ -286,38 +287,39 @@ t_list* ejecutarmProc(t_pcb pcbProc){
 
 }
 
+int busquedaPosicionCaracter(int posicion, char *listaDeArchivos,
+		char valorABuscar) {
 
-int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar){
-
-if (listaDeArchivos[posicion]== '\0')
-	return -1; else if (listaDeArchivos[posicion]== valorABuscar)
+	if (listaDeArchivos[posicion] == '\0')
+		return -1;
+	else if (listaDeArchivos[posicion] == valorABuscar)
 		return posicion;
 	else
-	return busquedaPosicionCaracter(posicion+1,listaDeArchivos,valorABuscar);
+		return busquedaPosicionCaracter(posicion + 1, listaDeArchivos,
+				valorABuscar);
 }
 
-char *parsearLinea(char * lineaLeida){
-	int posicion = busquedaPosicionCaracter (0,lineaLeida,';');
+char *parsearLinea(char * lineaLeida) {
+	int posicion = busquedaPosicionCaracter(0, lineaLeida, ';');
 	char lineaParseada[100] = "";
-	strncpy(lineaParseada,&lineaLeida[0],posicion);
+	strncpy(lineaParseada, &lineaLeida[0], posicion);
 	//printf("Linea leida1: %s\n", lineaParseada);
 	return lineaParseada;
 }
 
 //todo revisar
-void *ejecucion (void *ptr){
-	FILE *fd;
-	fd = fopen("/home/utnso/codigo/test.cod","r");
-	iniciar(3,12);
-	escribir(3,"HOLA",12);
-	leer(3,12);
-	finalizar(12);
-	fclose(fd);
-	return 0;
-}
+/*void *ejecucion (void *ptr){
+ FILE *fd;
+ fd = fopen("/home/utnso/codigo/test.cod","r");
+ iniciar(3,12);
+ escribir(3,"HOLA",12);
+ leer(3,12);
+ finalizar(12);
+ fclose(fd);
+ return 0;
+ }*/
 
-
-void iniciar (int paginas, int mProcID){
+void iniciar(int paginas, int mProcID) {
 	printf("mProc %d - Iniciado \n", mProcID);
 	t_mensajeHeader inicia;
 	t_iniciarPID mensajeIniciar;
@@ -325,132 +327,150 @@ void iniciar (int paginas, int mProcID){
 	mensajeIniciar.pid = mProcID;
 	inicia.idmensaje = INICIAR;
 	send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-	recvACK(serverMemoria);
+	//recvACK(serverMemoria);
 	send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
 
 	sleep(configuracionCPU.Retardo);
 }
 
-
-void escribir (int pagina, char *texto, int mProcID){
+void escribir(int pagina, char *texto, int mProcID) {
 	printf("mProc %d - Pagina %d escrita: HOLA \n", mProcID, pagina);
 	sleep(5);
 }
 
-
-void leer (int pagina, int mProcID){
+void leer(int pagina, int mProcID) {
 	t_mensajeHeader inicia;
 	t_leer mensajeLeer;
+	int tamanio;
+	char * contenido;
 
 	inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
 
-	int status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-	if (status > 0){
-	recvACK(serverMemoria);
-	mensajeLeer.pid = mProcID;
-	mensajeLeer.pagina = pagina;
-	status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
+	int status = send(serverMemoria, &(inicia.idmensaje),
+			sizeof(t_mensajeHeader), 0);
+	if (status > 0) {
+
+		mensajeLeer.pid = mProcID;
+		mensajeLeer.pagina = pagina;
+		status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
+		recv(serverMemoria,&tamanio,sizeof(int),0);
+		contenido = malloc(tamanio);
+		recv(serverMemoria,contenido,sizeof(tamanio),0);
+		printf("CONTENIDO:%s",contenido);
+		fflush(stdout);
 	}
 
 	sleep(configuracionCPU.Retardo);
 }
 
-
-void finalizar (int mProcID){
+void finalizar(int mProcID) {
 
 	t_mensajeHeader header;
 	t_finalizarPID mensajeFinalizar;
 
 	header.idmensaje = FINALIZAR;
 	printf("mProc %d - Finalizado \n", mProcID);
+	log_info(logCPU,"HOLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	int status = send(serverMemoria, &header.idmensaje,
+			sizeof(t_mensajeHeader), 0);
+	if (status > 0) {
+	//	recvACK(serverMemoria);
+		mensajeFinalizar.pid = mProcID;
 
-	int status = send(serverMemoria, &(header.idmensaje), sizeof(t_mensajeHeader), 0);
-	if (status > 0){
-	recvACK(serverMemoria);
-	mensajeFinalizar.pid = mProcID;
-
-	status = send(serverMemoria, &mensajeFinalizar, sizeof(t_leer), 0);
+		status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),
+				0);
 	}
+	t_mensajeHeader rta;
+	recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
+
 
 	sleep(configuracionCPU.Retardo);
-	sleep(1);
+
+
+	rta.idmensaje = FINALIZAPROCOK;
+	status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
+	printf("envio finalizar ok del proceso con id: %d ", mProcID);
+
+	t_finalizarPID rtaFin;
+	rtaFin.pid = mProcID;
+	rtaFin.idCPU = cpuID;
+	status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
+	printf("de la cpu con id: %d \n", rtaFin.idCPU);
 }
 
-
-void parsermCod(char *path, int pid){
+void parsermCod(char *path, int pid) {
 	char *path_absoluto = string_new();
 
-		string_append(&path_absoluto, PATH);
-		string_append(&path_absoluto, path);
+	string_append(&path_absoluto, PATH);
+	string_append(&path_absoluto, path);
 
 	FILE* fid;
 	//if ((fid = fopen(path, "r")) == NULL) {
-		if ((fid = fopen(path_absoluto, "r")) == NULL) {
+	if ((fid = fopen(path_absoluto, "r")) == NULL) {
 		printf("Error al abrir el archivo \n");
-	}else{
+	} else {
 
-	char *p;
+		char *p;
 
-	char string[100];
+		char string[100];
 
-	while (!feof(fid)) //Recorre el archivo
-	{
-		fgets(string, 100, fid);
+		while (!feof(fid)) //Recorre el archivo
+		{
+			fgets(string, 100, fid);
 
-		p = strtok(string, ";");
+			p = strtok(string, ";");
 
+			if (p != NULL) {
+				char *string = string_new();
+				string_append(&string, p);
+				char** substrings = string_split(string, " ");
 
-		if (p != NULL) {
-			char *string = string_new();
-			string_append(&string, p);
-			char** substrings = string_split(string, " ");
+				if (esIniciar(substrings[0])) {
+					printf("comando iniciar, parametro %d \n",
+							atoi(substrings[1]));
+					iniciar(atoi(substrings[1]), pid);
+					free(substrings[0]);
+					free(substrings[1]);
+					free(substrings);
+				}
+				if (esLeer(substrings[0])) {
+					printf("comando leer, parametro %d \n",
+							atoi(substrings[1]));
+					leer(atoi(substrings[1]), pid);
+					free(substrings[0]);
+					free(substrings[1]);
+					free(substrings);
+				}
+				if (esEscribir(substrings[0])) {
+					printf("comando Escribir, parametros %d  %s \n",
+							atoi(substrings[1]), substrings[2]);
+					/*
+					 free(substrings[0]);
+					 free(substrings[1]);
+					 free(substrings[2]);
+					 free(substrings);
+					 */}
+				if (esIO(substrings[0])) {
+					printf("comando entrada salida, parametro %d \n",
+							atoi(substrings[1]));
+					free(substrings[0]);
+					free(substrings[1]);
+					free(substrings);
+				}
+				if (esFinalizar(substrings[0])) {
+					printf("comando Finalizar no tiene parametros \n");
+					finalizar(pid);
+					free(substrings[0]);
+					free(substrings);
+				}
 
-			if (esIniciar(substrings[0])) {
-				printf("comando iniciar, parametro %d \n", atoi(substrings[1]));
-				iniciar(atoi(substrings[1]),pid);
-				free(substrings[0]);
-				free(substrings[1]);
-				free(substrings);
 			}
-			if (esLeer(substrings[0])) {
-				printf("comando leer, parametro %d \n", atoi(substrings[1]));
-				leer(atoi(substrings[1]),pid);
-				free(substrings[0]);
-				free(substrings[1]);
-				free(substrings);
-			}
-			if (esEscribir(substrings[0])) {
-				printf("comando Escribir, parametros %d  %s \n",
-						atoi(substrings[1]), substrings[2]);
-				/*
-				free(substrings[0]);
-				free(substrings[1]);
-				free(substrings[2]);
-				free(substrings);
-			*/}
-			if (esIO(substrings[0])) {
-				printf("comando entrada salida, parametro %d \n",
-						atoi(substrings[1]));
-				free(substrings[0]);
-				free(substrings[1]);
-				free(substrings);
-			}
-			if (esFinalizar(substrings[0])) {
-							printf("comando Finalizar no tiene parametros \n");
-							finalizar(pid);
-							free(substrings[0]);
-							free(substrings);
-						}
-
 
 		}
-
+		fclose(fid);
 
 	}
-	fclose(fid);
-
-}
 }
 
 bool esLeer(char* linea) {

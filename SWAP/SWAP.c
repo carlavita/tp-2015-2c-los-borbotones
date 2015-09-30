@@ -87,7 +87,7 @@ int iniciar(int idProceso ,int cantidadPaginas){
 		break;
 	case -2: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
 		log_info(logSWAP,"Proceso mProc rechazado por falta de espacido, su PID es %d", idProceso);
-		return 15;
+		return ERROR;
 		break;
 	default:
 	 /*ESPACIO CONTIGUO EN DISCO PARA ASIGNAR PAGINAS*/
@@ -127,7 +127,7 @@ int iniciar(int idProceso ,int cantidadPaginas){
 				log_info(logSWAP,"PID asignado: %d",idProceso);
 				log_info(logSWAP,"Byte Inicial %d",paginaInicial*configuracionSWAP.TamanioPagina);
 				log_info(logSWAP,"Tamaño en bytes de asignacion %d",cantidadPaginas*configuracionSWAP.TamanioPagina);
-				return 14;
+				return OK;
 			break;
 	}
 		return 0;
@@ -177,7 +177,7 @@ int finalizar (int PID){
 	unificacionEspacioContiguo();
 
 
-	return 14;
+	return OK;
 }
 
 
@@ -367,7 +367,7 @@ void inicializarDisco() {
 	int tamanioDisco = configuracionSWAP.CantidadPaginas
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
-	contenido = string_repeat('\0', tamanioDisco);
+	contenido = string_repeat('A', tamanioDisco);
 
 	fputs(contenido,archivoDisco);
 
@@ -492,7 +492,10 @@ int buscarBloqueAMover (int DesdePosicion, int HastaPosicion){
 void escucharMensajes(int servidor){
 		int mensaje1 = 0;
 		int pid, paginas,status;
-	  t_mensajeHeader mensajeHeader;
+		t_mensajeHeader mensajeHeader;
+		t_iniciarPID estructuraMemoria;
+		t_finalizarPID estructuraMemoriaFinalizar;
+		t_leer estructuraMemoriaLeer;
 	    mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
 	    printf("mensaje recibido: %d",mensajeHeader.idmensaje);
 	    fflush(stdout);
@@ -500,13 +503,10 @@ void escucharMensajes(int servidor){
 		{
 			case INICIAR:
 				log_info(logSWAP,"Se recibio mensaje INICIAR");
-				sleep(10);
-				sendACK(servidor);
-				recv(servidor,&pid,sizeof(int),0);
-				sendACK(servidor);
-				recv(servidor,&paginas,sizeof(int),0);
-				sendACK(servidor);
-			 status = iniciar(1/*pid*/,paginas);
+				//sendACK(servidor);
+				recv(servidor,&estructuraMemoria,sizeof(t_iniciarPID),0);
+				//sendACK(servidor);
+			 status = iniciar(estructuraMemoria.pid,estructuraMemoria.paginas);
 				t_mensajeHeader iniciar;
 					iniciar.idmensaje = status;
 					send(servidor,&iniciar,sizeof(t_mensajeHeader),0);
@@ -514,30 +514,26 @@ void escucharMensajes(int servidor){
 				break;
 			case LEER:
 				log_info(logSWAP,"Se recibio mensaje INICIAR");
+				recv(servidor,&estructuraMemoriaLeer,sizeof(t_leer),0);
 
-				sendACK(servidor);
-				recv(servidor,&pid,sizeof(int),0);sendACK(servidor);
-				sendACK(servidor);
-				recv(servidor,&paginas,sizeof(int),0);
-				sendACK(servidor);
 				char * contenido = malloc(configuracionSWAP.TamanioPagina);
-				contenido = leer(pid,paginas);
+				contenido = leer(estructuraMemoriaLeer.pid,estructuraMemoriaLeer.pagina);
 				int tamanio = string_length(contenido);
-				send(servidor,tamanio, sizeof(int),0);
-				recvACK(servidor);
+				send(servidor,&tamanio, sizeof(int),0);
+
 				send(servidor,contenido,string_length(contenido),0);
 
 				break;
 			case ESCRIBIR:
 				log_info(logSWAP,"Se recibio el mensaje ESCRIBIR");
-				sendACK(servidor);
+				//sendACK(servidor);
 				recv(servidor,&pid,sizeof(int),0);
-				sendACK(servidor);
+				//sendACK(servidor);
 				recv(servidor,&paginas,sizeof(int),0);
-				sendACK(servidor);
+				//sendACK(servidor);
 				int sizeContenido;
 				recv(servidor,&sizeContenido, sizeof(int),0);
-				sendACK(servidor);
+				//sendACK(servidor);
 				char * contenidoEscribir = malloc(sizeContenido);
 				recv(servidor,&contenidoEscribir,sizeof(char*),0);
 				int status = escribir(pid,paginas,contenidoEscribir);
@@ -546,11 +542,9 @@ void escucharMensajes(int servidor){
 				break;
 			case FINALIZAR:
 				log_info(logSWAP,"Se recibio mensaje FINALIZAR");
-				sleep(10);
-				sendACK(servidor);
-				recv(servidor,&pid,sizeof(int),0);
-				sendACK(servidor);
-				status = finalizar(pid);
+				recv(servidor,&estructuraMemoriaFinalizar,sizeof(t_finalizarPID),0);
+				status = finalizar(estructuraMemoriaFinalizar.pid);
+				printf("FINALIZAR!!!!!: %d",status);
 				t_mensajeHeader finalizar;
 				finalizar.idmensaje = status;
 				send(servidor,&finalizar,sizeof(t_mensajeHeader),0);

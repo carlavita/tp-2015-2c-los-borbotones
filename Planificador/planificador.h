@@ -29,7 +29,7 @@
 #include <socket.h>
 
 #define PATH_CONFIG "Planificador.config"
-#define PATH_MCODE "/home/utnso/workspace/Planificador/mCod/"
+#define PATH_MCODE "/home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/"
 
 #define PATHLOG "LOGPlanificador.config"
 #define PATH_SIZE 256
@@ -220,3 +220,4 @@ int obtenerCantidadLineasPath(char* path);
  * forma, cuando este proceso ejecute nuevamente, finalizará.
  */
 void finalizarPid();
+t_pcb* buscarEnListaPorPID(t_list* lista, int pid);

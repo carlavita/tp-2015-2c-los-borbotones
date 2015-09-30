@@ -315,6 +315,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			recv(servidor,&finalizarCPU,sizeof(t_finalizarPID),0);
 			printf("FINALIZAR PID: %d\n",finalizarCPU.pid);
 			fflush(stdout);
+			mensajeHeaderSwap.idmensaje = FINALIZAR;
 
 			send(cliente,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
 			send(cliente,&finalizarCPU,sizeof(t_finalizarPID),0);

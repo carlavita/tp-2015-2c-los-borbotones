@@ -55,6 +55,11 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.171251550.392444552" name="SWAP.c" rcbsApplicability="disable" resourcePath="SWAP.c" toolsToInvoke="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.357193999.2041278811">
+						<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.357193999.2041278811" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.357193999">
+							<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.261233296" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+						</tool>
+					</fileInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">

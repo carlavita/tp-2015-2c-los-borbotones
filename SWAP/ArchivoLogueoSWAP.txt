@@ -1,12 +1,24 @@
-[INFO] 20:49:05:877 SWAP/(7422:7422): Inicio Proceso SWAP
-[INFO] 20:49:05:877 SWAP/(7422:7422): Leyendo Archivo de Configuracion
-[INFO] 20:49:05:879 SWAP/(7422:7422): 6000
-[INFO] 20:49:05:879 SWAP/(7422:7422): Archivo de Configuracion Leido correctamente
-[INFO] 20:49:05:879 SWAP/(7422:7422): Creando archivo de tamanio: 256
-[INFO] 20:49:05:886 SWAP/(7422:7422): Archivo Creado correctamente
-[INFO] 20:49:35:53 SWAP/(7422:7422): Se recibio mensaje INICIAR
-[INFO] 20:49:36:364 SWAP/(7422:7422): Proceso mPRoc asignado
-[INFO] 20:49:36:364 SWAP/(7422:7422): PID asignado: 1
-[INFO] 20:49:36:364 SWAP/(7422:7422): Byte Inicial 0
-[INFO] 20:49:36:364 SWAP/(7422:7422): Tamaño en bytes de asignacion 40
-[INFO] 20:49:40:18 SWAP/(7422:7422): Mensaje incorrecto
+[INFO] 10:09:30:642 SWAP/(3748:3748): Inicio Proceso SWAP
+[INFO] 10:09:30:642 SWAP/(3748:3748): Leyendo Archivo de Configuracion
+[INFO] 10:09:30:642 SWAP/(3748:3748): 6000
+[INFO] 10:09:30:642 SWAP/(3748:3748): Archivo de Configuracion Leido correctamente
+[INFO] 10:09:30:643 SWAP/(3748:3748): Creando archivo de tamanio: 256
+[INFO] 10:09:30:651 SWAP/(3748:3748): Archivo Creado correctamente
+[INFO] 10:09:49:187 SWAP/(3748:3748): Se recibio mensaje INICIAR
+[INFO] 10:09:49:187 SWAP/(3748:3748): Proceso mPRoc asignado
+[INFO] 10:09:49:187 SWAP/(3748:3748): PID asignado: 1
+[INFO] 10:09:49:187 SWAP/(3748:3748): Byte Inicial 0
+[INFO] 10:09:49:187 SWAP/(3748:3748): Tamaño en bytes de asignacion 8
+[INFO] 10:09:50:188 SWAP/(3748:3748): Se recibio mensaje INICIAR
+[INFO] 10:09:50:224 SWAP/(3748:3748): Lectura solicitada
+[INFO] 10:09:50:224 SWAP/(3748:3748): PID solicitado: 1
+[INFO] 10:09:50:224 SWAP/(3748:3748): Byte Inicial 4
+[INFO] 10:09:50:224 SWAP/(3748:3748): Tamaño solicitado para lectura 4
+[INFO] 10:09:50:224 SWAP/(3748:3748): El contenido de lectura es AAAA
+[INFO] 10:09:51:225 SWAP/(3748:3748): Se recibio mensaje INICIAR
+[INFO] 10:09:51:264 SWAP/(3748:3748): Lectura solicitada
+[INFO] 10:09:51:264 SWAP/(3748:3748): PID solicitado: 1
+[INFO] 10:09:51:264 SWAP/(3748:3748): Byte Inicial 8
+[INFO] 10:09:51:264 SWAP/(3748:3748): Tamaño solicitado para lectura 4
+[INFO] 10:09:51:264 SWAP/(3748:3748): El contenido de lectura es AAAA
+[INFO] 10:09:52:305 SWAP/(3748:3748): Se recibio mensaje FINALIZAR

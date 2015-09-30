@@ -135,7 +135,7 @@ int iniciar(int idProceso ,int cantidadPaginas){
 int finalizar (int PID){
 
 	/* OBTENDO LA INFORMACION DEL PRCESO A FINALIZAR Y ALMACENO EN VARIABLES LOCALES */
-	int posicionPIDLista = 1;//busquedaPIDEnLista(PID);
+	int posicionPIDLista =busquedaPIDEnLista(PID);
 	t_tablaProcesos* procesoFinalizado = list_get(listaProcesos,posicionPIDLista);
 	int cantidadPaginas =procesoFinalizado->cantidadPaginas;
 	int primerPagina = procesoFinalizado->primerPagina;

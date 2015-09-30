@@ -344,18 +344,19 @@ void handle(int newsock, fd_set *set) {
 			printf("el proceso finalizo correctamente su ejecucion \n");
 
 			t_finalizarPID rtaProc;
-			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
+			recv(newsock, &rtaProc, sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n", rtaProc.pid);
 			printf(" de la cpu: %d \n", rtaProc.idCPU);
 
-			pthread_mutex_lock(&mutexListas);
+			//pthread_mutex_lock(&mutexListas); //LISTA COMENTADA XQ SE BLOQUEABA, VER POR QUE
 
 			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
+			pcb = malloc(sizeof(t_pcb));
 
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
 			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
-			pthread_mutex_unlock(&mutexListas);
+			//pthread_mutex_unlock(&mutexListas);
 			//Habilita cpu
 			pthread_mutex_lock(&mutexListaCpu);
 			t_cpu * cpu = list_get(listaCPU, 0);//TODO buscar la cpu que corresponda

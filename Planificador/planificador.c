@@ -104,8 +104,7 @@ void levantarConfiguracion() {
 				"ALGORITMO");
 		configPlanificador.quantum = config_get_int_value(CONFIG, "QUANTUM");
 		configPlanificador.pathmCod = malloc(PATH_SIZE);
-		configPlanificador.pathmCod = config_get_string_value(CONFIG,
-				"PATHMCOD");
+		configPlanificador.pathmCod = config_get_string_value(CONFIG,"PATHMCOD");
 
 		printf(" puerto %s \n", configPlanificador.puertoEscucha);
 		printf(" algoritmo %d\n", configPlanificador.algoritmo);
@@ -305,10 +304,8 @@ void servidorCPU(void *ptr) {
 						int mensaje = SALUDO;
 						status = send(newsock, &mensaje, sizeof(int), 0);
 						printf("status send inicial %d \n", status);
-						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE),
-								0);
-						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,
-								status);
+						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
+						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,status);
 
 					}
 				} else {
@@ -344,26 +341,22 @@ void handle(int newsock, fd_set *set) {
 			printf("el proceso finalizo correctamente su ejecucion \n");
 
 			t_finalizarPID rtaProc;
-			recv(newsock, &rtaProc, sizeof(t_finalizarPID), 0);
-			printf(" con id: %d \n", rtaProc.pid);
-			printf(" de la cpu: %d \n", rtaProc.idCPU);
+			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
+			printf(" con id: %d \n",rtaProc.pid);
+			printf(" de la cpu: %d \n",rtaProc.idCPU);
 
-			//pthread_mutex_lock(&mutexListas); //LISTA COMENTADA XQ SE BLOQUEABA, VER POR QUE
-
-			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
-			pcb = malloc(sizeof(t_pcb));
-
+			//actualizarPcb();
+			//todo revisar porque no actualiza estas listas
+			//actualizar el estado de la cola de finalizados
+			/*pthread_mutex_lock(&mutexListas);
+			t_pcb* pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
-			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
-			//pthread_mutex_unlock(&mutexListas);
-			//Habilita cpu
-			pthread_mutex_lock(&mutexListaCpu);
-			t_cpu * cpu = list_get(listaCPU, 0);//TODO buscar la cpu que corresponda
-			cpu->pid = -1;
-			pthread_mutex_unlock(&mutexListaCpu);
-			sem_post(&semaforoCPU);
-			//actualizarPcb();
+			removerEnListaPorPid(EJECUTANDO,rtaProc.pid);
+			pthread_mutex_unlock(&mutexListas);*/
+
+			//funcion que pone a la cpu libre nuevamente
+			liberarCPU(rtaProc.idCPU);
 
 			break;
 		case PROCFALLA:
@@ -372,8 +365,8 @@ void handle(int newsock, fd_set *set) {
 
 			t_finalizarPID rtaP;
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
-			printf(" con id: %d", rtaP.pid);
-			printf(" de la cpu: %d \n", rtaP.idCPU);
+			printf(" con id: %d",rtaP.pid);
+			printf(" de la cpu: %d \n",rtaP.idCPU);
 
 			//borrarEstructurasDelProc();
 
@@ -383,8 +376,8 @@ void handle(int newsock, fd_set *set) {
 			printf("el proceso esta realizando su entrada-salida \n");
 			t_io rtaIO;
 			recv(newsock, &(rtaIO), sizeof(t_io), 0);
-			printf(" con id: %d", rtaIO.pid);
-			printf(" con tiempo: %d \n", rtaIO.tiempoIO);
+			printf(" con id: %d",rtaIO.pid);
+			printf(" con tiempo: %d \n",rtaIO.tiempoIO);
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "el proceso esta realizando su entrada-salida ");
 			pthread_mutex_unlock(&mutexLog);
@@ -395,7 +388,7 @@ void handle(int newsock, fd_set *set) {
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
 
-			printf("Fin de quantum CPU \n");			//todo, agregar id cpu
+			printf("Fin de quantum CPU \n");//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
 			pthread_mutex_unlock(&mutexLog);
@@ -450,6 +443,7 @@ int crearPcb(char* path) {
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
 
+
 	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
 
 	printf("PID mProc: %d \n", pcb->pid);
@@ -460,12 +454,6 @@ int crearPcb(char* path) {
 	list_add(LISTOS, pcb);
 	t_pcb *mProc = list_get(LISTOS, 0);
 
-	/*printf("PID %d sumado a la cola de ready\n", pcb->pid);
-	 printf("PID mProc despues: %d \n", mProc->pid);
-	 printf("Proxima instruccion mProc: %d \n", mProc->proxInst);
-	 printf("Path mProc: %s \n", mProc->pathProc);
-	 printf("Path mProc: %d \n", mProc->cantidadLineas);
-	 */
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "PID creado %d , path %s \n", pcb->pid, pcb->pathProc);
 	pthread_mutex_unlock(&mutexLog);
@@ -473,9 +461,7 @@ int crearPcb(char* path) {
 	pthread_mutex_unlock(&mutexListas);
 	sem_post(&semaforoListos); //Habilita al planificador
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
-	printf(
-			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
-			val);
+	printf("Soy el semaforo despues de habilitar a planificador con el valor: %d\n",val);
 
 	return pcb->pid;
 }
@@ -509,8 +495,7 @@ void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
 	send(cpu->socket, &msjEjecutar, sizeof(int), 0);
 	printf("Envio de pedido de ejecucion a la cpu libre \n");
 	send(cpu->socket, pcb, sizeof(t_pcb), 0);
-	printf(
-			"Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
+	printf("Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
 
 }
 
@@ -577,14 +562,8 @@ void *planificador(void *info_proc) {
 		}
 
 		enviarACpu(pcb, cpuLibre);
-		/*int msjEjecutar;
-		 msjEjecutar = EJECUTARPROC;
-		 send(cpuLibre->socket, &msjEjecutar, sizeof(int), 0);
-		 printf("Envio de pedido de ejecucion a la cpu libre \n");
-		 send(cpuLibre->socket, pcb, sizeof(t_pcb), 0);
-		 printf(
-		 "Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
-		 */}
+
+	}
 
 	return 0;
 
@@ -823,5 +802,20 @@ void *procesarEntradasSalidas(void *info_proc) {
 		free(mjeIO);
 	}
 	//todo Ahora enviarlo a la cola de listos
+
+}
+
+void liberarCPU(int idCPU){
+
+
+	int _is_cpu(t_cpu *p) {
+		return p->id == idCPU;
+	}
+	pthread_mutex_lock(&mutexListaCpu);
+	t_cpu* cpu = list_find(listaCPU, (void*) _is_cpu);
+	cpu->pid = -1; //actualizo su pid para que quede libre la cpu
+	pthread_mutex_unlock(&mutexListaCpu);
+	sem_post(&semaforoCPU); //habilito al semaforo de cpu libres
+
 
 }

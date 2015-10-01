@@ -346,14 +346,16 @@ void handle(int newsock, fd_set *set) {
 			printf(" de la cpu: %d \n",rtaProc.idCPU);
 
 			//actualizarPcb();
-			//todo revisar porque no actualiza estas listas
+
 			//actualizar el estado de la cola de finalizados
-			/*pthread_mutex_lock(&mutexListas);
-			t_pcb* pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
+
+			//pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
+			pcb = malloc(sizeof(t_pcb));
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
-			removerEnListaPorPid(EJECUTANDO,rtaProc.pid);
-			pthread_mutex_unlock(&mutexListas);*/
+			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
+			//pthread_mutex_unlock(&mutexListas);
 
 			//funcion que pone a la cpu libre nuevamente
 			liberarCPU(rtaProc.idCPU);

@@ -216,25 +216,9 @@ void Conexion_con_planificador() {
 				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
 				//todo rtas a memoria
 
-				//terminarconfalla->parametros->pid, cpuid
+				//todo terminarconfalla->parametros->pid, cpuid
 
-				//finalizarprocok->parametros->pid, cpuid
-				//todo logica de finalizar proceso ok
-				t_mensajeHeader rta;
-				rta.idmensaje = FINALIZAPROCOK;
-				status = send(serverSocket, &(rta.idmensaje),
-						sizeof(t_mensajeHeader), 0);
-				printf("envio finalizar ok del proceso con id: %d ",
-						pcbProc.pid);
 
-				t_finalizarPID rtaFin;
-				rtaFin.pid = pcbProc.pid;
-				rtaFin.idCPU = cpuID;
-				status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID),
-						0);
-				printf("de la cpu con id: %d \n", rtaFin.idCPU);
-
-				//todo rtas a memoria
 
 				//finalizarprocfalla->parametros-> pid, cpuid
 
@@ -407,6 +391,7 @@ void finalizar(int mProcID) {
 	rtaFin.idCPU = cpuID;
 	status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
 	printf("de la cpu con id: %d \n", rtaFin.idCPU);
+
 }
 
 void parsermCod(char *path, int pid) {

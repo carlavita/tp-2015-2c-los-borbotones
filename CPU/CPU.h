@@ -67,6 +67,10 @@ int serverSocket;
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 
+//OJO!!!!!!
+FILE* fid;
+
+
 //funciones de la cpu
 
 void LeerArchivoConfiguracion();

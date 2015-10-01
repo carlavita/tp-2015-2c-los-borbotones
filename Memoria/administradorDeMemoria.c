@@ -225,10 +225,11 @@ void enviarIniciarSwap(int cliente, t_iniciarPID estructuraCPU,
 	if (mensajeHeaderSwap.idmensaje == OK) {
 		log_info(logMemoria, "Se proceso correctamente el mensaje");
 		mensajeCPU.idmensaje = FINALIZAPROCOK;
-		send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+		send(servidor, &mensajeCPU, sizeof(t_mensajeHeader), 0);
 	} else if (mensajeHeaderSwap.idmensaje == ERROR) {
 		log_error(logMemoria, "Fallo envio mensaje");
 		mensajeCPU.idmensaje = PROCFALLA;
+		send(servidor,&mensajeCPU,sizeof(t_mensajeHeader),0);
 	}
 	fflush(stdout);
 }

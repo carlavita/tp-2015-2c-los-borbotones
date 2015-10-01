@@ -322,15 +322,25 @@ char *parsearLinea(char * lineaLeida) {
 void iniciar(int paginas, int mProcID) {
 	printf("mProc %d - Iniciado \n", mProcID);
 	t_mensajeHeader inicia;
+	t_finalizarPID mensajeFinalizar;
 	t_iniciarPID mensajeIniciar;
+	t_mensajeHeader mensajeCpu;
 	mensajeIniciar.paginas = paginas;
 	mensajeIniciar.pid = mProcID;
 	inicia.idmensaje = INICIAR;
 	send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
 	//recvACK(serverMemoria);
 	send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
+	recv(serverMemoria,&mensajeCpu,sizeof(t_mensajeHeader),0);
+	if(mensajeCpu.idmensaje == FINALIZAPROCOK)
+		sleep(configuracionCPU.Retardo);
+	else if( mensajeCpu.idmensaje == PROCFALLA)
+	{
+	  mensajeFinalizar.pid = mProcID;
+	  send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);
+	  fseek(fid,-1,SEEK_END);//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
+	}
 
-	sleep(configuracionCPU.Retardo);
 }
 
 void escribir(int pagina, char *texto, int mProcID) {
@@ -405,7 +415,6 @@ void parsermCod(char *path, int pid) {
 	string_append(&path_absoluto, PATH);
 	string_append(&path_absoluto, path);
 
-	FILE* fid;
 	//if ((fid = fopen(path, "r")) == NULL) {
 	if ((fid = fopen(path_absoluto, "r")) == NULL) {
 		printf("Error al abrir el archivo \n");

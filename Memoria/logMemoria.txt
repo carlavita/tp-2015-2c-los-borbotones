@@ -1,21 +1,11 @@
-[INFO] 20:51:02:404 Administrador de memoria/(7564:7564): Inicio lectura de archivo de configuración
-[INFO] 20:51:02:428 Administrador de memoria/(7564:7564): 64000
-[INFO] 20:51:02:428 Administrador de memoria/(7564:7564): Finalizo lectura de archivo de configuración
-[INFO] 20:51:02:428 Administrador de memoria/(7564:7564): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 20:51:02:429 Administrador de memoria/(7564:7564): La TLB no esta activada por configuración
-[INFO] 20:51:02:429 Administrador de memoria/(7564:7564): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 20:51:02:458 Administrador de memoria/(7564:7564): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 20:51:02:458 Administrador de memoria/(7564:7564): termino hiloSigUsr1
-[INFO] 20:51:02:458 Administrador de memoria/(7564:7564): Termino hiloSigUsr2
-[INFO] 20:51:02:458 Administrador de memoria/(7564:7564): Comienzo de las diferentes conexiones
-[INFO] 20:51:02:458 Administrador de memoria/(7564:7564): La memoria se conecto satisfactoriamente al SWAP
-[INFO] 20:51:16:860 Administrador de memoria/(7564:7564): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 10
-[INFO] 20:51:16:860 Administrador de memoria/(7564:7564): Inicio del aviso al proceso SWAp del comando INICIAR
-[INFO] 20:51:16:861 Administrador de memoria/(7564:7564): Envio pagina al SWAP, PAGINA N°:10
-[INFO] 20:51:16:861 Administrador de memoria/(7564:7564): Envio pid al SWAP, PID:1
-[INFO] 20:51:16:861 Administrador de memoria/(7564:7564): SWAP recibio la pagina de forma correcta
-[INFO] 20:51:16:899 Administrador de memoria/(7564:7564): Se recibio este codigo de error: 14
-[INFO] 20:51:16:899 Administrador de memoria/(7564:7564): Se proceso correctamente el mensaje
-[INFO] 20:51:16:899 Administrador de memoria/(7564:7564): Fin del aviso al proceso SWAp del comando INICIAR
-[INFO] 20:51:26:130 Administrador de memoria/(7564:7564): Solicitud de lectura recibida
-[INFO] 20:51:31:860 Administrador de memoria/(7564:7564): 2do checkpoint: Se envia directo al swap
+[INFO] 21:18:14:582 Administrador de memoria/(2589:2589): Inicio lectura de archivo de configuración
+[INFO] 21:18:14:604 Administrador de memoria/(2589:2589): 64000
+[INFO] 21:18:14:604 Administrador de memoria/(2589:2589): Finalizo lectura de archivo de configuración
+[INFO] 21:18:14:604 Administrador de memoria/(2589:2589): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 21:18:17:875 Administrador de memoria/(2589:2589): La TLB no esta activada por configuración
+[INFO] 21:18:17:875 Administrador de memoria/(2589:2589): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): termino hiloSigUsr1
+[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): Termino hiloSigUsr2
+[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): Comienzo de las diferentes conexiones
+[INFO] 21:18:17:908 Administrador de memoria/(2589:2589): La memoria se conecto satisfactoriamente al SWAP

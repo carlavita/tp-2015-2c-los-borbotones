@@ -349,7 +349,7 @@ void handle(int newsock, fd_set *set) {
 
 			//actualizar el estado de la cola de finalizados
 
-			//pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+			pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
 			int lalala = list_size(EJECUTANDO);
 			printf("al finalizar hay %d procesos ejecutando\n ", lalala);
 
@@ -358,7 +358,7 @@ void handle(int newsock, fd_set *set) {
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
 			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
-			//pthread_mutex_unlock(&mutexListas);
+			pthread_mutex_unlock(&mutexListas);
 
 			//funcion que pone a la cpu libre nuevamente
 			liberarCPU(rtaProc.idCPU);
@@ -478,11 +478,14 @@ t_pcb* planificarFifo() {
 	sem_wait(&semaforoCPU); //consumir cuando haya cpus libres
 	pthread_mutex_lock(&mutexListas);
 	t_pcb* pcb = list_remove(LISTOS, 0);
+	pthread_mutex_unlock(&mutexListas);
 	printf("eliminó el pid : % d de listos \n", pcb->pid);
 	pcb->status = EJECUTA;
+	pthread_mutex_lock(&mutexListas);
 	list_add(EJECUTANDO, pcb);
-	printf("agrego el pid : % d a ejecutando \n", pcb->pid);
 	pthread_mutex_unlock(&mutexListas);
+	printf("agrego el pid : % d a ejecutando \n", pcb->pid);
+
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
 	printf(
 			"Soy el semaforo despues de planificar un proceso  con el valor: %d\n",
@@ -509,9 +512,9 @@ void removerEnListaPorPid(t_list *lista, int pid) {
 	int _is_pcb(t_pcb *p) {
 		return p->pid == pid;
 	}
-	pthread_mutex_lock(&mutexListas);
+	//pthread_mutex_lock(&mutexListas);
 	list_remove_by_condition(lista, (void*) _is_pcb);
-	pthread_mutex_unlock(&mutexListas);
+	//pthread_mutex_unlock(&mutexListas);
 
 	//cuidado q esa funcion retorna el valor q remueve (void*)
 }

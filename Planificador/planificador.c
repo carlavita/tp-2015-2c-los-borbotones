@@ -350,8 +350,11 @@ void handle(int newsock, fd_set *set) {
 			//actualizar el estado de la cola de finalizados
 
 			//pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+			int lalala = list_size(EJECUTANDO);
+			printf("al finalizar hay %d procesos ejecutando\n ", lalala);
+
 			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
-			pcb = malloc(sizeof(t_pcb));
+
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
 			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
@@ -375,7 +378,7 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case PROCIO:
 			// todo liberar cpu y sem_post(&semaforoCPU); aca tambien me vas a tener que pasar como si fuera fin de rafaga
-			printf("el proceso esta realizando su entrada-salida \n");
+		/*	printf("el proceso esta realizando su entrada-salida \n");
 			t_io rtaIO;
 			recv(newsock, &(rtaIO), sizeof(t_io), 0);
 			printf(" con id: %d",rtaIO.pid);
@@ -386,7 +389,7 @@ void handle(int newsock, fd_set *set) {
 			//todo no falta el id de cpu?
 			ejecutarIO(newsock);
 
-			break;
+*/			break;
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
 
@@ -438,7 +441,7 @@ int crearPcb(char* path) {
 
 	//t_pcb* pcb = malloc(sizeof(t_pcb*));
 	t_pcb* pcb = malloc(sizeof(t_pcb));
-	pthread_mutex_lock(&mutexListas);
+
 	PID++;
 	pcb->pid = PID;
 	pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
@@ -453,14 +456,15 @@ int crearPcb(char* path) {
 	printf("Path mProc: %s \n", pcb->pathProc);
 	printf("Path mProc: %d \n", pcb->cantidadLineas);
 	/*Lo agrega a la lista de listos*/
+	pthread_mutex_lock(&mutexListas);
 	list_add(LISTOS, pcb);
-	t_pcb *mProc = list_get(LISTOS, 0);
+	//t_pcb *mProc = list_get(LISTOS, 0);
+	pthread_mutex_unlock(&mutexListas);
 
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "PID creado %d , path %s \n", pcb->pid, pcb->pathProc);
 	pthread_mutex_unlock(&mutexLog);
 
-	pthread_mutex_unlock(&mutexListas);
 	sem_post(&semaforoListos); //Habilita al planificador
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
 	printf("Soy el semaforo despues de habilitar a planificador con el valor: %d\n",val);
@@ -661,6 +665,7 @@ void ejecutarPS() {
 	list_add_all(PROCESOS, EJECUTANDO);
 	list_add_all(PROCESOS, BLOQUEADOS);
 	list_add_all(PROCESOS, FINALIZADOS);
+	pthread_mutex_unlock(&mutexListas);
 
 	ordernarPorPID(PROCESOS);
 	printf("---  Status de Procesos mProc    --- \n \n");
@@ -707,7 +712,6 @@ void ejecutarPS() {
 		mProc = list_get(PROCESOS, indexLista);
 	}
 
-	pthread_mutex_unlock(&mutexListas);
 
 }
 
@@ -793,13 +797,14 @@ void *procesarEntradasSalidas(void *info_proc) {
 	t_pcb* pcb = malloc(sizeof(t_pcb));
 	while (true) {
 		sem_wait(&semaforoIO);
-		pthread_mutex_lock(&mutexListas);
+	//	pthread_mutex_lock(&mutexListas);
 
 		mjeIO = list_remove(IO, 0);
 
 		sleep(mjeIO->tiempoIO); //HAY QUE ENCOLAR LOS BLOQUEOS
 		pcb = list_remove(BLOQUEADOS, 0);
 		list_add(LISTOS, pcb);
+		//pthread_mutex_unlock(&mutexListas);
 
 		free(mjeIO);
 	}

@@ -317,10 +317,13 @@ void iniciar(int paginas, int mProcID) {
 	send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
 	recv(serverMemoria,&mensajeCpu,sizeof(t_mensajeHeader),0);
 	if(mensajeCpu.idmensaje == FINALIZAPROCOK)
+	{
 		sleep(configuracionCPU.Retardo);
-	else if( mensajeCpu.idmensaje == PROCFALLA)
+	}
+		if( mensajeCpu.idmensaje == PROCFALLA)
 	{
 	  mensajeFinalizar.pid = mProcID;
+	  send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
 	  send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);
 	  fseek(fid,-1,SEEK_END);//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
 	}
@@ -365,15 +368,13 @@ void finalizar(int mProcID) {
 
 	header.idmensaje = FINALIZAR;
 	printf("mProc %d - Finalizado \n", mProcID);
-	log_info(logCPU,"HOLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 	int status = send(serverMemoria, &header.idmensaje,
 			sizeof(t_mensajeHeader), 0);
 	if (status > 0) {
 	//	recvACK(serverMemoria);
 		mensajeFinalizar.pid = mProcID;
 
-		status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),
-				0);
+		status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
 	}
 	t_mensajeHeader rta;
 	recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);

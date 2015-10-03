@@ -1,13 +1,9 @@
-[INFO] 00:09:04:230 CPU/(6424:6424): Inicio Proceso CPU
-[INFO] 00:09:04:234 CPU/(6424:6424): Leyendo Archivo de Configuracion
-[INFO] 00:09:04:236 CPU/(6424:6424): 4000
-[INFO] 00:09:04:238 CPU/(6424:6424): Archivo de Configuracion Leido correctamente
-[INFO] 00:09:04:243 CPU/(6424:6424): Se inicializaron los semaforos 
+[INFO] 12:15:16:792 CPU/(2555:2555): Inicio Proceso CPU
+[INFO] 12:15:17:371 CPU/(2555:2555): Leyendo Archivo de Configuracion
+[INFO] 12:15:17:372 CPU/(2555:2555): 4000
+[INFO] 12:15:17:372 CPU/(2555:2555): Archivo de Configuracion Leido correctamente
+[INFO] 12:15:18:97 CPU/(2555:2555): Se inicializaron los semaforos 
 
-[INFO] 00:09:04:244 CPU/(6424:6424): Conectando a memoria
+[INFO] 12:15:29:567 CPU/(2555:2555): Conectando a memoria
 
-[INFO] 00:09:04:255 CPU/(6424:6424): Conectando a planificador
-[INFO] 00:09:04:275 CPU/(6424:6424): se recibe el msj de saludo de planificador:
-[INFO] 00:09:04:279 CPU/(6424:6424): PATH MCOD: /home/utnso/workspace/Planificador/mCod/
-[INFO] 00:09:19:173 CPU/(6424:6424): se recibe el msj de ejecucion de un proceso:
-[INFO] 00:09:19:180 CPU/(6424:6424): ejecutando el proceso con id:1
+[INFO] 12:15:56:546 CPU/(2555:2555): Conectando a planificador

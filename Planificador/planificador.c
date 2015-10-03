@@ -324,7 +324,7 @@ void servidorCPU(void *ptr) {
 }
 
 void handle(int newsock, fd_set *set) {
-
+	t_finalizarPID rtaP;
 	printf("En el handle de planificador \n");
 	//recepcion de msj del cpu segun protocolo
 	int status = 1;
@@ -338,7 +338,7 @@ void handle(int newsock, fd_set *set) {
 
 		case FINALIZAPROCOK:
 
-			printf("el proceso finalizo correctamente su ejecucion \n");
+			log_info(logger,"El proceso finalizo correctamente su ejecucion \n");
 
 			t_finalizarPID rtaProc;
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
@@ -351,7 +351,7 @@ void handle(int newsock, fd_set *set) {
 
 			pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
 			int lalala = list_size(EJECUTANDO);
-			printf("al finalizar hay %d procesos ejecutando\n ", lalala);
+			log_info(logger,"Al finalizar hay %d procesos ejecutando\n ", lalala);
 
 			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
 
@@ -366,13 +366,8 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case PROCFALLA:
 
-			printf("el proceso falló en su ejecucion \n");
-
-			t_finalizarPID rtaP;
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
-			printf(" con id: %d",rtaP.pid);
-			printf(" de la cpu: %d \n",rtaP.idCPU);
-
+			log_info(logger,"El proceso falló en su ejecucion, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
 			//borrarEstructurasDelProc();
 
 			break;
@@ -435,6 +430,7 @@ void correrPath() {
 	int pid = crearPcb(path);
 
 	printf("Creado mProc %d \n", pid);
+	fflush(stdout);
 }
 
 int crearPcb(char* path) {

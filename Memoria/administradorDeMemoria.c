@@ -289,6 +289,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			printf("tamaño: %d \n",tamanioLeido);
 
 			char * contenidoLeido = malloc(tamanioLeido);
+			contenidoLeido[tamanioLeido] = '\0';
 			recv(cliente,contenidoLeido,sizeof(tamanioLeido),0);
 			printf("Contenido: %s",contenidoLeido);
 			fflush(stdout);

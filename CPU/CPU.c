@@ -323,6 +323,7 @@ void iniciar(int paginas, int mProcID) {
 		if( mensajeCpu.idmensaje == PROCFALLA)
 	{
 	  mensajeFinalizar.pid = mProcID;
+	  mensajeFinalizar.idCPU = cpuID;
 	  send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
 	  send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);
 	  fseek(fid,-1,SEEK_END);//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!

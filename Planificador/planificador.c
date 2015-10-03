@@ -366,7 +366,19 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case PROCFALLA:
 
+
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
+			pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+
+			t_pcb *pcb1 = buscarEnListaPorPID(EJECUTANDO,rtaP.pid);
+
+			pcb1->status = FINALIZADOERROR;
+			list_add(FINALIZADOS, pcb1);
+			removerEnListaPorPid(EJECUTANDO, rtaP.pid);
+			pthread_mutex_unlock(&mutexListas);
+
+			//funcion que pone a la cpu libre nuevamente
+			liberarCPU(rtaP.idCPU);
 			log_info(logger,"El proceso falló en su ejecucion, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
 			//borrarEstructurasDelProc();
 

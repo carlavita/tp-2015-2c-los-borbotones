@@ -1,9 +1,15 @@
-[INFO] 12:15:16:792 CPU/(2555:2555): Inicio Proceso CPU
-[INFO] 12:15:17:371 CPU/(2555:2555): Leyendo Archivo de Configuracion
-[INFO] 12:15:17:372 CPU/(2555:2555): 4000
-[INFO] 12:15:17:372 CPU/(2555:2555): Archivo de Configuracion Leido correctamente
-[INFO] 12:15:18:97 CPU/(2555:2555): Se inicializaron los semaforos 
+[INFO] 13:10:34:889 CPU/(4287:4287): Inicio Proceso CPU
+[INFO] 13:10:34:889 CPU/(4287:4287): Leyendo Archivo de Configuracion
+[INFO] 13:10:34:889 CPU/(4287:4287): 4000
+[INFO] 13:10:34:889 CPU/(4287:4287): Archivo de Configuracion Leido correctamente
+[INFO] 13:10:34:890 CPU/(4287:4287): Se inicializaron los semaforos 
 
-[INFO] 12:15:29:567 CPU/(2555:2555): Conectando a memoria
+[INFO] 13:10:34:890 CPU/(4287:4287): Conectando a memoria
 
-[INFO] 12:15:56:546 CPU/(2555:2555): Conectando a planificador
+[INFO] 13:10:34:890 CPU/(4287:4287): Conectando a planificador
+[INFO] 13:10:34:890 CPU/(4287:4287): se recibe el msj de saludo de planificador:
+[INFO] 13:10:34:890 CPU/(4287:4287): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 13:10:44:103 CPU/(4287:4287): se recibe el msj de ejecucion de un proceso:
+[INFO] 13:10:44:103 CPU/(4287:4287): ejecutando el proceso con id:1
+[INFO] 13:11:28:130 CPU/(4287:4287): se recibe el msj de ejecucion de un proceso:
+[INFO] 13:11:28:130 CPU/(4287:4287): ejecutando el proceso con id:2

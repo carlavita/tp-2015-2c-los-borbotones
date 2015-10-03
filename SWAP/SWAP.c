@@ -181,9 +181,9 @@ int finalizar(int PID) {
 char * leer(int PID, int nroPagina) {
 
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
-	int posicionPID = 1;		//busquedaPIDEnLista(PID);
+	int posicionPID = busquedaPIDEnLista(PID);
 	t_tablaProcesos *procesoObtenido = list_get(listaProcesos, posicionPID);
-	int primerBytePagina = (nroPagina + /*procesoObtenido->primerPagina*/1)
+	int primerBytePagina = (nroPagina + procesoObtenido->primerPagina)
 			* tamanioPagina;
 	char * contenido = malloc(tamanioPagina);
 
@@ -202,7 +202,7 @@ char * leer(int PID, int nroPagina) {
 
 	//DEVUELVO PAGINA LEIDA
 
-	//procesoObtenido->cantidadLecturas = procesoObtenido->cantidadLecturas + 1;
+	procesoObtenido->cantidadLecturas = procesoObtenido->cantidadLecturas + 1;
 	sleep(configuracionSWAP.RetardoSWAP);
 	return contenido;
 }

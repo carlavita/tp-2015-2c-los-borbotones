@@ -33,7 +33,6 @@ typedef struct
 {
 	int pid;
 	int numeroPagina;
-	int frame;
 }t_TLB;    //LA TLB VA A SER UN ARRAY DE N entradas.(por ahora)
 
 typedef struct

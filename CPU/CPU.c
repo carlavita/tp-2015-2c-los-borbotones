@@ -322,6 +322,7 @@ void iniciar(int paginas, int mProcID) {
 	}
 		if( mensajeCpu.idmensaje == PROCFALLA)
 	{
+	  log_info(logCPU,"Proceso :%d, rechazado\n",mensajeFinalizar.pid);
 	  mensajeFinalizar.pid = mProcID;
 	  mensajeFinalizar.idCPU = cpuID;
 	  send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);

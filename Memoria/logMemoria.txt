@@ -1,11 +1,11 @@
-[INFO] 21:18:14:582 Administrador de memoria/(2589:2589): Inicio lectura de archivo de configuración
-[INFO] 21:18:14:604 Administrador de memoria/(2589:2589): 64000
-[INFO] 21:18:14:604 Administrador de memoria/(2589:2589): Finalizo lectura de archivo de configuración
-[INFO] 21:18:14:604 Administrador de memoria/(2589:2589): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 21:18:17:875 Administrador de memoria/(2589:2589): La TLB no esta activada por configuración
-[INFO] 21:18:17:875 Administrador de memoria/(2589:2589): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): termino hiloSigUsr1
-[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): Termino hiloSigUsr2
-[INFO] 21:18:17:907 Administrador de memoria/(2589:2589): Comienzo de las diferentes conexiones
-[INFO] 21:18:17:908 Administrador de memoria/(2589:2589): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 19:56:52:639 Administrador de memoria/(2868:2868): Inicio lectura de archivo de configuración
+[INFO] 19:56:52:639 Administrador de memoria/(2868:2868): 64000
+[INFO] 19:56:52:639 Administrador de memoria/(2868:2868): Finalizo lectura de archivo de configuración
+[INFO] 19:56:53:295 Administrador de memoria/(2868:2868): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 19:56:55:267 Administrador de memoria/(2868:2868): La TLB no esta activada por configuración
+[INFO] 19:56:55:975 Administrador de memoria/(2868:2868): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 19:56:56:8 Administrador de memoria/(2868:2868): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 19:56:56:835 Administrador de memoria/(2868:2868): termino hiloSigUsr1
+[INFO] 19:56:57:827 Administrador de memoria/(2868:2868): Termino hiloSigUsr2
+[INFO] 19:56:58:991 Administrador de memoria/(2868:2868): Comienzo de las diferentes conexiones
+[INFO] 19:56:59:929 Administrador de memoria/(2868:2868): La memoria se conecto satisfactoriamente al SWAP

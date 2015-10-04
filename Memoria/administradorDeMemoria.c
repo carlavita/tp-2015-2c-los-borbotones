@@ -27,7 +27,7 @@
 t_config_memoria configMemoria;
 t_log * logMemoria;
 int clienteSwap;
-t_tablaDePaginas * tablaDePaginas;
+t_list * tablaDePaginas;
 t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
 int * memoriaReservadaDeMemPpal;
 pthread_t * hiloSigUsr1;
@@ -49,8 +49,6 @@ int main() {
 	logMemoria = log_create("logMemoria.txt", "Administrador de memoria", true,
 			LOG_LEVEL_INFO);
 	leerConfiguracion();
-	generarEstructuraAdministrativaPIDFrame();
-	creacionTLB(&configMemoria, logMemoria, tlb);
 
 	creacionHilos(logMemoria);
 	pthread_join(*hiloSigUsr1, NULL);
@@ -58,6 +56,9 @@ int main() {
 	pthread_join(*hiloSigUsr2, NULL);
 	log_info(logMemoria, "Termino hiloSigUsr2");
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
+	tablaDePaginas = list_create();
+	generarEstructuraAdministrativaPIDFrame();
+	creacionTLB(&configMemoria, logMemoria, tlb);
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
 
@@ -98,7 +99,6 @@ t_TLB * generarTLB(int entradasTLB) {
 	t_TLB tlb[entradasTLB];
 	int entrada = 0;
 	while (entrada < entradasTLB) {
-		tlb[entrada].frame = -1;
 		tlb[entrada].numeroPagina = -1;
 		tlb[entrada].pid = -1; //cuando vengan los procesos, ire cambiando ese pid.
 		++entrada;
@@ -150,34 +150,39 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
 }
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas) {
+	log_info(logMemoria, "INICIO TABLAS DE PAGINAS");
 	int pagina = 0;
-
-	int frame = 0;
-	int maximaCantidadDeFrames = configMemoria.cantidadDeMarcos;
+	t_tablaDePaginas * entrada = malloc(sizeof(t_tablaDePaginas));
 	while (pagina < cantidadDePaginas) {
-		if (frame == maximaCantidadDeFrames)
-			return;
-		else {
-			tablaDePaginas->bitModificado = 1;
-			tablaDePaginas->bitUso = 1;
-			tablaDePaginas->marco = frame; //ESTO NO ME GUSTA, TODO
-			tablaDePaginas->pagina = pagina;
-			tablaDePaginas->pid = -1; //-1 me indica que la pagina no esta asignada a ningun proceso
-		}
-		frame++;
+		printf("PID   PAGINA   BitUso   BitModificado\n");
+		entrada->bitModificado = 1;
+		entrada->bitUso = 1;
+		entrada->pagina = pagina;
+		entrada->pid = pid;
+		printf(" %d      %d       %d            %d\n",entrada->pid,entrada->pagina,entrada->bitUso,entrada->bitModificado);
+		fflush(stdout);
+		list_add(tablaDePaginas, entrada);
 		pagina++;
 	}
+	sleep(15);
+	log_info(logMemoria, "FIN TABLAS DE PAGINAS");
 }
 void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas) {
-	int frame = listaDePidFrames->elements_count - 1; //EMPIEZA EN 0
-	t_pidFrame * estrucPidFrame = malloc(sizeof(t_pidFrame*));
+
+	int frame = listaDePidFrames->elements_count;
+
+	t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame*));
 	while (frame < cantidadDePaginas) {
-		estrucPidFrame = list_find(listaDePidFrames,
-				(void*) (listaDePidFrames->head->data == &frame));
-		estrucPidFrame->pid = pid;
-		list_add(listaDePidFrames, estrucPidFrame);
+
+		if (configMemoria.maximoMarcosPorProceso > frame) {
+			estructuraPidFrame->frameAsignado = frame;
+			estructuraPidFrame->pid = pid;
+			list_add(listaDePidFrames, estructuraPidFrame);
+			log_info(logMemoria, "frame asignado: %d al pid:%d", frame, pid);
+		}
 		frame++;
 	}
+	free(estructuraPidFrame);
 }
 void avisarAlSwap(int clienteSwap) {
 	t_mensajeHeader mensajeHeader;
@@ -185,14 +190,17 @@ void avisarAlSwap(int clienteSwap) {
 	send(clienteSwap, &mensajeHeader, sizeof(t_mensajeHeader), 0);
 }
 void generarEstructurasAdministrativas(int pid, int paginas) {
-
+	log_info(logMemoria, "INICIO ESTRUCTURA ADMINISTRATIVA, FRAMES-PID");
+	log_info(logMemoria, "Cantidad maxima de frames por proceso: %d",
+			configMemoria.maximoMarcosPorProceso);
+	log_info(logMemoria, "Paginas del proceso: %d", paginas);
 	if (configMemoria.maximoMarcosPorProceso < paginas) {
 		generarCantidadDeFramesAsignadosAlProceso(pid, paginas);
 	} else {
 		generarCantidadDeFramesAsignadosAlProceso(pid,
 				configMemoria.maximoMarcosPorProceso);
 	}
-
+	log_info(logMemoria, "FIN ESTRUCTURA ADMINISTRATIVA, FRAMES-PID");
 }
 
 void envioFinalizarSwap(t_mensajeHeader mensajeHeaderSwap, int cliente, int pid,
@@ -229,7 +237,7 @@ void enviarIniciarSwap(int cliente, t_iniciarPID estructuraCPU,
 	} else if (mensajeHeaderSwap.idmensaje == ERROR) {
 		log_error(logMemoria, "Fallo envio mensaje");
 		mensajeCPU.idmensaje = PROCFALLA;
-		send(servidor,&mensajeCPU,sizeof(t_mensajeHeader),0);
+		send(servidor, &mensajeCPU, sizeof(t_mensajeHeader), 0);
 	}
 	fflush(stdout);
 }
@@ -265,8 +273,10 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 		case INICIAR:
 			//sendACK(servidor);
 			recv(servidor, &estructuraCPU, sizeof(t_iniciarPID), 0);
-			//generarTablaDePaginas(memoriaReservadaDeMemPpal,pid,CantidadDePaginas);
-			//generarEstructurasAdministrativas(*pid,*pagina);
+			generarTablaDePaginas(memoriaReservadaDeMemPpal, estructuraCPU.pid,
+					estructuraCPU.paginas);
+			generarEstructurasAdministrativas(estructuraCPU.pid,
+					estructuraCPU.paginas);
 
 			log_info(logMemoria,
 					"Proceso mProc creado, PID: %d, Cantidad de paginas asignadas: %d",
@@ -283,18 +293,18 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			log_info(logMemoria, "2do checkpoint: Se envia directo al swap");
 			mensajeHeaderSwap.idmensaje = LEER;
 			send(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-			recv(servidor,&estructuraLeerSwap,sizeof(t_leer),0);
-			send(cliente,&estructuraLeerSwap,sizeof(t_leer),0);
-			recv(cliente,&tamanioLeido,sizeof(int),0);
-			printf("tamaño: %d \n",tamanioLeido);
+			recv(servidor, &estructuraLeerSwap, sizeof(t_leer), 0);
+			send(cliente, &estructuraLeerSwap, sizeof(t_leer), 0);
+			recv(cliente, &tamanioLeido, sizeof(int), 0);
+			printf("tamaño: %d \n", tamanioLeido);
 
 			char * contenidoLeido = malloc(tamanioLeido);
 			contenidoLeido[tamanioLeido] = '\0';
-			recv(cliente,contenidoLeido,sizeof(tamanioLeido),0);
-			printf("Contenido: %s",contenidoLeido);
+			recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
+			printf("Contenido: %s", contenidoLeido);
 			fflush(stdout);
-			send(servidor,&tamanioLeido,sizeof(int),0);
-			send(servidor,contenidoLeido,sizeof(tamanioLeido),0);
+			send(servidor, &tamanioLeido, sizeof(int), 0);
+			send(servidor, contenidoLeido, sizeof(tamanioLeido), 0);
 
 			log_info(logMemoria, "Finalizo comando LEER");
 			free(contenidoLeido);
@@ -313,20 +323,20 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			send(servidor, &status, sizeof(int), 0);//MANDO A LA CPU  COMO TERMINO LA OPERACION
 			break;
 		case FINALIZAR:
-			log_info(logMemoria,"FINALIZAR!");
-			recv(servidor,&finalizarCPU,sizeof(t_finalizarPID),0);
-			printf("FINALIZAR PID: %d\n",finalizarCPU.pid);
+			log_info(logMemoria, "FINALIZAR!");
+			recv(servidor, &finalizarCPU, sizeof(t_finalizarPID), 0);
+			printf("FINALIZAR PID: %d\n", finalizarCPU.pid);
 			fflush(stdout);
 			mensajeHeaderSwap.idmensaje = FINALIZAR;
 
-			send(cliente,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-			send(cliente,&finalizarCPU,sizeof(t_finalizarPID),0);
+			send(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			send(cliente, &finalizarCPU, sizeof(t_finalizarPID), 0);
 
-			recv(cliente,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-		    if(mensajeHeaderSwap.idmensaje == OK)
-		    	send(servidor,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-		    else
-		    	send(servidor,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
+			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			if (mensajeHeaderSwap.idmensaje == OK)
+				send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			else
+				send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			//	envioFinalizarSwap(mensajeHeaderSwap, cliente, pid, CantidadDePaginas);
 			break;

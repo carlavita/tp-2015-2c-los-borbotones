@@ -187,8 +187,6 @@ char * leer(int PID, int nroPagina) {
 			* tamanioPagina;
 	char * contenido = malloc(tamanioPagina);
 
-	//rewind(archivoDisco);
-
 	fseek(archivoDisco, primerBytePagina, SEEK_SET);
 	fgets(contenido, tamanioPagina + 1, archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 

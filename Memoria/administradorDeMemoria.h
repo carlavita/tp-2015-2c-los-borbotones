@@ -32,8 +32,8 @@ typedef struct
 typedef struct
 {
 	int pid;
-	int numeroPagina;
-}t_TLB;    //LA TLB VA A SER UN ARRAY DE N entradas.(por ahora)
+	int pagina;
+}t_TLB;
 
 typedef struct
 {
@@ -42,7 +42,32 @@ typedef struct
 	int pagina;
 	int bitUso;
 	int bitModificado;
+	char * contenido;
 }t_tablaDePaginas;
+
+typedef struct
+{
+	int frame;
+	int pagina;
+}t_estructuraAlgoritmoReemplazoPaginas;
+
+t_config_memoria configMemoria;
+t_log * logMemoria;
+int clienteSwap;
+t_list * tablaDePaginas;
+t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
+int * memoriaReservadaDeMemPpal;
+pthread_t * hiloSigUsr1;
+pthread_t * hiloSigUsr2;
+t_list * listaDePidFrames;
+t_TLB * tlb;
+char * recibidoPorLaMemoria;
+char mensaje[1024];
+t_list * estructuraAlgoritmos;
+
+
+
+
 
 void leerConfiguracion();
 void crearServidor();
@@ -52,7 +77,7 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal,int pid, int cantidadDePaginas);
 void generarCantidadDeFramesAsignadosAlProceso(int pid,int cantidadDePaginas);
 //void avisarAlSwap(int clienteSwap);
-void generarEstructurasAdministrativas(int pid,int paginas);
+void generarEstructuraAdministrativaPidFrame(int pid,int paginas);
 void procesamientoDeMensajes(int cliente,int servidor);
 void generarEstructuraAdministrativaPIDFrame();
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,

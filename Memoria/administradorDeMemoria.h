@@ -52,7 +52,7 @@ void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB*
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal,int pid, int cantidadDePaginas);
 void generarCantidadDeFramesAsignadosAlProceso(int pid,int cantidadDePaginas);
-void avisarAlSwap(int clienteSwap);
+//void avisarAlSwap(int clienteSwap);
 void generarEstructurasAdministrativas(int pid,int paginas);
 void procesamientoDeMensajes(int cliente,int servidor);
 void generarEstructuraAdministrativaPIDFrame();

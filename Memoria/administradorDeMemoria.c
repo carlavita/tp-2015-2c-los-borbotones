@@ -179,11 +179,11 @@ void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas) {
 		frame++;
 	}
 }
-void avisarAlSwap(int clienteSwap) {
-	t_mensajeHeader mensajeHeader;
-	mensajeHeader.idmensaje = 10;
-	send(clienteSwap, &mensajeHeader, sizeof(t_mensajeHeader), 0);
-}
+/*void avisarAlSwap(int clienteSwap) {
+ t_mensajeHeader mensajeHeader;
+ mensajeHeader.idmensaje = 10;
+ send(clienteSwap, &mensajeHeader, sizeof(t_mensajeHeader), 0);
+ }*/
 void generarEstructurasAdministrativas(int pid, int paginas) {
 
 	if (configMemoria.maximoMarcosPorProceso < paginas) {
@@ -195,21 +195,26 @@ void generarEstructurasAdministrativas(int pid, int paginas) {
 
 }
 
-void envioFinalizarSwap(t_mensajeHeader mensajeHeaderSwap, int cliente, int pid,
-		int pagina) {
-	mensajeHeaderSwap.idmensaje = FINALIZAR;
-	send(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-	//recvACK(cliente);
-	send(cliente, &pid, sizeof(int), 0);
-	//recvACK(cliente);
-	send(cliente, &pagina, sizeof(int), 0);
-	//recvACK(cliente);
-	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-}
+/*void envioFinalizarSwap(t_mensajeHeader mensajeHeaderSwap, int cliente, int pid,
+ int pagina) {
+ t_finalizarPID *mensajeFinalizar = malloc (sizeof(t_finalizarPID));
+ mensajeFinalizar->pid = pid;
+ mensajeHeaderSwap.idmensaje = FINALIZAR;
+ send(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+ //recvACK(cliente);
+ send(cliente, &pid, sizeof(int), 0);
+ //recvACK(cliente);
+ send(cliente, &pagina, sizeof(int), 0);
+ //recvACK(cliente);
+
+ recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+ free(mensajeFinalizar);
+ }*/
 
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
-		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
-	t_mensajeHeader mensajeCPU;
+	t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
+	int statusFin;
+	//t_mensajeHeader mensajeCPU;
 	//avisarAlSwap(cliente);
 	//recvACK(cliente);
 
@@ -217,7 +222,8 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 			estructuraCPU->paginas);
 	log_info(logMemoria, "Envio pid al SWAP, PID:%d", estructuraCPU->pid);
 	//send(cliente, &estructuraCPU, sizeof(t_iniciarPID), 0);
-	int status = serializarEstructura(INICIAR,(void *)estructuraCPU,sizeof(t_iniciarPID),cliente);
+	int status = serializarEstructura(INICIAR, (void *) estructuraCPU,
+			sizeof(t_iniciarPID), cliente);
 	//recvACK(cliente);
 	log_info(logMemoria, "SWAP recibio la pagina de forma correcta");
 	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
@@ -225,12 +231,17 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 			mensajeHeaderSwap.idmensaje);
 	if (mensajeHeaderSwap.idmensaje == OK) {
 		log_info(logMemoria, "Se proceso correctamente el mensaje");
-		mensajeCPU.idmensaje = FINALIZAPROCOK;
-		send(servidor, &mensajeCPU, sizeof(t_mensajeHeader), 0);
+		/*mensajeCPU.idmensaje = FINALIZAPROCOK;
+		send(servidor, &mensajeCPU, sizeof(t_mensajeHeader), 0);*/
+		statusFin = serializarEstructura(FINALIZAPROCOK,NULL,0,servidor);
 	} else if (mensajeHeaderSwap.idmensaje == ERROR) {
-		log_error(logMemoria, "Proceso %d rechazado por falta de espacio en SWAP\n", estructuraCPU->pid);
-		mensajeCPU.idmensaje = PROCFALLA;
-		send(servidor,&mensajeCPU,sizeof(t_mensajeHeader),0);
+		log_error(logMemoria,
+				"Proceso %d rechazado por falta de espacio en SWAP\n",
+				estructuraCPU->pid);
+		/*mensajeCPU.idmensaje = PROCFALLA;
+		send(servidor, &mensajeCPU, sizeof(t_mensajeHeader), 0);*/
+
+		statusFin = serializarEstructura(PROCFALLA,NULL,0,servidor);
 	}
 	fflush(stdout);
 }
@@ -240,7 +251,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 	t_iniciarPID *estructuraCPU = malloc(sizeof(t_iniciarPID));
 	int tamanioDatosSwap;
 	char mensajeRecibido[PACKAGESIZE];
-	t_finalizarPID finalizarCPU;
+	t_finalizarPID *finalizarCPU = malloc (sizeof(t_finalizarPID) );
 	t_iniciarPID estructuraSwap;
 	int tamanioLeido;
 	char * contenidoLeido;
@@ -289,18 +300,18 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			log_info(logMemoria, "2do checkpoint: Se envia directo al swap");
 			mensajeHeaderSwap.idmensaje = LEER;
 			send(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-			recv(servidor,&estructuraLeerSwap,sizeof(t_leer),0);
-			send(cliente,&estructuraLeerSwap,sizeof(t_leer),0);
-			recv(cliente,&tamanioLeido,sizeof(int),0);
-			printf("tamaño: %d \n",tamanioLeido);
+			recv(servidor, &estructuraLeerSwap, sizeof(t_leer), 0);
+			send(cliente, &estructuraLeerSwap, sizeof(t_leer), 0);
+			recv(cliente, &tamanioLeido, sizeof(int), 0);
+			printf("tamaño: %d \n", tamanioLeido);
 
-			char * contenidoLeido = malloc(tamanioLeido+1);
+			char * contenidoLeido = malloc(tamanioLeido + 1);
 			contenidoLeido[tamanioLeido] = '\0';
-			recv(cliente,contenidoLeido,sizeof(tamanioLeido),0);
-			printf("Contenido: %s",contenidoLeido);
+			recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
+			printf("Contenido: %s", contenidoLeido);
 			fflush(stdout);
-			send(servidor,&tamanioLeido,sizeof(int),0);
-			send(servidor,contenidoLeido,sizeof(tamanioLeido)+1,0);
+			send(servidor, &tamanioLeido, sizeof(int), 0);
+			send(servidor, contenidoLeido, sizeof(tamanioLeido) + 1, 0);
 
 			log_info(logMemoria, "Finalizo comando LEER");
 			free(contenidoLeido);
@@ -319,21 +330,29 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			send(servidor, &status, sizeof(int), 0);//MANDO A LA CPU  COMO TERMINO LA OPERACION
 			break;
 		case FINALIZAR:
-			log_info(logMemoria,"FINALIZAR!");
-			recv(servidor,&finalizarCPU,sizeof(t_finalizarPID),0);
-			printf("FINALIZAR PID: %d\n",finalizarCPU.pid);
+			log_info(logMemoria, "FINALIZAR!");
+			//recv(servidor, &finalizarCPU, sizeof(t_finalizarPID), 0);
+			recv(servidor, finalizarCPU, sizeof(t_finalizarPID), 0);
+
+			printf("FINALIZAR PID: %d\n", finalizarCPU->pid);
 			fflush(stdout);
-			mensajeHeaderSwap.idmensaje = FINALIZAR;
+			/*
+			 mensajeHeaderSwap.idmensaje = FINALIZAR;
 
-			send(cliente,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-			send(cliente,&finalizarCPU,sizeof(t_finalizarPID),0);
+			 send(cliente,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
+			 send(cliente,&finalizarCPU,sizeof(t_finalizarPID),0);
+			 */
 
-			recv(cliente,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-		    if(mensajeHeaderSwap.idmensaje == OK)
-		    	send(servidor,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-		    else
-		    	send(servidor,&mensajeHeaderSwap,sizeof(t_mensajeHeader),0);
-			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
+			status = serializarEstructura(FINALIZAR,(void *)finalizarCPU,sizeof(t_finalizarPID),cliente);
+			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			int statusFin;
+			if (mensajeHeaderSwap.idmensaje == OK)
+				//send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+				statusFin = serializarEstructura(mensajeHeaderSwap.idmensaje,NULL,0,servidor);
+			else
+//				send(servidor, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+				statusFin = serializarEstructura(mensajeHeaderSwap.idmensaje,NULL,0,servidor);
+				//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			//	envioFinalizarSwap(mensajeHeaderSwap, cliente, pid, CantidadDePaginas);
 			break;
 		default:

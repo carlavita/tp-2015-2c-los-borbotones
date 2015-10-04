@@ -154,7 +154,7 @@ void Conexion_con_planificador() {
 				break;
 			case SALUDO:
 				//recv(serverSocket, &PATH, sizeof(PATH), 0);
-				//		recv(serverSocket, &PATH, mensaje->size, 0);
+				recv(serverSocket, &PATH, mensaje->size, 0);
 				printf("recibido el mensaje saludo de planificador \n");
 				pthread_mutex_lock(&mutexLogueo);
 				log_info(logCPU, "se recibe el msj de saludo de planificador:");
@@ -225,6 +225,7 @@ void Conexion_con_planificador() {
 				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
 				//todo rtas a memoria
 				//todo terminarconfalla->parametros->pid, cpuid
+
 				//finalizarprocfalla->parametros-> pid, cpuid
 				/*	t_mensajeHeader rtaE;
 				 rtaE.idmensaje = PROCFALLA;
@@ -326,31 +327,19 @@ void iniciar(int paginas, int mProcID) {
 	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
 		sleep(configuracionCPU.Retardo);
 	}
-
 	if (mensajeCpu.idmensaje == PROCFALLA) {
-		log_info(logCPU, "Proceso :%d, rechazado\n", mensajeFinalizar->pid);
 		mensajeFinalizar->pid = mProcID;
-		mensajeFinalizar->pid = cpuID;
-		send(serverSocket, &mensajeCpu.idmensaje, sizeof(t_mensajeHeader), 0);
-		send(serverSocket, &mensajeFinalizar->pid, sizeof(t_finalizarPID), 0);
+		mensajeFinalizar->idCPU = cpuID;
+		/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
+		 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
+		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n");
+		status = serializarEstructura(mensajeCpu.idmensaje,
+				(void *) mensajeFinalizar, sizeof(t_finalizarPID),
+				serverSocket);
 		fseek(fid, -1, SEEK_END);	//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
-
-		if (mensajeCpu.idmensaje == PROCFALLA) {
-			mensajeFinalizar->pid = mProcID;
-			mensajeFinalizar->idCPU = cpuID;
-			/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
-			 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
-			log_info(logCPU,
-					"proceso %d rechazado por falta de espacio en SWAP\n");
-			status = serializarEstructura(mensajeCpu.idmensaje,
-					(void *) mensajeFinalizar, sizeof(t_finalizarPID),
-					serverSocket);
-			fseek(fid, -1, SEEK_END);	//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
-
-		}
-		free(mensajeIniciar);
-		free(mensajeFinalizar);
 	}
+	free(mensajeIniciar);
+	free(mensajeFinalizar);
 }
 
 void escribir(int pagina, char *texto, int mProcID) {
@@ -417,8 +406,7 @@ void finalizar(int mProcID) {
 	rtaFin->pid = mProcID;
 	rtaFin->idCPU = cpuID;
 	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
-	status = serializarEstructura(FINALIZAPROCOK, (void *) rtaFin,
-			sizeof(t_finalizarPID), serverSocket);
+	status = serializarEstructura(FINALIZAPROCOK, (void *)rtaFin, sizeof(t_finalizarPID), serverSocket);
 	printf("de la cpu con id: %d \n", rtaFin->idCPU);
 	free(mensajeFinalizar);
 	free(rtaFin);
@@ -513,4 +501,3 @@ bool esIO(char* linea) {
 bool esFinalizar(char* linea) {
 	return string_starts_with(linea, TOKENFINALIZAR);
 }
-

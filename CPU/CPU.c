@@ -72,7 +72,7 @@ int conexion_con_memoria() {
 	struct addrinfo *serverInfo;
 
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;// Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
+	hints.ai_family = AF_UNSPEC; // Permite que la maquina se encargue de verificar si usamos IPv4 o IPv6
 	hints.ai_socktype = SOCK_STREAM;	// Indica que usaremos el protocolo TCP
 
 	// conectando a memoria
@@ -114,15 +114,23 @@ void Conexion_con_planificador() {
 
 	int enviar = 1;
 	char message[PACKAGESIZE];
-	t_mensajeHeader mensaje;
+	//t_mensajeHeader mensaje;
+	t_mensajeHeader * mensaje = malloc(sizeof(t_mensajeHeader));
+	char * estructuraCabecera = malloc(sizeof(t_mensajeHeader));
+
 	printf(
 			"Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 	while (enviar) {
 		printf("recibir\n");
-		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
+		//int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
+		int status = recv(serverSocket, estructuraCabecera,
+				sizeof(t_mensajeHeader), 0);
+		//if (errno == ECONNREFUSED) enviar = 0;
+		//printf("Error! %s\n", strerror(errno));
+		mensaje = (t_mensajeHeader *) estructuraCabecera;
 		if (status > 0) {
 
-			switch (mensaje.idmensaje) {
+			switch (mensaje->idmensaje) {
 
 			case CORRERPATH:
 
@@ -145,7 +153,8 @@ void Conexion_con_planificador() {
 				//status = send(serverMemoria, message, strlen(message) + 1, 0);
 				break;
 			case SALUDO:
-				recv(serverSocket, &PATH, sizeof(PATH), 0);
+				//recv(serverSocket, &PATH, sizeof(PATH), 0);
+		//		recv(serverSocket, &PATH, mensaje->size, 0);
 				printf("recibido el mensaje saludo de planificador \n");
 				pthread_mutex_lock(&mutexLogueo);
 				log_info(logCPU, "se recibe el msj de saludo de planificador:");
@@ -163,6 +172,7 @@ void Conexion_con_planificador() {
 				pthread_mutex_unlock(&mutexLogueo);
 
 				t_pcb pcbProc;
+
 				recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
 				printf("recibido el contexto del proceso con su id %d \n",
 						pcbProc.pid);
@@ -202,7 +212,6 @@ void Conexion_con_planificador() {
 
 				//todo armar struct comun a planif y cpu de envio de fin de quantum
 				//todo rtas a memoria
-
 				//PROCIO->parametros->pid,Tiempo, todo no falta el id de cpu?
 				/*t_mensajeHeader mjeIO;
 				 mjeIO.idmensaje = PROCIO;
@@ -215,13 +224,9 @@ void Conexion_con_planificador() {
 				 status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
 				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
 				//todo rtas a memoria
-
 				//todo terminarconfalla->parametros->pid, cpuid
 
-
-
 				//finalizarprocfalla->parametros-> pid, cpuid
-
 				/*	t_mensajeHeader rtaE;
 				 rtaE.idmensaje = PROCFALLA;
 				 status = send(serverSocket, &(rtaE.idmensaje), sizeof(t_mensajeHeader), 0);
@@ -247,7 +252,7 @@ void Conexion_con_planificador() {
 
 		}
 	}
-
+	free(estructuraCabecera);
 	close(serverSocket);
 	printf("Conexion a planificador cerrada \n");
 	pthread_mutex_lock(&mutexLogueo);
@@ -305,21 +310,24 @@ char *parsearLinea(char * lineaLeida) {
 
 void iniciar(int paginas, int mProcID) {
 	printf("mProc %d - Iniciado \n", mProcID);
-	t_mensajeHeader inicia;
-	t_finalizarPID mensajeFinalizar;
-	t_iniciarPID mensajeIniciar;
+	//t_mensajeHeader inicia;
+	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
+	t_iniciarPID *mensajeIniciar = malloc(sizeof(t_iniciarPID));
 	t_mensajeHeader mensajeCpu;
-	mensajeIniciar.paginas = paginas;
-	mensajeIniciar.pid = mProcID;
-	inicia.idmensaje = INICIAR;
-	send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+	mensajeIniciar->paginas = paginas;
+	mensajeIniciar->pid = mProcID;
+	//inicia.idmensaje = INICIAR;
+	//send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
 	//recvACK(serverMemoria);
-	send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
-	recv(serverMemoria,&mensajeCpu,sizeof(t_mensajeHeader),0);
-	if(mensajeCpu.idmensaje == FINALIZAPROCOK)
-	{
+	//send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
+	int status = serializarEstructura(INICIAR, (void *) mensajeIniciar,
+			sizeof(t_iniciarPID), serverMemoria);
+
+	recv(serverMemoria, &mensajeCpu, sizeof(t_mensajeHeader), 0);
+	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
 		sleep(configuracionCPU.Retardo);
 	}
+
 		if( mensajeCpu.idmensaje == PROCFALLA)
 	{
 	  log_info(logCPU,"Proceso :%d, rechazado\n",mensajeFinalizar.pid);
@@ -328,8 +336,21 @@ void iniciar(int paginas, int mProcID) {
 	  send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
 	  send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);
 	  fseek(fid,-1,SEEK_END);//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
-	}
 
+	if (mensajeCpu.idmensaje == PROCFALLA) {
+		mensajeFinalizar->pid = mProcID;
+		mensajeFinalizar->idCPU = cpuID;
+		/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
+		 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
+		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n");
+		status = serializarEstructura(mensajeCpu.idmensaje,
+				(void *) mensajeFinalizar, sizeof(t_finalizarPID),
+				serverSocket);
+		fseek(fid, -1, SEEK_END);	//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
+>>>>>>> e3ddd34c8541d3f39e37d54bdafba208f432e21d
+	}
+	free(mensajeIniciar);
+	free(mensajeFinalizar);
 }
 
 void escribir(int pagina, char *texto, int mProcID) {
@@ -338,63 +359,68 @@ void escribir(int pagina, char *texto, int mProcID) {
 }
 
 void leer(int pagina, int mProcID) {
-	t_mensajeHeader inicia;
-	t_leer mensajeLeer;
+	//t_mensajeHeader inicia;
+	t_leer *mensajeLeer = malloc(sizeof(t_leer));
 	int tamanio;
 	char * contenido;
 
-	inicia.idmensaje = LEER;
+	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
 
-	int status = send(serverMemoria, &(inicia.idmensaje),
-			sizeof(t_mensajeHeader), 0);
-	if (status > 0) {
+//	int status = send(serverMemoria, &(inicia.idmensaje),
+	//		sizeof(t_mensajeHeader), 0);
+	//if (status > 0) {
 
-		mensajeLeer.pid = mProcID;
-		mensajeLeer.pagina = pagina;
-		status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
-		recv(serverMemoria,&tamanio,sizeof(int),0);
-		contenido = malloc(tamanio);
-		recv(serverMemoria,contenido,sizeof(tamanio),0);
-		printf("CONTENIDO:%s",contenido);
-		fflush(stdout);
-	}
+	mensajeLeer->pid = mProcID;
+	mensajeLeer->pagina = pagina;
+	//status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
+	int status = serializarEstructura(LEER, (void *) mensajeLeer,
+			sizeof(t_leer), serverMemoria);
+	recv(serverMemoria, &tamanio, sizeof(int), 0);
+	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
+	recv(serverMemoria, contenido, sizeof(tamanio) + 1, 0);
+	printf("CONTENIDO:%s \n", contenido);
+	fflush(stdout);
+	//}
 
 	sleep(configuracionCPU.Retardo);
+	free(mensajeLeer);
 }
 
 void finalizar(int mProcID) {
 
-	t_mensajeHeader header;
-	t_finalizarPID mensajeFinalizar;
+	//t_mensajeHeader header;
+	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
 
-	header.idmensaje = FINALIZAR;
+	//header.idmensaje = FINALIZAR;
 	printf("mProc %d - Finalizado \n", mProcID);
-	int status = send(serverMemoria, &header.idmensaje,
-			sizeof(t_mensajeHeader), 0);
-	if (status > 0) {
+	/*	int status = send(serverMemoria, &header.idmensaje,
+	 sizeof(t_mensajeHeader), 0);
+	 if (status > 0) {*/
 	//	recvACK(serverMemoria);
-		mensajeFinalizar.pid = mProcID;
-
-		status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
-	}
+	mensajeFinalizar->pid = mProcID;
+	/*
+	 status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
+	 }*/
+	int status = serializarEstructura(FINALIZAR, (void *) mensajeFinalizar,
+			sizeof(t_finalizarPID), serverMemoria);
 	t_mensajeHeader rta;
 	recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
 
-
 	sleep(configuracionCPU.Retardo);
 
+	/*rta.idmensaje = FINALIZAPROCOK;
+	 status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
+	 printf("envio finalizar ok del proceso con id: %d ", mProcID);*/
 
-	rta.idmensaje = FINALIZAPROCOK;
-	status = send(serverSocket, &(rta.idmensaje), sizeof(t_mensajeHeader), 0);
-	printf("envio finalizar ok del proceso con id: %d ", mProcID);
-
-	t_finalizarPID rtaFin;
-	rtaFin.pid = mProcID;
-	rtaFin.idCPU = cpuID;
-	status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
-	printf("de la cpu con id: %d \n", rtaFin.idCPU);
-
+	t_finalizarPID *rtaFin = malloc(sizeof(t_finalizarPID));
+	rtaFin->pid = mProcID;
+	rtaFin->idCPU = cpuID;
+	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
+	status = serializarEstructura(FINALIZAPROCOK, (void *)rtaFin, sizeof(t_finalizarPID), serverSocket);
+	printf("de la cpu con id: %d \n", rtaFin->idCPU);
+	free(mensajeFinalizar);
+	free(rtaFin);
 }
 
 void parsermCod(char *path, int pid) {

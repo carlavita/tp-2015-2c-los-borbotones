@@ -138,12 +138,12 @@ void mostrarConsola(void *ptr) {
 //todo:descomentar			system("clear");
 
 			correrPath();
-			printf(
+			/*printf(
 					"soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
 			int mensaje = CORRERPATH;
 			printf("socket : %d \n", ServidorP);
 			int status = send(ServidorP, &mensaje, sizeof(int), 0);
-			printf("estado de envio : %d \n", status);
+			printf("estado de envio : %d \n", status);*/
 			esperaEnter();
 			break;
 
@@ -301,10 +301,12 @@ void servidorCPU(void *ptr) {
 						//una vez detectada la conexion de una cpu se la agrega a la lista de cpus y se la coloca como libre -1
 						agregarCPU(newsock, -1);
 						ServidorP = newsock;
-						int mensaje = SALUDO;
-						status = send(newsock, &mensaje, sizeof(int), 0);
+						status = serializarEstructura(SALUDO,(void *)PATH_MCODE,sizeof(PATH_MCODE)+1,newsock);
+						//int mensaje = SALUDO;
+
+//						status = send(newsock, &mensaje, sizeof(int), 0);
 						printf("status send inicial %d \n", status);
-						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
+						//status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
 						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,status);
 
 					}
@@ -366,20 +368,20 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case PROCFALLA:
 
-
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
-			pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+            pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
 
-			t_pcb *pcb1 = buscarEnListaPorPID(EJECUTANDO,rtaP.pid);
+            t_pcb *pcb1 = buscarEnListaPorPID(EJECUTANDO,rtaP.pid);
 
-			pcb1->status = FINALIZADOERROR;
-			list_add(FINALIZADOS, pcb1);
-			removerEnListaPorPid(EJECUTANDO, rtaP.pid);
-			pthread_mutex_unlock(&mutexListas);
+            pcb1->status = FINALIZADOERROR;
+            list_add(FINALIZADOS, pcb1);
+            removerEnListaPorPid(EJECUTANDO, rtaP.pid);
+            pthread_mutex_unlock(&mutexListas);
 
-			//funcion que pone a la cpu libre nuevamente
-			liberarCPU(rtaP.idCPU);
-			log_info(logger,"El proceso falló en su ejecucion, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
+            //funcion que pone a la cpu libre nuevamente
+            liberarCPU(rtaP.idCPU);
+
+			log_info(logger,"Proceso rechazado por falta de espacio en SWAP, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
 			//borrarEstructurasDelProc();
 
 			break;
@@ -506,14 +508,15 @@ t_pcb* planificarFifo() {
 }
 
 void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
-
-	t_mensajeHeader msjEjecutar;
-	msjEjecutar.idmensaje = EJECUTARPROC;
-	send(cpu->socket, &msjEjecutar, sizeof(int), 0);
-	printf("Envio de pedido de ejecucion a la cpu libre \n");
-	send(cpu->socket, pcb, sizeof(t_pcb), 0);
-	printf("Envio de pedido de contexto de ejecucion del proceso a la cpu libre \n");
-
+	int status = serializarEstructura(EJECUTARPROC,(void *)pcb, sizeof(t_pcb), cpu->socket);
+	//t_mensajeHeader msjEjecutar;
+	//msjEjecutar.idmensaje = EJECUTARPROC;
+	//send(cpu->socket, &msjEjecutar, sizeof(int), 0);
+	log_info(logger,"Envio de pedido de ejecucion PID %d a la cpu libre %d \n", pcb->pid,cpu->id);
+//	send(cpu->socket, pcb, sizeof(t_pcb), 0);
+	if (status>=0){
+	log_info(logger,"Envio exitoso de contexto PID %d a la cpu libre %d \n",pcb->pid, cpu->id);
+	}
 }
 
 void removerEnListaPorPid(t_list *lista, int pid) {
@@ -837,3 +840,23 @@ void liberarCPU(int idCPU){
 
 
 }
+
+
+/*
+int serializarEstructura(int id,  void *estructura, int size, int socketDestino) {
+	t_mensajeHeader header;
+	header.idmensaje = id;
+	header.size = size;
+	char *paquete = malloc(8 + size);
+    memcpy (paquete, &header, sizeof(t_mensajeHeader));
+
+    // si tiene una estructura ademas del header, la apendea
+    if(size> 0) {
+    memcpy (paquete+sizeof(t_mensajeHeader), estructura, size);
+    }
+    int status = send (socketDestino, paquete, sizeof(t_mensajeHeader)+size,0);
+    free(paquete);
+    return status;
+}
+*/
+

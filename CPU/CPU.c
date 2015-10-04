@@ -114,15 +114,22 @@ void Conexion_con_planificador() {
 
 	int enviar = 1;
 	char message[PACKAGESIZE];
-	t_mensajeHeader mensaje;
+	//t_mensajeHeader mensaje;
+	t_mensajeHeader * mensaje = malloc (sizeof(t_mensajeHeader));
+	char * estructuraCabecera = malloc (sizeof(t_mensajeHeader));
+
 	printf(
 			"Conectado al servidor. Bienvenido al sistema, ya puede enviar mensajes. Escriba 'exit' para salir\n");
 	while (enviar) {
 		printf("recibir\n");
-		int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
+		//int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
+		int status = recv(serverSocket, estructuraCabecera, sizeof(t_mensajeHeader), 0);
+		if (errno == ECONNREFUSED) enviar = 0;
+		//printf("Error! %s\n", strerror(errno));
+		mensaje = (t_mensajeHeader *)estructuraCabecera;
 		if (status > 0) {
 
-			switch (mensaje.idmensaje) {
+			switch (mensaje->idmensaje) {
 
 			case CORRERPATH:
 
@@ -163,6 +170,7 @@ void Conexion_con_planificador() {
 				pthread_mutex_unlock(&mutexLogueo);
 
 				t_pcb pcbProc;
+
 				recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
 				printf("recibido el contexto del proceso con su id %d \n",
 						pcbProc.pid);
@@ -247,7 +255,7 @@ void Conexion_con_planificador() {
 
 		}
 	}
-
+	free(estructuraCabecera);
 	close(serverSocket);
 	printf("Conexion a planificador cerrada \n");
 	pthread_mutex_lock(&mutexLogueo);

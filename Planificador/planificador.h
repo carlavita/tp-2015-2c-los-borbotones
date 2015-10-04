@@ -224,3 +224,4 @@ void finalizarPid();
 t_pcb* buscarEnListaPorPID(t_list* lista, int pid);
 
 void liberarCPU(int idCPU);
+//int serializarEstructura(int id,  void *estructura, int size, int socketDestino);

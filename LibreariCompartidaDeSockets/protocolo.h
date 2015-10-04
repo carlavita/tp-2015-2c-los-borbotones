@@ -35,18 +35,22 @@
 #define ERROR 15
 
 
+
 //estados de linea de mCod
 
 
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <string.h> // memcpy
+#include <stdlib.h> //malloc /realloc
+
 //estructura de header
 typedef struct __attribute__((packed))
 {
 	//int idmodulo;
 	int idmensaje;
-
+	int size; // payload
 }t_mensajeHeader;
 /* Estructura para comando correrMensaje*/
 
@@ -64,6 +68,7 @@ typedef struct __attribute__((packed))
 {
 	int pid;
 	int idCPU;
+	int instrucciones;//Cantidad de instrucciones
 }t_finalizarPID;
 
 typedef struct __attribute__((packed))
@@ -85,8 +90,16 @@ typedef struct __attribute__((packed))
 	int tiempoIO;
 } t_io;
 
+typedef struct __attribute__((packed))
+{
+	int instruccion;
+	char resultado[256];
+} t_instruccion;
+
 // Funciones
 void sendACK(int socket);
 void recvACK(int socket);
-
+//int serializarEstructura(int id , void * estructura, int size , int socketDestino);
+int recibirEstructura(int sock, t_mensajeHeader header, void * estructura);
+int serializarEstructura(int id,  void *estructura, int size, int socketDestino);
 #endif /* PROTOCOLO_H_ */

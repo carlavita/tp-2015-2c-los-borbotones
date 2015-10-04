@@ -294,13 +294,13 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			recv(cliente,&tamanioLeido,sizeof(int),0);
 			printf("tamaño: %d \n",tamanioLeido);
 
-			char * contenidoLeido = malloc(tamanioLeido);
+			char * contenidoLeido = malloc(tamanioLeido+1);
 			contenidoLeido[tamanioLeido] = '\0';
 			recv(cliente,contenidoLeido,sizeof(tamanioLeido),0);
 			printf("Contenido: %s",contenidoLeido);
 			fflush(stdout);
 			send(servidor,&tamanioLeido,sizeof(int),0);
-			send(servidor,contenidoLeido,sizeof(tamanioLeido),0);
+			send(servidor,contenidoLeido,sizeof(tamanioLeido)+1,0);
 
 			log_info(logMemoria, "Finalizo comando LEER");
 			free(contenidoLeido);

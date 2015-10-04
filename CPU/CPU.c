@@ -124,7 +124,7 @@ void Conexion_con_planificador() {
 		printf("recibir\n");
 		//int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
 		int status = recv(serverSocket, estructuraCabecera, sizeof(t_mensajeHeader), 0);
-		if (errno == ECONNREFUSED) enviar = 0;
+		//if (errno == ECONNREFUSED) enviar = 0;
 		//printf("Error! %s\n", strerror(errno));
 		mensaje = (t_mensajeHeader *)estructuraCabecera;
 		if (status > 0) {
@@ -152,7 +152,8 @@ void Conexion_con_planificador() {
 				//status = send(serverMemoria, message, strlen(message) + 1, 0);
 				break;
 			case SALUDO:
-				recv(serverSocket, &PATH, sizeof(PATH), 0);
+				//recv(serverSocket, &PATH, sizeof(PATH), 0);
+				recv(serverSocket, &PATH, mensaje->size, 0);
 				printf("recibido el mensaje saludo de planificador \n");
 				pthread_mutex_lock(&mutexLogueo);
 				log_info(logCPU, "se recibe el msj de saludo de planificador:");
@@ -313,16 +314,18 @@ char *parsearLinea(char * lineaLeida) {
 
 void iniciar(int paginas, int mProcID) {
 	printf("mProc %d - Iniciado \n", mProcID);
-	t_mensajeHeader inicia;
-	t_finalizarPID mensajeFinalizar;
-	t_iniciarPID mensajeIniciar;
+	//t_mensajeHeader inicia;
+	t_finalizarPID *mensajeFinalizar = malloc (sizeof(t_finalizarPID));
+	t_iniciarPID *mensajeIniciar = malloc(sizeof(t_iniciarPID));
 	t_mensajeHeader mensajeCpu;
-	mensajeIniciar.paginas = paginas;
-	mensajeIniciar.pid = mProcID;
-	inicia.idmensaje = INICIAR;
-	send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
+	mensajeIniciar->paginas = paginas;
+	mensajeIniciar->pid = mProcID;
+	//inicia.idmensaje = INICIAR;
+	//send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
 	//recvACK(serverMemoria);
-	send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
+	//send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
+	int status = serializarEstructura(INICIAR,(void *)mensajeIniciar,sizeof(t_iniciarPID) ,serverMemoria);
+
 	recv(serverMemoria,&mensajeCpu,sizeof(t_mensajeHeader),0);
 	if(mensajeCpu.idmensaje == FINALIZAPROCOK)
 	{
@@ -330,13 +333,16 @@ void iniciar(int paginas, int mProcID) {
 	}
 		if( mensajeCpu.idmensaje == PROCFALLA)
 	{
-	  mensajeFinalizar.pid = mProcID;
-	  mensajeFinalizar.idCPU = cpuID;
-	  send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
-	  send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);
+	  mensajeFinalizar->pid = mProcID;
+	  mensajeFinalizar->idCPU = cpuID;
+	 /* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
+	  send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
+	  log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n");
+	  status = serializarEstructura(mensajeCpu.idmensaje,(void *)mensajeFinalizar,sizeof(t_finalizarPID),serverSocket);
 	  fseek(fid,-1,SEEK_END);//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
 	}
-
+		free(mensajeIniciar);
+		free(mensajeFinalizar);
 }
 
 void escribir(int pagina, char *texto, int mProcID) {

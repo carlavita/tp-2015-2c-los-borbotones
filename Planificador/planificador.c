@@ -138,9 +138,9 @@ void mostrarConsola(void *ptr) {
 //todo:descomentar			system("clear");
 
 			correrPath();
-			printf(
+			/*printf(
 					"soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
-			/*int mensaje = CORRERPATH;
+			int mensaje = CORRERPATH;
 			printf("socket : %d \n", ServidorP);
 			int status = send(ServidorP, &mensaje, sizeof(int), 0);
 			printf("estado de envio : %d \n", status);*/
@@ -301,12 +301,12 @@ void servidorCPU(void *ptr) {
 						//una vez detectada la conexion de una cpu se la agrega a la lista de cpus y se la coloca como libre -1
 						agregarCPU(newsock, -1);
 						ServidorP = newsock;
-						status = serializarEstructura(SALUDO,NULL,0,newsock);
+						status = serializarEstructura(SALUDO,(void *)PATH_MCODE,sizeof(PATH_MCODE)+1,newsock);
 						//int mensaje = SALUDO;
 
 //						status = send(newsock, &mensaje, sizeof(int), 0);
 						printf("status send inicial %d \n", status);
-						status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
+						//status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
 						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,status);
 
 					}
@@ -381,7 +381,7 @@ void handle(int newsock, fd_set *set) {
             //funcion que pone a la cpu libre nuevamente
             liberarCPU(rtaP.idCPU);
 
-			log_info(logger,"El proceso falló en su ejecucion, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
+			log_info(logger,"Proceso rechazado por falta de espacio en SWAP, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
 			//borrarEstructurasDelProc();
 
 			break;

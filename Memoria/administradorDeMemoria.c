@@ -207,16 +207,17 @@ void envioFinalizarSwap(t_mensajeHeader mensajeHeaderSwap, int cliente, int pid,
 	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 }
 
-void enviarIniciarSwap(int cliente, t_iniciarPID estructuraCPU,
+void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
 	t_mensajeHeader mensajeCPU;
-	avisarAlSwap(cliente);
+	//avisarAlSwap(cliente);
 	//recvACK(cliente);
 
 	log_info(logMemoria, "Envio pagina al SWAP, PAGINA N°:%d",
-			estructuraCPU.paginas);
-	log_info(logMemoria, "Envio pid al SWAP, PID:%d", estructuraCPU.pid);
-	send(cliente, &estructuraCPU, sizeof(t_iniciarPID), 0);
+			estructuraCPU->paginas);
+	log_info(logMemoria, "Envio pid al SWAP, PID:%d", estructuraCPU->pid);
+	//send(cliente, &estructuraCPU, sizeof(t_iniciarPID), 0);
+	int status = serializarEstructura(INICIAR,(void *)estructuraCPU,sizeof(t_iniciarPID),cliente);
 	//recvACK(cliente);
 	log_info(logMemoria, "SWAP recibio la pagina de forma correcta");
 	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
@@ -227,7 +228,7 @@ void enviarIniciarSwap(int cliente, t_iniciarPID estructuraCPU,
 		mensajeCPU.idmensaje = FINALIZAPROCOK;
 		send(servidor, &mensajeCPU, sizeof(t_mensajeHeader), 0);
 	} else if (mensajeHeaderSwap.idmensaje == ERROR) {
-		log_error(logMemoria, "Fallo envio mensaje");
+		log_error(logMemoria, "Proceso %d rechazado por falta de espacio en SWAP\n", estructuraCPU->pid);
 		mensajeCPU.idmensaje = PROCFALLA;
 		send(servidor,&mensajeCPU,sizeof(t_mensajeHeader),0);
 	}
@@ -235,7 +236,8 @@ void enviarIniciarSwap(int cliente, t_iniciarPID estructuraCPU,
 }
 
 void procesamientoDeMensajes(int cliente, int servidor) {
-	t_iniciarPID estructuraCPU;
+	//t_iniciarPID estructuraCPU;
+	t_iniciarPID *estructuraCPU = malloc(sizeof(t_iniciarPID));
 	int tamanioDatosSwap;
 	char mensajeRecibido[PACKAGESIZE];
 	t_finalizarPID finalizarCPU;
@@ -264,19 +266,23 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 		switch (mensajeHeader.idmensaje) {
 		case INICIAR:
 			//sendACK(servidor);
-			recv(servidor, &estructuraCPU, sizeof(t_iniciarPID), 0);
+			//recv(servidor, &estructuraCPU, sizeof(t_iniciarPID), 0);
+
+			recv(servidor, estructuraCPU, sizeof(t_iniciarPID), 0);
+
 			//generarTablaDePaginas(memoriaReservadaDeMemPpal,pid,CantidadDePaginas);
 			//generarEstructurasAdministrativas(*pid,*pagina);
 
 			log_info(logMemoria,
 					"Proceso mProc creado, PID: %d, Cantidad de paginas asignadas: %d",
-					estructuraCPU.pid, estructuraCPU.paginas);
+					estructuraCPU->pid, estructuraCPU->paginas);
 			log_info(logMemoria,
 					"Inicio del aviso al proceso SWAp del comando INICIAR");
 			enviarIniciarSwap(cliente, estructuraCPU, mensajeHeaderSwap,
 					servidor, logMemoria);
 			log_info(logMemoria,
 					"Fin del aviso al proceso SWAp del comando INICIAR");
+			free(estructuraCPU);
 			break;
 		case LEER: {
 			log_info(logMemoria, "Solicitud de lectura recibida");

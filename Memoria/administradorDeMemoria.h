@@ -56,6 +56,8 @@ void avisarAlSwap(int clienteSwap);
 void generarEstructurasAdministrativas(int pid,int paginas);
 void procesamientoDeMensajes(int cliente,int servidor);
 void generarEstructuraAdministrativaPIDFrame();
+void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
+		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria);
 
 
 #endif /* ADMINISTRADORDEMEMORIA_H_ */

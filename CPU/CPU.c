@@ -9,7 +9,6 @@
 
 int main() {
 	pthread_t hiloCPU;
-	//int cpuID
 
 	remove(PATH_LOG);
 	logCPU = log_create(PATH_LOG, "CPU", true, LOG_LEVEL_INFO);
@@ -20,6 +19,7 @@ int main() {
 
 	serverMemoria = conexion_con_memoria();
 	Conexion_con_planificador();
+	//todo crear un hilo por cada cantidad que indica en config identificando a cada id de cpu
 //	cpuID = pthread_create(&hiloCPU,NULL,ejecucion,NULL);//todo revisar porque el idCPU no puede ser el valor de retorno de creacion del hilo
 	printf("el id de la CPU es:%d \n", cpuID);
 	//  pthread_join(hiloCPU,NULL);
@@ -105,7 +105,7 @@ void Conexion_con_planificador() {
 
 	getaddrinfo(configuracionCPU.IPPlanificador,
 			configuracionCPU.PuertoPlanificador, &hints, &serverInfo);
-	//int serverSocket;
+
 	serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype,
 			serverInfo->ai_protocol);
 	printf("socket %d \n", serverSocket);
@@ -132,26 +132,14 @@ void Conexion_con_planificador() {
 
 			switch (mensaje->idmensaje) {
 
-			case CORRERPATH:
-
+			/*case CORRERPATH:
+				//todo revisar si va este msj sino borrar este case
 				printf(
 						"recibido el mensaje correr path desde el planificador\n");
 				printf("reenvío mensaje a memoria\n");
 				strcpy(message, "Correr path\n");
-				/*SACAR*/
-				/*t_mensajeHeader inicia;
-				 inicia.idmensaje = INICIAR;
-				 send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-				 //send(serverMemoria,1,sizeof(1),0);
-				 sleep(20);
-				 printf("LEER \n");
-				 fflush(stdout);
-				 inicia.idmensaje = LEER;
-				 status = send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-				 sleep(10);
-				 *//*SACAR*/
-				//status = send(serverMemoria, message, strlen(message) + 1, 0);
-				break;
+
+				break;*/
 			case SALUDO:
 				//recv(serverSocket, &PATH, sizeof(PATH), 0);
 				recv(serverSocket, &PATH, mensaje->size, 0);
@@ -184,16 +172,13 @@ void Conexion_con_planificador() {
 						pcbProc.pid);
 				pthread_mutex_unlock(&mutexLogueo);
 
+				//todo verificar que struct usar para enviar instruccion-rta
+				//todo desarrollar funcion que acumula las rtas por instruccion-rta
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 				 listaEjecucion = ejecutarmProc(pcbProc);*/
 				parsermCod(pcbProc.pathProc, pcbProc.pid);
 
-				//todo prueba borrar!
-				/*t_mensajeHeader inicia1;
-				 inicia.idmensaje = INICIAR;
-				 status = send(serverMemoria, &(inicia1.idmensaje), sizeof(t_mensajeHeader), 0);
-
-				 *//*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
+				/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
 				//rtas al planificador en base a lo que se manda a ejecutar del proceso
 				//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
@@ -224,20 +209,8 @@ void Conexion_con_planificador() {
 				 status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
 				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
 				//todo rtas a memoria
-				//todo terminarconfalla->parametros->pid, cpuid
 
-				//finalizarprocfalla->parametros-> pid, cpuid
-				/*	t_mensajeHeader rtaE;
-				 rtaE.idmensaje = PROCFALLA;
-				 status = send(serverSocket, &(rtaE.idmensaje), sizeof(t_mensajeHeader), 0);
-				 printf("envio falla del proceso con id: %d ", pcbProc.pid);
 
-				 t_finalizarPID rtaF;
-				 rtaF.pid = pcbProc.pid;
-				 rtaF.idCPU = cpuID;
-				 status = send(serverSocket, &(rtaF), sizeof(t_finalizarPID), 0);
-				 printf("de la cpu con id: %d \n", rtaF.idCPU);*/
-				//todo rtas a memoria
 				break;
 
 			default:
@@ -318,7 +291,7 @@ void iniciar(int paginas, int mProcID) {
 	mensajeIniciar->pid = mProcID;
 	//inicia.idmensaje = INICIAR;
 	//send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
-	//recvACK(serverMemoria);
+
 	//send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
 	int status = serializarEstructura(INICIAR, (void *) mensajeIniciar,
 			sizeof(t_iniciarPID), serverMemoria);
@@ -457,15 +430,16 @@ void parsermCod(char *path, int pid) {
 				if (esEscribir(substrings[0])) {
 					printf("comando Escribir, parametros %d  %s \n",
 							atoi(substrings[1]), substrings[2]);
-					/*
-					 free(substrings[0]);
+					//todo escribir();
+					/* free(substrings[0]);
 					 free(substrings[1]);
 					 free(substrings[2]);
-					 free(substrings);
-					 */}
+					 free(substrings);*/
+					 }
 				if (esIO(substrings[0])) {
 					printf("comando entrada salida, parametro %d \n",
 							atoi(substrings[1]));
+					//todo IO();
 					free(substrings[0]);
 					free(substrings[1]);
 					free(substrings);

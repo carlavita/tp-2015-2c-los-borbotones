@@ -63,7 +63,7 @@ typedef struct __attribute__((packed))
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 int serverMemoria = 0;
-int cpuID = 1;//seteado para probar-->despues pasar a N cpus creados cos sus respectivos hilos
+int cpuID = 1;//seteado para probar-->todo despues pasar a N cpus creados cos sus respectivos hilos
 int serverSocket; //socket de conexion con planificador
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo

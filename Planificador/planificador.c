@@ -33,23 +33,17 @@ int main(void) {
 	inicializarListas();
 	inicializarSemaforos();
 	/*Hilo Server Planificador*/
-	//todo sincronizar hilos consola y conexion cpu
+
 	pthread_create(&hiloServer, NULL, (void *) &servidorCPU, NULL);
 
+	/*Hilo consola Planificador*/
 	pthread_create(&hilo_consola, NULL, (void *) &mostrarConsola, NULL);
 
-	//mostrarConsola(NULL);
-
 	planificar(configPlanificador.quantum);
-	//mostrarConsola(NULL);
-
-	/*Hilo Consola
-	 pthread_create (&hilo_consola, NULL, (void *) &mostrar_consola, NULL);
-	 */
 
 	pthread_join(hilo_consola, NULL);
-
 	pthread_join(hiloServer, NULL);
+
 	return EXIT_SUCCESS;
 }
 
@@ -449,7 +443,6 @@ void correrPath() {
 
 int crearPcb(char* path) {
 
-	//t_pcb* pcb = malloc(sizeof(t_pcb*));
 	t_pcb* pcb = malloc(sizeof(t_pcb));
 
 	PID++;
@@ -549,9 +542,6 @@ int planificar(int quantum) {
 
 	pthread_create(&hiloPlanificador, NULL, (void *) &planificador, NULL);
 
-	//t_pcb* pcb = list_get(LISTOS,0);
-
-	//enviarACpu(t_pcb* pcb,t_cpu* cpu);
 
 	pthread_join(hiloPlanificador, NULL);
 

@@ -298,6 +298,7 @@ void iniciar(int paginas, int mProcID) {
 
 	recv(serverMemoria, &mensajeCpu, sizeof(t_mensajeHeader), 0);
 	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
+		log_info(logCPU, "El proceso %d finalizo su ejecucion correctamente\n",mProcID);
 		sleep(configuracionCPU.Retardo);
 	}
 	if (mensajeCpu.idmensaje == PROCFALLA) {
@@ -305,7 +306,7 @@ void iniciar(int paginas, int mProcID) {
 		mensajeFinalizar->idCPU = cpuID;
 		/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
 		 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
-		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n");
+		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n",mProcID);
 		status = serializarEstructura(mensajeCpu.idmensaje,
 				(void *) mensajeFinalizar, sizeof(t_finalizarPID),
 				serverSocket);
@@ -316,8 +317,13 @@ void iniciar(int paginas, int mProcID) {
 }
 
 void escribir(int pagina, char *texto, int mProcID) {
-	printf("mProc %d - Pagina %d escrita: HOLA \n", mProcID, pagina);
-	sleep(5);
+	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,texto);
+	log_info(logCPU,"mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,texto);
+
+	//todo msj de rta con memoria
+
+	sleep(configuracionCPU.Retardo);
+
 }
 
 void leer(int pagina, int mProcID) {
@@ -328,6 +334,7 @@ void leer(int pagina, int mProcID) {
 
 	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
+	log_info(logCPU,"mProc %d - Pagina %d a leer:%s, envio a memoria \n", mProcID, pagina);
 
 //	int status = send(serverMemoria, &(inicia.idmensaje),
 	//		sizeof(t_mensajeHeader), 0);
@@ -342,6 +349,7 @@ void leer(int pagina, int mProcID) {
 	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
 	recv(serverMemoria, contenido, sizeof(tamanio) + 1, 0);
 	printf("CONTENIDO:%s \n", contenido);
+	log_info(logCPU,"El contenido es: %s \n", contenido);
 	fflush(stdout);
 	//}
 
@@ -381,6 +389,7 @@ void finalizar(int mProcID) {
 	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
 	status = serializarEstructura(FINALIZAPROCOK, (void *)rtaFin, sizeof(t_finalizarPID), serverSocket);
 	printf("de la cpu con id: %d \n", rtaFin->idCPU);
+	log_info(logCPU,"mProc %d - Finalizado, de la cpu con id: %d\n",mProcID,rtaFin->idCPU);
 	free(mensajeFinalizar);
 	free(rtaFin);
 }
@@ -430,11 +439,11 @@ void parsermCod(char *path, int pid) {
 				if (esEscribir(substrings[0])) {
 					printf("comando Escribir, parametros %d  %s \n",
 							atoi(substrings[1]), substrings[2]);
-					//todo escribir();
-					/* free(substrings[0]);
+					escribir(atoi(substrings[1]),substrings[2], pid);
+					free(substrings[0]);
 					 free(substrings[1]);
 					 free(substrings[2]);
-					 free(substrings);*/
+					 free(substrings);
 					 }
 				if (esIO(substrings[0])) {
 					printf("comando entrada salida, parametro %d \n",

@@ -1,7 +1,7 @@
 iniciar 10;
 leer 20;
 leer 22;
-escribir 200 34;
+escribir 200 contenidoNuevo;
 leer 90;
 leer 28;
 leer 30;

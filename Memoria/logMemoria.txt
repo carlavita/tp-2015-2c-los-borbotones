@@ -1,11 +1,11 @@
-[INFO] 19:56:52:639 Administrador de memoria/(2868:2868): Inicio lectura de archivo de configuración
-[INFO] 19:56:52:639 Administrador de memoria/(2868:2868): 64000
-[INFO] 19:56:52:639 Administrador de memoria/(2868:2868): Finalizo lectura de archivo de configuración
-[INFO] 19:56:53:295 Administrador de memoria/(2868:2868): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 19:56:55:267 Administrador de memoria/(2868:2868): La TLB no esta activada por configuración
-[INFO] 19:56:55:975 Administrador de memoria/(2868:2868): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 19:56:56:8 Administrador de memoria/(2868:2868): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 19:56:56:835 Administrador de memoria/(2868:2868): termino hiloSigUsr1
-[INFO] 19:56:57:827 Administrador de memoria/(2868:2868): Termino hiloSigUsr2
-[INFO] 19:56:58:991 Administrador de memoria/(2868:2868): Comienzo de las diferentes conexiones
-[INFO] 19:56:59:929 Administrador de memoria/(2868:2868): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 23:22:42:515 Administrador de memoria/(16401:16401): Inicio lectura de archivo de configuración
+[INFO] 23:22:42:517 Administrador de memoria/(16401:16401): 64000
+[INFO] 23:22:42:520 Administrador de memoria/(16401:16401): Finalizo lectura de archivo de configuración
+[INFO] 23:22:44:60 Administrador de memoria/(16401:16401): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 23:22:44:375 Administrador de memoria/(16401:16401): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 23:22:47:96 Administrador de memoria/(16401:16401): termino hiloSigUsr1
+[INFO] 23:22:48:420 Administrador de memoria/(16401:16401): Termino hiloSigUsr2
+[INFO] 23:22:50:661 Administrador de memoria/(16401:16401): Comienzo de las diferentes conexiones
+[INFO] 23:22:50:661 Administrador de memoria/(16401:16401): Inicio creacion estructura administrativa frame asignado a proceso
+[WARNING] 23:22:50:665 Administrador de memoria/(16401:16401): La TLB no esta activada por configuración
+[INFO] 23:22:50:670 Administrador de memoria/(16401:16401): La memoria se conecto satisfactoriamente al SWAP

@@ -345,7 +345,11 @@ void leer(int pagina, int mProcID) {
 	//status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
 	int status = serializarEstructura(LEER, (void *) mensajeLeer,
 			sizeof(t_leer), serverMemoria);
+
 	recv(serverMemoria, &tamanio, sizeof(int), 0);
+	//t_mensajeHeader header;
+	//recv(serverMemoria, &header, sizeof(t_mensajeHeader), 0);
+	//tamanio = header.size;
 	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
 	recv(serverMemoria, contenido, sizeof(tamanio) + 1, 0);
 	printf("CONTENIDO:%s \n", contenido);

@@ -141,8 +141,9 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas) {
 	log_info(logMemoria, "INICIO TABLAS DE PAGINAS");
 	int pagina = 0;
-	t_tablaDePaginas * entrada = malloc(sizeof(t_tablaDePaginas));
+
 	while (pagina < cantidadDePaginas) {
+		t_tablaDePaginas * entrada = malloc(sizeof(t_tablaDePaginas));
 		printf("PID   PAGINA   BitUso   BitModificado\n");
 		entrada->bitModificado = 1;
 		entrada->bitUso = 1;
@@ -153,17 +154,17 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 		fflush(stdout);
 		list_add(tablaDePaginas, entrada);
 		pagina++;
+		free(entrada);
 	}
-	sleep(15);
 	log_info(logMemoria, "FIN TABLAS DE PAGINAS");
 }
 void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas) {
 
 	int frame = listaDePidFrames->elements_count;
 
-	t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame*));
-	while (frame < cantidadDePaginas) {
 
+	while (frame < cantidadDePaginas) {
+		t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
 		if (configMemoria.maximoMarcosPorProceso > frame) {
 			estructuraPidFrame->frameAsignado = frame;
 			estructuraPidFrame->pid = pid;
@@ -171,8 +172,9 @@ void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas) {
 			log_info(logMemoria, "frame asignado: %d al pid:%d", frame, pid);
 		}
 		frame++;
+		free(estructuraPidFrame);
 	}
-	free(estructuraPidFrame);
+
 }
 void generarEstructuraAdministrativaPidFrame(int pid, int paginas) {
 	log_info(logMemoria, "INICIO ESTRUCTURA ADMINISTRATIVA, FRAMES-PID");
@@ -216,21 +218,31 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 		statusFin = serializarEstructura(PROCFALLA,NULL,0,servidor);
 
 	}
-	fflush(stdout);
 }
 
-void generarEstructuraParaAlgoritmos(t_list* framesAsignados)
+void generarEstructuraParaAlgoritmos(int cantidadframesAsignados)
 {
-	t_estructuraAlgoritmoReemplazoPaginas * armadoEstruct = malloc(sizeof(t_estructuraAlgoritmoReemplazoPaginas));
-	int cantidadDeFrames = framesAsignados->elements_count;
-    while(cantidadDeFrames > 0)
+	log_info(logMemoria,"Inicio creacion estructura para algoritmos");
+	int cantidadDeFrames = 0;
+	int pagina = 0;
+	int frame = 0;
+	log_info(logMemoria,"cantidad de frames %d",cantidadframesAsignados);
+	printf("FRAME   PAGINA\n");
+    while(cantidadDeFrames < configMemoria.maximoMarcosPorProceso)
     {
-    	armadoEstruct=	framesAsignados->head->data;
+    	t_estructuraAlgoritmoReemplazoPaginas * armadoEstruct = malloc(sizeof(t_estructuraAlgoritmoReemplazoPaginas));
+    	armadoEstruct->frame = frame;
+    	armadoEstruct->pagina = pagina;
+    	printf("  %d      %d\n",armadoEstruct->frame,armadoEstruct->pagina);
+    	fflush(stdout);
     	list_add(estructuraAlgoritmos,armadoEstruct);
-    	cantidadDeFrames--;
-
+    	cantidadDeFrames++;
+    	pagina++;
+    	frame++;
     	free(armadoEstruct);
     }
+    log_info(logMemoria,"FIN creacion estructura para algoritmos");
+    sleep(10);
 }
 
 void procesamientoDeMensajes(int cliente, int servidor) {
@@ -262,12 +274,17 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 					estructuraCPU->paginas);
 			generarEstructuraAdministrativaPidFrame(estructuraCPU->pid,
 					estructuraCPU->paginas);
+			log_info(logMemoria,"INICIO Closure");
 			bool FramesAsignados(t_pidFrame* pidFrame)
 			{
 				return pidFrame->pid == estructuraCPU->pid;
 			}
+			log_info(logMemoria,"FIN Closure");
+		;
 
-	//		generarEstructuraParaAlgoritmos(list_find(listaDePidFrames,(void*) FramesAsignados));
+        int cantidadFramesAsignados = list_count_satisfying(listaDePidFrames,(void*) FramesAsignados);
+        log_info(logMemoria,"HOLA222222222222222222!!!!!!!!!!!!!!!!!!!11");
+        generarEstructuraParaAlgoritmos(cantidadFramesAsignados);
 		//	recv(servidor, estructuraCPU, sizeof(t_iniciarPID), 0);
 			log_info(logMemoria,
 					"Proceso mProc creado, PID: %d, Cantidad de paginas asignadas: %d",
@@ -373,9 +390,9 @@ void creacionHilos(t_log* logMemoria) {
 void generarEstructuraAdministrativaPIDFrame() {
 	log_info(logMemoria,
 			"Inicio creacion estructura administrativa frame asignado a proceso");
-	listaDePidFrames = malloc(sizeof(t_list *));/*ESTA CREACION VA A ESTAR EN EL MAIN*/
+	listaDePidFrames = malloc(sizeof(t_list ));/*ESTA CREACION VA A ESTAR EN EL MAIN*/
 	listaDePidFrames = list_create();
-	t_pidFrame *estructuraPidFrame = malloc(sizeof(t_pidFrame*));
+	t_pidFrame *estructuraPidFrame = malloc(sizeof(t_pidFrame));
 	int frame = 0;
 	while (frame < configMemoria.cantidadDeMarcos) {
 		log_trace(logMemoria, "N° frame:%d", frame);

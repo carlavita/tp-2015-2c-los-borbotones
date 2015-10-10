@@ -1,11 +1,26 @@
-[INFO] 02:21:59:802 CPU/(23909:23909): Inicio Proceso CPU
-[INFO] 02:21:59:806 CPU/(23909:23909): Leyendo Archivo de Configuracion
-[INFO] 02:21:59:811 CPU/(23909:23909): 4000
-[INFO] 02:21:59:812 CPU/(23909:23909): Archivo de Configuracion Leido correctamente
-[INFO] 02:21:59:812 CPU/(23909:23909): Se inicializaron los semaforos 
+[INFO] 16:38:08:115 CPU/(7117:7117): Inicio Proceso CPU
+[INFO] 16:38:08:115 CPU/(7117:7117): Leyendo Archivo de Configuracion
+[INFO] 16:38:08:115 CPU/(7117:7117): 4000
+[INFO] 16:38:08:115 CPU/(7117:7117): Archivo de Configuracion Leido correctamente
+[INFO] 16:38:08:115 CPU/(7117:7117): Se inicializaron los semaforos 
 
-[INFO] 02:21:59:816 CPU/(23909:23909): Conectando a memoria
+[INFO] 16:38:08:145 CPU/(7117:7122): Conectando a memoria
 
-[INFO] 02:21:59:823 CPU/(23909:23909): Conectando a planificador
-[INFO] 02:21:59:831 CPU/(23909:23909): se recibe el msj de saludo de planificador:
-[INFO] 02:21:59:832 CPU/(23909:23909): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 16:38:08:145 CPU/(7117:7122): Conectando a planificador
+[INFO] 16:38:08:145 CPU/(7117:7122): se recibe el msj de saludo de planificador:
+[INFO] 16:38:08:145 CPU/(7117:7122): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 16:38:08:150 CPU/(7117:7123): Conectando a memoria
+
+[INFO] 16:38:08:150 CPU/(7117:7123): Conectando a planificador
+[INFO] 16:38:08:150 CPU/(7117:7123): se recibe el msj de saludo de planificador:
+[INFO] 16:38:08:150 CPU/(7117:7123): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 16:38:08:167 CPU/(7117:7124): Conectando a memoria
+
+[INFO] 16:38:08:167 CPU/(7117:7124): Conectando a planificador
+[INFO] 16:38:08:167 CPU/(7117:7124): se recibe el msj de saludo de planificador:
+[INFO] 16:38:08:168 CPU/(7117:7124): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 16:38:08:181 CPU/(7117:7125): Conectando a memoria
+
+[INFO] 16:38:08:181 CPU/(7117:7125): Conectando a planificador
+[INFO] 16:38:08:182 CPU/(7117:7125): se recibe el msj de saludo de planificador:
+[INFO] 16:38:08:182 CPU/(7117:7125): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/

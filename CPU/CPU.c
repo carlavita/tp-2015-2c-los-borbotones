@@ -317,9 +317,15 @@ void iniciar(int paginas, int mProcID) {
 }
 
 void escribir(int pagina, char *texto, int mProcID) {
-	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
+	t_escribir * escribir= malloc(sizeof(t_escribir));
+	escribir->pid = mProcID;
+	escribir->pagina = pagina;
+	escribir->contenido = texto;
+
+	serializarEstructura(ESCRIBIR,escribir,sizeof(escribir),serverMemoria);
+	/*printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
 	log_info(logCPU, "mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,
-			texto);
+			texto);*/
 
 	//todo msj de rta con memoria
 

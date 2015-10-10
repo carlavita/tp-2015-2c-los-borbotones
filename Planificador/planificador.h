@@ -170,7 +170,7 @@ t_pcb* planificarFifo();
 void handle(int newsock, fd_set *set);
 /**
  * @NAME: ejecutarIO()
- * @DESC: ejecuta entrada salida, discpositivo unico, encola.*/
+ * @DESC: ejecuta entrada salida, discpositivo unico, encolay libera la CPU.*/
 void ejecutarIO(int socketCPU);
 
 /**
@@ -220,8 +220,19 @@ int obtenerCantidadLineasPath(char* path);
  * forma, cuando este proceso ejecute nuevamente, finalizará.
  */
 void finalizarPid();
-
+/**
+ * @NAME: buscarEnListaPorPID()
+ * @DESC: Dada una lista retorna el pcb del pid recibido
+ */
 t_pcb* buscarEnListaPorPID(t_list* lista, int pid);
-
+/**
+ * @NAME: liberarCPU()
+ * @DESC: Libera una CPU cuando termino su ráfaga o quantum
+ */
 void liberarCPU(int idCPU);
+/**
+ * @NAME: procesarEntradasSalidas()
+ * @DESC: Funcion que procesa el hilo de IO
+ */
+void *procesarEntradasSalidas(void *info_proc);
 //int serializarEstructura(int id,  void *estructura, int size, int socketDestino);

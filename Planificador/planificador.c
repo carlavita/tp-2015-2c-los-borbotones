@@ -11,8 +11,9 @@
 #include <socket.h>
 
 int main(void) {
-	pthread_t hilo_consola;
+	pthread_t hiloConsola;
 	pthread_t hiloServer;
+	pthread_t hiloIO;
 
 	/*Log*/
 	remove(PATHLOG);
@@ -37,11 +38,14 @@ int main(void) {
 	pthread_create(&hiloServer, NULL, (void *) &servidorCPU, NULL);
 
 	/*Hilo consola Planificador*/
-	pthread_create(&hilo_consola, NULL, (void *) &mostrarConsola, NULL);
+	pthread_create(&hiloConsola, NULL, (void *) &mostrarConsola, NULL);
+
+	pthread_create(&hiloIO, NULL, (void *) &procesarEntradasSalidas,
+			NULL);
 
 	planificar(configPlanificador.quantum);
 
-	pthread_join(hilo_consola, NULL);
+	pthread_join(hiloConsola, NULL);
 	pthread_join(hiloServer, NULL);
 
 	return EXIT_SUCCESS;
@@ -98,7 +102,8 @@ void levantarConfiguracion() {
 				"ALGORITMO");
 		configPlanificador.quantum = config_get_int_value(CONFIG, "QUANTUM");
 		configPlanificador.pathmCod = malloc(PATH_SIZE);
-		configPlanificador.pathmCod = config_get_string_value(CONFIG,"PATHMCOD");
+		configPlanificador.pathmCod = config_get_string_value(CONFIG,
+				"PATHMCOD");
 
 		printf(" puerto %s \n", configPlanificador.puertoEscucha);
 		printf(" algoritmo %d\n", configPlanificador.algoritmo);
@@ -133,11 +138,11 @@ void mostrarConsola(void *ptr) {
 
 			correrPath();
 			/*printf(
-					"soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
-			int mensaje = CORRERPATH;
-			printf("socket : %d \n", ServidorP);
-			int status = send(ServidorP, &mensaje, sizeof(int), 0);
-			printf("estado de envio : %d \n", status);*/
+			 "soy el planificador, recibí el mensaje correr path por consola! Envi a CPU\n");
+			 int mensaje = CORRERPATH;
+			 printf("socket : %d \n", ServidorP);
+			 int status = send(ServidorP, &mensaje, sizeof(int), 0);
+			 printf("estado de envio : %d \n", status);*/
 			esperaEnter();
 			break;
 
@@ -295,13 +300,16 @@ void servidorCPU(void *ptr) {
 						//una vez detectada la conexion de una cpu se la agrega a la lista de cpus y se la coloca como libre -1
 						agregarCPU(newsock, -1);
 						ServidorP = newsock;
-						status = serializarEstructura(SALUDO,(void *)PATH_MCODE,sizeof(PATH_MCODE)+1,newsock);
+						status = serializarEstructura(SALUDO,
+								(void *) PATH_MCODE, sizeof(PATH_MCODE) + 1,
+								newsock);
 						//int mensaje = SALUDO;
 
 //						status = send(newsock, &mensaje, sizeof(int), 0);
 						printf("status send inicial %d \n", status);
 						//status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
-						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,status);
+						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,
+								status);
 
 					}
 				} else {
@@ -334,69 +342,73 @@ void handle(int newsock, fd_set *set) {
 
 		case FINALIZAPROCOK:
 
-			log_info(logger,"El proceso finalizo correctamente su ejecucion \n");
+			log_info(logger,
+					"El proceso finalizo correctamente su ejecucion \n");
 
 			t_finalizarPID rtaProc;
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
-			printf(" con id: %d \n",rtaProc.pid);
-			printf(" de la cpu: %d \n",rtaProc.idCPU);
+			printf(" con id: %d \n", rtaProc.pid);
+			printf(" de la cpu: %d \n", rtaProc.idCPU);
 
 			//actualizarPcb();
 
 			//actualizar el estado de la cola de finalizados
 
-			pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
 			int lalala = list_size(EJECUTANDO);
-			log_info(logger,"Al finalizar hay %d procesos ejecutando\n ", lalala);
+			log_info(logger, "Al finalizar hay %d procesos ejecutando\n ",
+					lalala);
 
-			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO,rtaProc.pid);
+			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO, rtaProc.pid);
 
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
 			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
 			pthread_mutex_unlock(&mutexListas);
 
-			//funcion que pone a la cpu libre nuevamente
 			liberarCPU(rtaProc.idCPU);
 
 			break;
 		case PROCFALLA:
 
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
-            pthread_mutex_lock(&mutexListas);  //todo revisar porque bloquea al proceso
+			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
 
-            t_pcb *pcb1 = buscarEnListaPorPID(EJECUTANDO,rtaP.pid);
+			t_pcb *pcb1 = buscarEnListaPorPID(EJECUTANDO, rtaP.pid);
 
-            pcb1->status = FINALIZADOERROR;
-            list_add(FINALIZADOS, pcb1);
-            removerEnListaPorPid(EJECUTANDO, rtaP.pid);
-            pthread_mutex_unlock(&mutexListas);
+			pcb1->status = FINALIZADOERROR;
+			list_add(FINALIZADOS, pcb1);
+			removerEnListaPorPid(EJECUTANDO, rtaP.pid);
+			pthread_mutex_unlock(&mutexListas);
 
-            //funcion que pone a la cpu libre nuevamente
-            liberarCPU(rtaP.idCPU);
+			//funcion que pone a la cpu libre nuevamente
+			liberarCPU(rtaP.idCPU);
 
-			log_info(logger,"Proceso rechazado por falta de espacio en SWAP, PID : %d, CPU: %d \n",rtaP.pid,rtaP.idCPU);
+			log_info(logger,
+					"Proceso rechazado por falta de espacio en SWAP, PID : %d, CPU: %d \n",
+					rtaP.pid, rtaP.idCPU);
 			//borrarEstructurasDelProc();
 
 			break;
 		case PROCIO:
-			// todo liberar cpu y sem_post(&semaforoCPU); aca tambien me vas a tener que pasar como si fuera fin de rafaga
-		/*	printf("el proceso esta realizando su entrada-salida \n");
-			t_io rtaIO;
-			recv(newsock, &(rtaIO), sizeof(t_io), 0);
-			printf(" con id: %d",rtaIO.pid);
-			printf(" con tiempo: %d \n",rtaIO.tiempoIO);
-			pthread_mutex_lock(&mutexLog);
-			log_info(logger, "el proceso esta realizando su entrada-salida ");
-			pthread_mutex_unlock(&mutexLog);
-			//todo no falta el id de cpu?
+			// todo liberar cpu y sem_post(&semaforoCPU);
+			//aca tambien me vas a tener que pasar como si fuera fin de rafaga
+			/*	t_io rtaIO;
+			 recv(newsock, &(rtaIO), sizeof(t_io), 0);
+			 printf(" con id: %d",rtaIO.pid);
+			 printf(" con tiempo: %d \n",rtaIO.tiempoIO);
+			 pthread_mutex_lock(&mutexLog);
+			 log_info(logger, "el proceso esta realizando su entrada-salida ");
+			 pthread_mutex_unlock(&mutexLog);
+			 //todo no falta el id de cpu?*/
 			ejecutarIO(newsock);
 
-*/			break;
+
+			break;
 		case FINDEQUANTUM:
 			// todo liberar cpu y sem_post(&semaforoCPU);
 
-			printf("Fin de quantum CPU \n");//todo, agregar id cpu
+			printf("Fin de quantum CPU \n");			//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
 			pthread_mutex_unlock(&mutexLog);
@@ -451,7 +463,6 @@ int crearPcb(char* path) {
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
 
-
 	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
 
 	printf("PID mProc: %d \n", pcb->pid);
@@ -470,7 +481,9 @@ int crearPcb(char* path) {
 
 	sem_post(&semaforoListos); //Habilita al planificador
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
-	printf("Soy el semaforo despues de habilitar a planificador con el valor: %d\n",val);
+	printf(
+			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
+			val);
 
 	return pcb->pid;
 }
@@ -501,14 +514,18 @@ t_pcb* planificarFifo() {
 }
 
 void enviarACpu(t_pcb* pcb, t_cpu* cpu) {
-	int status = serializarEstructura(EJECUTARPROC,(void *)pcb, sizeof(t_pcb), cpu->socket);
+	int status = serializarEstructura(EJECUTARPROC, (void *) pcb, sizeof(t_pcb),
+			cpu->socket);
 	//t_mensajeHeader msjEjecutar;
 	//msjEjecutar.idmensaje = EJECUTARPROC;
 	//send(cpu->socket, &msjEjecutar, sizeof(int), 0);
-	log_info(logger,"Envio de pedido de ejecucion PID %d a la cpu libre %d \n", pcb->pid,cpu->id);
+	log_info(logger, "Envio de pedido de ejecucion PID %d a la cpu libre %d \n",
+			pcb->pid, cpu->id);
 //	send(cpu->socket, pcb, sizeof(t_pcb), 0);
-	if (status>=0){
-	log_info(logger,"Envio exitoso de contexto PID %d a la cpu libre %d \n",pcb->pid, cpu->id);
+	if (status >= 0) {
+		log_info(logger,
+				"Envio exitoso de contexto PID %d a la cpu libre %d \n",
+				pcb->pid, cpu->id);
 	}
 }
 
@@ -542,14 +559,13 @@ int planificar(int quantum) {
 
 	pthread_create(&hiloPlanificador, NULL, (void *) &planificador, NULL);
 
-
 	pthread_join(hiloPlanificador, NULL);
 
 	return 0;
 }
 
 void *planificador(void *info_proc) {
-	t_pcb* pcb;
+	t_pcb* pcb = malloc(sizeof(t_pcb));
 	int valCPU;
 	printf("en el hilo planificador \n");
 
@@ -574,30 +590,48 @@ void *planificador(void *info_proc) {
 		enviarACpu(pcb, cpuLibre);
 
 	}
+	free(pcb);
 
 	return 0;
 
 }
 
 void ejecutarIO(int socketCPU) {
-	// TODO, VER ESTO
 	//recepciono de la cpu el msj con el Tiempo(en segundos) que hay que hacer el IO
 	//t_rtaIO mjeIO;
 	t_io* infoIO = malloc(sizeof(t_io));
-	recv(socketCPU, &infoIO, sizeof(t_io), 0);
+	recv(socketCPU, infoIO, sizeof(t_io), 0);
+
+	pthread_mutex_lock(&mutexLog);
+
+	log_info(logger, "el proceso esta realizando su entrada-salida, PID: %d, Tiempo: %d segundos , CPU %d \n ",
+			infoIO->pid, infoIO->tiempoIO, infoIO->idCPU);
+	log_info(logger,"La ultima ráfaga fue de %d instrucciones \n", infoIO->instrucciones);
+	pthread_mutex_unlock(&mutexLog);
+
 	pthread_mutex_lock(&mutexListas);
 	//busco el proc por si pid, se borra de ejecutados y lo mando a bloqueados
 	//todo falta actualizar el puntero a proxima instruccion cuando lo recibe de cpu
 	t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO, infoIO->pid);
+	if (pcb->cantidadLineas == pcb->proxInst){
+		log_info(logger,"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
+		}else{
 
+			pcb->proxInst = pcb->proxInst + infoIO->instrucciones ;
+			log_info(logger," actualiza prox instrucción: %d\n", pcb->proxInst);
+		}
 	pcb->status = BLOQUEADO;
+
 	list_add(BLOQUEADOS, pcb);
+
 	removerEnListaPorPid(EJECUTANDO, infoIO->pid);
 
 	list_add(IO, infoIO);
 	pthread_mutex_unlock(&mutexListas);
 	//por T segundos
 	sem_post(&semaforoIO);	// Habilita al hilo de entrada salida.
+
+	liberarCPU(infoIO->idCPU);
 	free(infoIO);
 }
 
@@ -716,7 +750,6 @@ void ejecutarPS() {
 		mProc = list_get(PROCESOS, indexLista);
 	}
 
-
 }
 
 void ordernarPorPID(t_list* lista) {
@@ -796,28 +829,29 @@ int obtenerCantidadLineasPath(char* path) {
 }
 
 void *procesarEntradasSalidas(void *info_proc) {
-	t_io* mjeIO;
+	t_io* mjeIO = malloc(sizeof(t_io));
 	// hilo consumidor de entrada salida
 	t_pcb* pcb = malloc(sizeof(t_pcb));
 	while (true) {
 		sem_wait(&semaforoIO);
-	//	pthread_mutex_lock(&mutexListas);
+		pthread_mutex_lock(&mutexListas);
 
 		mjeIO = list_remove(IO, 0);
 
 		sleep(mjeIO->tiempoIO); //HAY QUE ENCOLAR LOS BLOQUEOS
 		pcb = list_remove(BLOQUEADOS, 0);
+		pcb->status = LISTO;
 		list_add(LISTOS, pcb);
-		//pthread_mutex_unlock(&mutexListas);
-
-		free(mjeIO);
-	}
-	//todo Ahora enviarlo a la cola de listos
+		pthread_mutex_unlock(&mutexListas);
+		//Habilita el semaforo del consumidor de listos
+		sem_post(&semaforoListos);
+		}
+     	free(mjeIO);
+		free(pcb);
 
 }
 
-void liberarCPU(int idCPU){
-
+void liberarCPU(int idCPU) {
 
 	int _is_cpu(t_cpu *p) {
 		return p->id == idCPU;
@@ -828,25 +862,23 @@ void liberarCPU(int idCPU){
 	pthread_mutex_unlock(&mutexListaCpu);
 	sem_post(&semaforoCPU); //habilito al semaforo de cpu libres
 
-
 }
-
 
 /*
-int serializarEstructura(int id,  void *estructura, int size, int socketDestino) {
-	t_mensajeHeader header;
-	header.idmensaje = id;
-	header.size = size;
-	char *paquete = malloc(8 + size);
-    memcpy (paquete, &header, sizeof(t_mensajeHeader));
+ int serializarEstructura(int id,  void *estructura, int size, int socketDestino) {
+ t_mensajeHeader header;
+ header.idmensaje = id;
+ header.size = size;
+ char *paquete = malloc(8 + size);
+ memcpy (paquete, &header, sizeof(t_mensajeHeader));
 
-    // si tiene una estructura ademas del header, la apendea
-    if(size> 0) {
-    memcpy (paquete+sizeof(t_mensajeHeader), estructura, size);
-    }
-    int status = send (socketDestino, paquete, sizeof(t_mensajeHeader)+size,0);
-    free(paquete);
-    return status;
-}
-*/
+ // si tiene una estructura ademas del header, la apendea
+ if(size> 0) {
+ memcpy (paquete+sizeof(t_mensajeHeader), estructura, size);
+ }
+ int status = send (socketDestino, paquete, sizeof(t_mensajeHeader)+size,0);
+ free(paquete);
+ return status;
+ }
+ */
 

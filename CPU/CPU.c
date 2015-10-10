@@ -133,13 +133,13 @@ void Conexion_con_planificador() {
 			switch (mensaje->idmensaje) {
 
 			/*case CORRERPATH:
-				//todo revisar si va este msj sino borrar este case
-				printf(
-						"recibido el mensaje correr path desde el planificador\n");
-				printf("reenvío mensaje a memoria\n");
-				strcpy(message, "Correr path\n");
+			 //todo revisar si va este msj sino borrar este case
+			 printf(
+			 "recibido el mensaje correr path desde el planificador\n");
+			 printf("reenvío mensaje a memoria\n");
+			 strcpy(message, "Correr path\n");
 
-				break;*/
+			 break;*/
 			case SALUDO:
 				//recv(serverSocket, &PATH, sizeof(PATH), 0);
 				recv(serverSocket, &PATH, mensaje->size, 0);
@@ -176,7 +176,7 @@ void Conexion_con_planificador() {
 				//todo desarrollar funcion que acumula las rtas por instruccion-rta
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 				 listaEjecucion = ejecutarmProc(pcbProc);*/
-				parsermCod(pcbProc.pathProc, pcbProc.pid);
+				parsermCod(pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst);
 
 				/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
@@ -209,8 +209,6 @@ void Conexion_con_planificador() {
 				 status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
 				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
 				//todo rtas a memoria
-
-
 				break;
 
 			default:
@@ -238,7 +236,7 @@ void Conexion_con_planificador() {
 t_list* ejecutarmProc(t_pcb pcbProc) {
 
 	printf("en la funcion ejecutar proceso  \n");
-	parsermCod(pcbProc.pathProc, pcbProc.pid);
+	parsermCod(pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst);
 	printf("termino la funcion ejecutar proceso  \n");
 	t_list* listaRtasEjecucion;
 	listaRtasEjecucion = list_create();
@@ -298,7 +296,8 @@ void iniciar(int paginas, int mProcID) {
 
 	recv(serverMemoria, &mensajeCpu, sizeof(t_mensajeHeader), 0);
 	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
-		log_info(logCPU, "El proceso %d finalizo su ejecucion correctamente\n",mProcID);
+		log_info(logCPU, "El proceso %d finalizo su ejecucion correctamente\n",
+				mProcID);
 		sleep(configuracionCPU.Retardo);
 	}
 	if (mensajeCpu.idmensaje == PROCFALLA) {
@@ -306,7 +305,8 @@ void iniciar(int paginas, int mProcID) {
 		mensajeFinalizar->idCPU = cpuID;
 		/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
 		 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
-		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n",mProcID);
+		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n",
+				mProcID);
 		status = serializarEstructura(mensajeCpu.idmensaje,
 				(void *) mensajeFinalizar, sizeof(t_finalizarPID),
 				serverSocket);
@@ -317,8 +317,9 @@ void iniciar(int paginas, int mProcID) {
 }
 
 void escribir(int pagina, char *texto, int mProcID) {
-	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,texto);
-	log_info(logCPU,"mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,texto);
+	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
+	log_info(logCPU, "mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,
+			texto);
 
 	//todo msj de rta con memoria
 
@@ -334,7 +335,8 @@ void leer(int pagina, int mProcID) {
 
 	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
-	log_info(logCPU,"mProc %d - Pagina %d a leer:%s, envio a memoria \n", mProcID, pagina);
+	log_info(logCPU, "mProc %d - Pagina %d a leer:%s, envio a memoria \n",
+			mProcID, pagina);
 
 //	int status = send(serverMemoria, &(inicia.idmensaje),
 	//		sizeof(t_mensajeHeader), 0);
@@ -353,15 +355,32 @@ void leer(int pagina, int mProcID) {
 	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
 	recv(serverMemoria, contenido, sizeof(tamanio) + 1, 0);
 	printf("CONTENIDO:%s \n", contenido);
-	log_info(logCPU,"El contenido es: %s \n", contenido);
+	log_info(logCPU, "El contenido es: %s \n", contenido);
 	fflush(stdout);
 	//}
 
 	sleep(configuracionCPU.Retardo);
 	free(mensajeLeer);
 }
+void procesaIO(int pid, int tiempo, int cpu, int instrucciones) {
+	//	envía mensaje de IO a planificador.
+	t_io *infoIO = malloc(sizeof(t_io));
 
-void finalizar(int mProcID) {
+	infoIO->pid = pid;
+	infoIO->tiempoIO = tiempo;
+	infoIO->idCPU = cpu;
+	infoIO->instrucciones = instrucciones;
+	log_info(logCPU, "Entrada Salida- PID: %d, tiempo: %d, CPU: %d \n",
+			infoIO->pid, infoIO->tiempoIO, infoIO->idCPU);
+	int status = serializarEstructura(PROCIO, (void *) infoIO, sizeof(t_io),
+			serverSocket);
+
+	log_info(logCPU, "Status envío IO: %d \n", status);
+	free(infoIO);
+	//todo enviar las sentencias ejecutadas hasta ahora
+
+}
+void finalizar(int mProcID, int instrucciones) {
 
 	//t_mensajeHeader header;
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
@@ -373,6 +392,7 @@ void finalizar(int mProcID) {
 	 if (status > 0) {*/
 	//	recvACK(serverMemoria);
 	mensajeFinalizar->pid = mProcID;
+	mensajeFinalizar->instrucciones = instrucciones;
 	/*
 	 status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
 	 }*/
@@ -391,16 +411,21 @@ void finalizar(int mProcID) {
 	rtaFin->pid = mProcID;
 	rtaFin->idCPU = cpuID;
 	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
-	status = serializarEstructura(FINALIZAPROCOK, (void *)rtaFin, sizeof(t_finalizarPID), serverSocket);
+	status = serializarEstructura(FINALIZAPROCOK, (void *) rtaFin,
+			sizeof(t_finalizarPID), serverSocket);
 	printf("de la cpu con id: %d \n", rtaFin->idCPU);
-	log_info(logCPU,"mProc %d - Finalizado, de la cpu con id: %d\n",mProcID,rtaFin->idCPU);
+	log_info(logCPU, "mProc %d - Finalizado, de la cpu con id: %d\n", mProcID,
+			rtaFin->idCPU);
 	free(mensajeFinalizar);
 	free(rtaFin);
 }
 
-void parsermCod(char *path, int pid) {
+void parsermCod(char *path, int pid, int lineaInicial) {
+	int i = 0;
+	int contadorEjecutadas = 0;
+	int seguir = 1;
 	char *path_absoluto = string_new();
-
+	log_info (logCPU,"Inicia parseo desde linea incial: %d", lineaInicial);
 	string_append(&path_absoluto, PATH);
 	string_append(&path_absoluto, path);
 
@@ -413,58 +438,77 @@ void parsermCod(char *path, int pid) {
 
 		char string[100];
 
-		while (!feof(fid)) //Recorre el archivo
+		while (!feof(fid) && seguir) //Recorre el archivo
 		{
+			//printf(" I: %d, linea inicial: %d \n", i , lineaInicial);
+			i++;
 			fgets(string, 100, fid);
 
 			p = strtok(string, ";");
+			if (i >= lineaInicial) {
+			/*	i++;
+				fgets(string, 100, fid);
 
-			if (p != NULL) {
-				char *string = string_new();
-				string_append(&string, p);
-				char** substrings = string_split(string, " ");
+				p = strtok(string, ";");*/
 
-				if (esIniciar(substrings[0])) {
-					printf("comando iniciar, parametro %d \n",
-							atoi(substrings[1]));
-					iniciar(atoi(substrings[1]), pid);
-					free(substrings[0]);
-					free(substrings[1]);
-					free(substrings);
-				}
-				if (esLeer(substrings[0])) {
-					printf("comando leer, parametro %d \n",
-							atoi(substrings[1]));
-					leer(atoi(substrings[1]), pid);
-					free(substrings[0]);
-					free(substrings[1]);
-					free(substrings);
-				}
-				if (esEscribir(substrings[0])) {
-					printf("comando Escribir, parametros %d  %s \n",
-							atoi(substrings[1]), substrings[2]);
-					escribir(atoi(substrings[1]),substrings[2], pid);
-					free(substrings[0]);
-					 free(substrings[1]);
-					 free(substrings[2]);
-					 free(substrings);
-					 }
-				if (esIO(substrings[0])) {
-					printf("comando entrada salida, parametro %d \n",
-							atoi(substrings[1]));
-					//todo IO();
-					free(substrings[0]);
-					free(substrings[1]);
-					free(substrings);
-				}
-				if (esFinalizar(substrings[0])) {
-					printf("comando Finalizar no tiene parametros \n");
-					finalizar(pid);
-					free(substrings[0]);
-					free(substrings);
-				}
+				if (p != NULL) {
+					char *string = string_new();
+					string_append(&string, p);
+					char** substrings = string_split(string, " ");
 
+					if (esIniciar(substrings[0])) {
+						contadorEjecutadas++;
+						printf("comando iniciar, parametro %d \n",
+								atoi(substrings[1]));
+						iniciar(atoi(substrings[1]), pid);
+						free(substrings[0]);
+						free(substrings[1]);
+						free(substrings);
+					}
+					if (esLeer(substrings[0])) {
+						contadorEjecutadas++;
+						printf("comando leer, parametro %d \n",
+								atoi(substrings[1]));
+						leer(atoi(substrings[1]), pid);
+						free(substrings[0]);
+						free(substrings[1]);
+						free(substrings);
+					}
+					if (esEscribir(substrings[0])) {
+						contadorEjecutadas++;
+						printf("comando Escribir, parametros %d  %s \n",
+								atoi(substrings[1]), substrings[2]);
+						escribir(atoi(substrings[1]), substrings[2], pid);
+						free(substrings[0]);
+						free(substrings[1]);
+						free(substrings[2]);
+						free(substrings);
+					}
+					if (esIO(substrings[0])) {
+						contadorEjecutadas++;
+						printf("comando entrada salida, parametro %d \n",
+								atoi(substrings[1]));
+						//todo cuando haya n hilos pasar el id que corresponde
+						procesaIO(pid, atoi(substrings[1]), cpuID,
+								contadorEjecutadas);
+						free(substrings[0]);
+						free(substrings[1]);
+						free(substrings);
+
+						//todo hay que salir de aca... exit? pongo break por ahora
+						seguir = 0; //para que salga del while
+					}
+					if (esFinalizar(substrings[0])) {
+						contadorEjecutadas++;
+						printf("comando Finalizar no tiene parametros \n");
+						finalizar(pid, contadorEjecutadas);
+						free(substrings[0]);
+						free(substrings);
+					}
+
+				}
 			}
+
 
 		}
 		fclose(fid);

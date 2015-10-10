@@ -34,7 +34,7 @@
 #define OK 14
 #define ERROR 15
 
-
+#define RESULTADOLECTURA 16
 
 //estados de linea de mCod
 
@@ -88,6 +88,8 @@ typedef struct __attribute__((packed))
 {
 	int pid;
 	int tiempoIO;
+	int idCPU;
+	int instrucciones; //Cantidad de instrucciones ejecutadas
 } t_io;
 
 typedef struct __attribute__((packed))

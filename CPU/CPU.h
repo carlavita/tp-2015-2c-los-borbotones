@@ -62,9 +62,9 @@ typedef struct __attribute__((packed))
 
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
-int serverMemoria = 0;
+static int serverMemoria = 0;
 int cpuID = 1;//seteado para probar-->todo despues pasar a N cpus creados cos sus respectivos hilos
-int serverSocket; //socket de conexion con planificador
+static int serverSocket; //socket de conexion con planificador
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 
@@ -87,7 +87,8 @@ void *ejecucion (void *ptr);
 void iniciar (int paginas, int mProcID);
 void escribir (int pagina, char *texto, int mProcID);
 void leer (int pagina, int mProcID);
-void finalizar (int mProcID);
+void finalizar(int mProcID, int instrucciones);
+void procesaIO(int pid, int tiempo, int cpu, int instrucciones);
 
 
 
@@ -97,5 +98,8 @@ bool esIniciar(char* linea);
 bool esFinalizar(char* linea);
 bool esEscribir(char* linea);
 bool esIO(char* linea);
-void parsermCod(char *path, int pid);// Abre el path y parsea el contenido completo
+// Abre el path y parsea el contenido desde la linea indicada
+
+void parsermCod(char *path, int pid, int lineaInicial);
+
 #endif /* CPU_H_ */

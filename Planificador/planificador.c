@@ -628,10 +628,10 @@ void ejecutarIO(int socketCPU) {
 
 	list_add(IO, infoIO);
 	pthread_mutex_unlock(&mutexListas);
-	//por T segundos
+	liberarCPU(infoIO->idCPU);
 	sem_post(&semaforoIO);	// Habilita al hilo de entrada salida.
 
-	liberarCPU(infoIO->idCPU);
+	//liberarCPU(infoIO->idCPU);
 	free(infoIO);
 }
 

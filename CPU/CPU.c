@@ -296,7 +296,7 @@ void iniciar(int paginas, int mProcID) {
 
 	recv(serverMemoria, &mensajeCpu, sizeof(t_mensajeHeader), 0);
 	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
-		log_info(logCPU, "El proceso %d finalizo su ejecucion correctamente\n",
+		log_info(logCPU, "El proceso %d iniciado correctamente correctamente\n",
 				mProcID);
 		sleep(configuracionCPU.Retardo);
 	}

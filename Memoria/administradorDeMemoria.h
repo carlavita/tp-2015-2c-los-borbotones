@@ -40,6 +40,8 @@ typedef struct
 	int pid;
 	int marco;
 	int pagina;
+	int bitValidez;
+	int presencia;
 	int bitUso;
 	int bitModificado;
 	char * contenido;
@@ -60,7 +62,7 @@ int * memoriaReservadaDeMemPpal;
 pthread_t * hiloSigUsr1;
 pthread_t * hiloSigUsr2;
 t_list * listaDePidFrames;
-t_TLB * tlb;
+t_list * tlb;
 char * recibidoPorLaMemoria;
 char mensaje[1024];
 t_list * estructuraAlgoritmos;
@@ -71,8 +73,8 @@ t_list * estructuraAlgoritmos;
 
 void leerConfiguracion();
 void crearServidor();
-t_TLB * generarTLB(int entradasTLB);
-void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria,t_TLB* tlb);
+void generarTLB(int entradasTLB);
+void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal,int pid, int cantidadDePaginas);
 void generarCantidadDeFramesAsignadosAlProceso(int pid,int cantidadDePaginas);

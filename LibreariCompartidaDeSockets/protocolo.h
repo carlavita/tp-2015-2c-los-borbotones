@@ -105,7 +105,11 @@ typedef struct __attribute__((packed))
 	char contenidoPagina[256];
 } t_escribir;
 
-
+typedef struct __attribute__((packed))
+{
+	int tamanio;
+	char * contenido;
+}t_contenido;
 
 // Funciones
 void sendACK(int socket);

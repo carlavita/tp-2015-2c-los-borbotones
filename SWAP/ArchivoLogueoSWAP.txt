@@ -1,24 +1,18 @@
-[INFO] 10:09:30:642 SWAP/(3748:3748): Inicio Proceso SWAP
-[INFO] 10:09:30:642 SWAP/(3748:3748): Leyendo Archivo de Configuracion
-[INFO] 10:09:30:642 SWAP/(3748:3748): 6000
-[INFO] 10:09:30:642 SWAP/(3748:3748): Archivo de Configuracion Leido correctamente
-[INFO] 10:09:30:643 SWAP/(3748:3748): Creando archivo de tamanio: 256
-[INFO] 10:09:30:651 SWAP/(3748:3748): Archivo Creado correctamente
-[INFO] 10:09:49:187 SWAP/(3748:3748): Se recibio mensaje INICIAR
-[INFO] 10:09:49:187 SWAP/(3748:3748): Proceso mPRoc asignado
-[INFO] 10:09:49:187 SWAP/(3748:3748): PID asignado: 1
-[INFO] 10:09:49:187 SWAP/(3748:3748): Byte Inicial 0
-[INFO] 10:09:49:187 SWAP/(3748:3748): Tamaño en bytes de asignacion 8
-[INFO] 10:09:50:188 SWAP/(3748:3748): Se recibio mensaje INICIAR
-[INFO] 10:09:50:224 SWAP/(3748:3748): Lectura solicitada
-[INFO] 10:09:50:224 SWAP/(3748:3748): PID solicitado: 1
-[INFO] 10:09:50:224 SWAP/(3748:3748): Byte Inicial 4
-[INFO] 10:09:50:224 SWAP/(3748:3748): Tamaño solicitado para lectura 4
-[INFO] 10:09:50:224 SWAP/(3748:3748): El contenido de lectura es AAAA
-[INFO] 10:09:51:225 SWAP/(3748:3748): Se recibio mensaje INICIAR
-[INFO] 10:09:51:264 SWAP/(3748:3748): Lectura solicitada
-[INFO] 10:09:51:264 SWAP/(3748:3748): PID solicitado: 1
-[INFO] 10:09:51:264 SWAP/(3748:3748): Byte Inicial 8
-[INFO] 10:09:51:264 SWAP/(3748:3748): Tamaño solicitado para lectura 4
-[INFO] 10:09:51:264 SWAP/(3748:3748): El contenido de lectura es AAAA
-[INFO] 10:09:52:305 SWAP/(3748:3748): Se recibio mensaje FINALIZAR
+[INFO] 17:50:37:477 SWAP/(2599:2599): Inicio Proceso SWAP
+[INFO] 17:50:37:618 SWAP/(2599:2599): Leyendo Archivo de Configuracion
+[INFO] 17:50:37:618 SWAP/(2599:2599): 6000
+[INFO] 17:50:37:618 SWAP/(2599:2599): Archivo de Configuracion Leido correctamente
+[INFO] 17:50:37:980 SWAP/(2599:2599): Creando archivo de tamanio: 256
+[INFO] 17:50:38:34 SWAP/(2599:2599): Archivo Creado correctamente
+[INFO] 17:50:50:202 SWAP/(2599:2599): Se recibio mensaje INICIAR
+[INFO] 17:50:50:202 SWAP/(2599:2599): Proceso mPRoc asignado
+[INFO] 17:50:50:202 SWAP/(2599:2599): PID asignado: 1
+[INFO] 17:50:50:202 SWAP/(2599:2599): Byte Inicial 0
+[INFO] 17:50:50:202 SWAP/(2599:2599): Tamaño en bytes de asignacion 8
+[INFO] 17:50:55:401 SWAP/(2599:2599): Se recibio el mensaje ESCRIBIR
+[INFO] 17:50:56:703 SWAP/(2599:2599): Escritura solicitada
+[INFO] 17:50:56:703 SWAP/(2599:2599): PID solicitado: 1
+[INFO] 17:50:56:703 SWAP/(2599:2599): Byte Inicial 4
+[INFO] 17:50:56:703 SWAP/(2599:2599): Tamaño solicitado para escritura 4
+[INFO] 17:50:56:703 SWAP/(2599:2599): El contenido de escritura es HOLA
+[INFO] 17:51:18:469 SWAP/(2599:2599): Se recibio el mensaje ESCRIBIR

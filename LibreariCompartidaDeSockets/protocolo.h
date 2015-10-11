@@ -98,6 +98,15 @@ typedef struct __attribute__((packed))
 	char resultado[256];
 } t_instruccion;
 
+typedef struct __attribute__((packed))
+{
+	int pid;
+	int pagina;
+	char contenidoPagina[256];
+} t_escribir;
+
+
+
 // Funciones
 void sendACK(int socket);
 void recvACK(int socket);

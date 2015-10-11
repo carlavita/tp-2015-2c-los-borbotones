@@ -242,7 +242,7 @@ void generarEstructuraParaAlgoritmos(int cantidadframesAsignados)
     	free(armadoEstruct);
     }
     log_info(logMemoria,"FIN creacion estructura para algoritmos");
-    sleep(10);
+  //  sleep(10);
 }
 
 void procesamientoDeMensajes(int cliente, int servidor) {
@@ -254,6 +254,9 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 	int tamanioLeido;
 	char * contenidoLeido;
 	t_leer estructuraLeerSwap;
+
+	t_escribir *estructuraEscribirSwap = malloc(sizeof(t_escribir)) ;
+
 	int * memoriaReservadaDeMemPpal = malloc(sizeof(configMemoria.cantidadDeMarcos * configMemoria.tamanioMarcos));
 	int statusMensajeRecibidoDeLaCPU, mensaje2, pidRecibido; //MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
 	t_mensajeHeader mensajeHeader, mensajeHeaderSwap;
@@ -326,14 +329,19 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 		case ESCRIBIR:
 			log_info(logMemoria, "Solicitud de escritura recbidia");
 			log_info(logMemoria, "2do chekcpoint NO APLICA");
-			send(cliente, 1/*&pid*/, sizeof(int), 0);
-			send(cliente, 4/*pagina*/, sizeof(int), 0);
-			int sizeContenido = 10;		//deberia ser lo que recibo de la CPU
-			recv(cliente, &sizeContenido, sizeof(int), 0);
-			recv(cliente, "HOLA"/*&contenidoEscribir*/, sizeof("HOLA"), 0);
+			//send(cliente, 1/*&pid*/, sizeof(int), 0);
+			//send(cliente, 4/*pagina*/, sizeof(int), 0);
+			//int sizeContenido = 10;		//deberia ser lo que recibo de la CPU
+			recv(servidor, estructuraEscribirSwap, sizeof(t_escribir), 0);
+
+			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
+						sizeof(t_escribir), cliente);
 			int status;
-			recv(cliente, &status, sizeof(int), 0);	//RECIBO DEL SWAP COMO TERMINO LA OPERACION
-			send(servidor, &status, sizeof(int), 0);//MANDO A LA CPU  COMO TERMINO LA OPERACION
+			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			//printf( "El mensaje es %d", mensajeHeaderSwap.idmensaje);
+			//recv(cliente, &status, sizeof(int), 0);	//RECIBO DEL SWAP COMO TERMINO LA OPERACION
+			//send(servidor, &status, sizeof(int), 0);//MANDO A LA CPU  COMO TERMINO LA OPERACION
+			//status = serializarEstructura(OK,NULL,0,servidor);
 			break;
 		case FINALIZAR:
 			log_info(logMemoria, "FINALIZAR!");

@@ -222,19 +222,19 @@ int escribir(int PID, int nroPagina, char* contenidoPagina) {
 			string_length(contenidoPagina));
 	log_info(logSWAP, "El contenido de escritura es %s", contenidoPagina);
 
-	char* contenido = malloc(tamanioPagina - string_length(contenidoPagina));
-	contenido = string_repeat('\0',
-			tamanioPagina - string_length(contenidoPagina));
+	//char* contenido = malloc(tamanioPagina - string_length(contenidoPagina));
+	//contenido = string_repeat('\0',
+			//tamanioPagina - string_length(contenidoPagina));
 
 	fseek(archivoDisco, primerBytePagina, SEEK_SET);
 	//fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
 	fputs(contenidoPagina, archivoDisco);
-	fputs(contenido, archivoDisco);
+	//fputs(contenido, archivoDisco);
 
 	procesoObtenido->cantidadEscrituras = procesoObtenido->cantidadEscrituras
 			+ 1;
 	sleep(configuracionSWAP.RetardoSWAP);
-	return 14;
+	return OK;
 }
 
 void * compactacion() {
@@ -482,6 +482,7 @@ void escucharMensajes(int servidor) {
 	t_iniciarPID estructuraMemoria;
 	t_finalizarPID estructuraMemoriaFinalizar;
 	t_leer estructuraMemoriaLeer;
+	t_escribir estructuraMemoriaEscribir;
 	mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
 	printf("mensaje recibido: %d", mensajeHeader.idmensaje);
 	fflush(stdout);
@@ -498,7 +499,7 @@ void escucharMensajes(int servidor) {
 		//sleep(10);
 		break;
 	case LEER:
-		log_info(logSWAP, "Se recibio mensaje INICIAR");
+		log_info(logSWAP, "Se recibio mensaje LEER");
 		recv(servidor, &estructuraMemoriaLeer, sizeof(t_leer), 0);
 
 		char * contenido = malloc(configuracionSWAP.TamanioPagina);
@@ -515,17 +516,19 @@ void escucharMensajes(int servidor) {
 	case ESCRIBIR:
 		log_info(logSWAP, "Se recibio el mensaje ESCRIBIR");
 		//sendACK(servidor);
-		recv(servidor, &pid, sizeof(int), 0);
+		recv(servidor, &estructuraMemoriaEscribir, sizeof(t_escribir), 0);
 		//sendACK(servidor);
-		recv(servidor, &paginas, sizeof(int), 0);
+		//recv(servidor, &paginas, sizeof(int), 0);
 		//sendACK(servidor);
-		int sizeContenido;
-		recv(servidor, &sizeContenido, sizeof(int), 0);
+		//int sizeContenido;
+		//recv(servidor, &sizeContenido, sizeof(int), 0);
 		//sendACK(servidor);
-		char * contenidoEscribir = malloc(sizeContenido);
-		recv(servidor, &contenidoEscribir, sizeof(char*), 0);
-		int status = escribir(pid, paginas, contenidoEscribir);
-		send(servidor, status, sizeof(int), 0);
+		//char * contenidoEscribir = malloc(sizeContenido);
+		//recv(servidor, &contenidoEscribir, sizeof(char*), 0);
+		int status = escribir(estructuraMemoriaEscribir.pid, estructuraMemoriaEscribir.pagina, "HOLA");
+		t_mensajeHeader escribir;
+				escribir.idmensaje = status;
+		send(servidor,&escribir, sizeof(t_mensajeHeader), 0);
 
 		break;
 	case FINALIZAR:

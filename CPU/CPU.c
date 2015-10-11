@@ -366,8 +366,31 @@ void iniciar(int paginas, int mProcID,int serverSocket,int serverMemoria) {
 
 void escribir(int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria) {
 	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
+	t_escribir *mensajeEscribir = malloc(sizeof(t_escribir));
+	//int tamanio;
+	//char * contenido;
+
+	//inicia.idmensaje = LEER;
+	printf("mProc %d - Pagina %d a a escribir con contenido %s, envio a memoria \n", mProcID, pagina, texto);
+
+//	int status = send(serverMemoria, &(inicia.idmensaje),
+	//		sizeof(t_mensajeHeader), 0);
+	//if (status > 0) {
+
+	mensajeEscribir->pid = mProcID;
+	mensajeEscribir->pagina = pagina;
+	strcpy(mensajeEscribir->contenidoPagina, texto);
+	//status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
+	int status = serializarEstructura(ESCRIBIR, (void *) mensajeEscribir,
+			sizeof(t_escribir), serverMemoria);
+
+
+
 	log_info(logCPU, "mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,
 			texto);
+	//t_mensajeHeader rta;
+		//recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
+			//printf("La respuesta es %d", rta.idmensaje);
 
 	//todo msj de rta con memoria
 

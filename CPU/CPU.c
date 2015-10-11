@@ -344,7 +344,7 @@ void iniciar(int paginas, int mProcID,int serverSocket,int serverMemoria) {
 
 	recv(serverMemoria, &mensajeCpu, sizeof(t_mensajeHeader), 0);
 	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
-		log_info(logCPU, "El proceso %d finalizo su ejecucion correctamente\n",
+		log_info(logCPU, "El proceso %d inició su ejecucion correctamente\n",
 				mProcID);
 		sleep(configuracionCPU.Retardo);
 	}
@@ -383,7 +383,7 @@ void leer(int pagina, int mProcID,int serverSocket,int serverMemoria) {
 
 	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
-	log_info(logCPU, "mProc %d - Pagina %d a leer:%s, envio a memoria \n",
+	log_info(logCPU, "mProc %d - Pagina %d a leer, envio a memoria \n",
 			mProcID, pagina);
 
 //	int status = send(serverMemoria, &(inicia.idmensaje),
@@ -404,11 +404,11 @@ void leer(int pagina, int mProcID,int serverSocket,int serverMemoria) {
 	recv(serverMemoria, contenido, sizeof(tamanio) + 1, 0);
 	printf("CONTENIDO:%s \n", contenido);
 	log_info(logCPU, "El contenido es: %s \n", contenido);
-	fflush(stdout);
+	//fflush(stdout);
 	//}
 
 	sleep(configuracionCPU.Retardo);
-	free(mensajeLeer);
+//	free(mensajeLeer);
 }
 void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,int serverMemoria) {
 	//	envía mensaje de IO a planificador.
@@ -440,6 +440,7 @@ void finalizar(int mProcID, int instrucciones,int serverSocket,int serverMemoria
 	 if (status > 0) {*/
 	//	recvACK(serverMemoria);
 	mensajeFinalizar->pid = mProcID;
+        mensajeFinalizar->idCPU = cpuID;
 	mensajeFinalizar->instrucciones = instrucciones;
 	/*
 	 status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
@@ -458,6 +459,7 @@ void finalizar(int mProcID, int instrucciones,int serverSocket,int serverMemoria
 	t_finalizarPID *rtaFin = malloc(sizeof(t_finalizarPID));
 	rtaFin->pid = mProcID;
 	rtaFin->idCPU = cpuID;
+        rtaFin->instrucciones = instrucciones;
 	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
 	status = serializarEstructura(FINALIZAPROCOK, (void *) rtaFin,
 			sizeof(t_finalizarPID), serverSocket);
@@ -493,7 +495,7 @@ void parsermCod(char *path, int pid, int lineaInicial,int serverSocket,int serve
 			fgets(string, 100, fid);
 
 			p = strtok(string, ";");
-			if (i >= lineaInicial) {
+			if (i > lineaInicial) {
 			/*	i++;
 				fgets(string, 100, fid);
 

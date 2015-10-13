@@ -45,7 +45,7 @@ void* thread_func(void *envio)
 		num = (t_envio*)envio;
 		printf("dentro del hilo de cpu con id:%d \n",num->id);
 
-	    Conexion_con_planificador();
+	    Conexion_con_planificador(num->id);
 		pthread_exit(NULL);
 }
 
@@ -114,8 +114,9 @@ int conexion_con_memoria() {
 
 
 
-void Conexion_con_planificador() {
-     int serverMemoria = conexion_con_memoria();
+void Conexion_con_planificador(int cpu) {
+
+	int serverMemoria = conexion_con_memoria();
 	printf("Conectando a planificador \n");
 	pthread_mutex_lock(&mutexLogueo);
 	log_info(logCPU, "Conectando a planificador");
@@ -201,7 +202,7 @@ void Conexion_con_planificador() {
 				//todo desarrollar funcion que acumula las rtas por instruccion-rta
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 				 listaEjecucion = ejecutarmProc(pcbProc);*/
-				parsermCod(pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,serverSocket,serverMemoria);
+				parsermCod(cpu,pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,serverSocket,serverMemoria);
 
 				/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
@@ -258,10 +259,10 @@ void Conexion_con_planificador() {
 }
 
 //funcion que recibe el pcb del mProc parsea el mismo y todo devuelve una lista formada por instruccion resultado
-t_list* ejecutarmProc(t_pcb pcbProc,int serverSocket,int serverMemoria) {
+t_list* ejecutarmProc(int cpu,t_pcb pcbProc,int serverSocket,int serverMemoria) {
 
 	printf("en la funcion ejecutar proceso  \n");
-	parsermCod(pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,serverSocket,serverMemoria);
+	parsermCod(cpu, pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,serverSocket,serverMemoria);
 	printf("termino la funcion ejecutar proceso  \n");
 	t_list* listaRtasEjecucion;
 	listaRtasEjecucion = list_create();
@@ -292,19 +293,9 @@ char *parsearLinea(char * lineaLeida) {
 	return lineaParseada;
 }
 
-//todo revisar
-/*void *ejecucion (void *ptr){
- FILE *fd;
- fd = fopen("/home/utnso/codigo/test.cod","r");
- iniciar(3,12);
- escribir(3,"HOLA",12);
- leer(3,12);
- finalizar(12);
- fclose(fd);
- return 0;
- }*/
 
-void iniciar(int paginas, int mProcID,int serverSocket,int serverMemoria) {
+void iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria) {
+
 	printf("mProc %d - Iniciado \n", mProcID);
 	//t_mensajeHeader inicia;
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
@@ -327,7 +318,7 @@ void iniciar(int paginas, int mProcID,int serverSocket,int serverMemoria) {
 	}
 	if (mensajeCpu.idmensaje == PROCFALLA) {
 		mensajeFinalizar->pid = mProcID;
-		mensajeFinalizar->idCPU = cpuID;
+		mensajeFinalizar->idCPU = cpu;
 		/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
 		 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
 		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n",
@@ -410,6 +401,7 @@ void leer(int pagina, int mProcID,int serverSocket,int serverMemoria) {
 	sleep(configuracionCPU.Retardo);
 //	free(mensajeLeer);
 }
+
 void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,int serverMemoria) {
 	//	envía mensaje de IO a planificador.
 	t_io *infoIO = malloc(sizeof(t_io));
@@ -428,7 +420,7 @@ void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,
 	//todo enviar las sentencias ejecutadas hasta ahora
 
 }
-void finalizar(int mProcID, int instrucciones,int serverSocket,int serverMemoria) {
+void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serverMemoria) {
 
 	//t_mensajeHeader header;
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
@@ -440,7 +432,7 @@ void finalizar(int mProcID, int instrucciones,int serverSocket,int serverMemoria
 	 if (status > 0) {*/
 	//	recvACK(serverMemoria);
 	mensajeFinalizar->pid = mProcID;
-        mensajeFinalizar->idCPU = cpuID;
+    mensajeFinalizar->idCPU = cpu;
 	mensajeFinalizar->instrucciones = instrucciones;
 	/*
 	 status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
@@ -458,7 +450,7 @@ void finalizar(int mProcID, int instrucciones,int serverSocket,int serverMemoria
 
 	t_finalizarPID *rtaFin = malloc(sizeof(t_finalizarPID));
 	rtaFin->pid = mProcID;
-	rtaFin->idCPU = cpuID;
+	rtaFin->idCPU = cpu;
         rtaFin->instrucciones = instrucciones;
 	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
 	status = serializarEstructura(FINALIZAPROCOK, (void *) rtaFin,
@@ -470,7 +462,7 @@ void finalizar(int mProcID, int instrucciones,int serverSocket,int serverMemoria
 	free(rtaFin);
 }
 
-void parsermCod(char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria) {
+void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria) {
 	int i = 0;
 	int contadorEjecutadas = 0;
 	int seguir = 1;
@@ -510,7 +502,7 @@ void parsermCod(char *path, int pid, int lineaInicial,int serverSocket,int serve
 						contadorEjecutadas++;
 						printf("comando iniciar, parametro %d \n",
 								atoi(substrings[1]));
-						iniciar(atoi(substrings[1]), pid,serverSocket,serverMemoria);
+						iniciar(cpu, atoi(substrings[1]), pid,serverSocket,serverMemoria);
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);
@@ -539,7 +531,7 @@ void parsermCod(char *path, int pid, int lineaInicial,int serverSocket,int serve
 						printf("comando entrada salida, parametro %d \n",
 								atoi(substrings[1]));
 						//todo cuando haya n hilos pasar el id que corresponde
-						procesaIO(pid, atoi(substrings[1]), cpuID,
+						procesaIO(pid, atoi(substrings[1]), cpu,
 								contadorEjecutadas,serverSocket,serverMemoria);
 						free(substrings[0]);
 						free(substrings[1]);
@@ -551,7 +543,7 @@ void parsermCod(char *path, int pid, int lineaInicial,int serverSocket,int serve
 					if (esFinalizar(substrings[0])) {
 						contadorEjecutadas++;
 						printf("comando Finalizar no tiene parametros \n");
-						finalizar(pid, contadorEjecutadas,serverSocket,serverMemoria);
+						finalizar(cpu, pid, contadorEjecutadas,serverSocket,serverMemoria);
 						free(substrings[0]);
 						free(substrings);
 					}

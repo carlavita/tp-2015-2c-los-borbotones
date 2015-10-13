@@ -6,24 +6,6 @@
  */
 
 #include "CPU.h"
-#define MAXTHREADS 15
-
-typedef struct __attribute__((packed))
-{
-	int id;
-
-}t_envio;
-
-
-typedef struct __attribute__((packed))
-{
-	int id;
-	int socketMem;
-	int socketPlan;
-
-}t_comunicacionCPU;
-
-t_list* listaCPU;//esta lista guarda los datos de conexion de cada cpu
 
 
 int main() {
@@ -62,12 +44,7 @@ void* thread_func(void *envio)
 		t_envio* num;
 		num = (t_envio*)envio;
 		printf("dentro del hilo de cpu con id:%d \n",num->id);
-/*		t_comunicacionCPU* elemento = malloc(sizeof(t_comunicacionCPU)) ;
-		elemento->id = num->id;
-		elemento->socketMem = conexion_con_memoria();
-		elemento->
-		list_add(listaCPU,elemento);*/
-		//elemento->socketPlan =
+
 	    Conexion_con_planificador();
 		pthread_exit(NULL);
 }

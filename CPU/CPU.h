@@ -41,6 +41,13 @@
 
 char PATH[256];
 
+#define MAXTHREADS 15
+
+typedef struct __attribute__((packed))
+{
+	int id;
+}t_envio;
+
 typedef struct
 {
 	char* IPPlanificador;

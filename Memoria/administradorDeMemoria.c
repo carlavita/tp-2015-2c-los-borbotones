@@ -45,6 +45,7 @@ int main() {
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	tablaDePaginas = list_create();
 	estructuraAlgoritmos = list_create();
+	tlb = list_create();
 	generarEstructuraAdministrativaPIDFrame();
 	creacionTLB(&configMemoria, logMemoria);
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
@@ -89,7 +90,8 @@ void generarTLB(int entradasTLB) {
 	while (entrada < entradasTLB) {
 		t_TLB * estructTLB = malloc(sizeof(t_TLB));
 		estructTLB->pagina = -1;
-		estructTLB->pid = -1; //cuando vengan los procesos, ire cambiando ese pid.
+		estructTLB->pid = -1;
+		//cuando vengan los procesos, ire cambiando ese pid.
 		++entrada;
 		list_add(tlb, estructTLB);
 		free(estructTLB);
@@ -189,14 +191,13 @@ void generarEstructuraAdministrativaPidFrame(int pid, int paginas) {
 }
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
-	int statusFin;
 
 	log_info(logMemoria, "Envio pagina al SWAP, PAGINA N°:%d",
 			estructuraCPU->paginas);
 	log_info(logMemoria, "Envio pid al SWAP, PID:%d", estructuraCPU->pid);
 
-	int status = serializarEstructura(INICIAR, (void *) estructuraCPU,
-			sizeof(t_iniciarPID), cliente);
+	serializarEstructura(INICIAR, (void *) estructuraCPU, sizeof(t_iniciarPID),
+			cliente);
 
 	log_info(logMemoria, "SWAP recibio la pagina de forma correcta");
 	recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
@@ -205,14 +206,14 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 	if (mensajeHeaderSwap.idmensaje == OK) {
 		log_info(logMemoria, "Se proceso correctamente el mensaje");
 
-		statusFin = serializarEstructura(FINALIZAPROCOK, NULL, 0, servidor);
+		serializarEstructura(FINALIZAPROCOK, NULL, 0, servidor);
 	} else if (mensajeHeaderSwap.idmensaje == ERROR) {
 
 		log_error(logMemoria,
 				"Proceso %d rechazado por falta de espacio en SWAP\n",
 				estructuraCPU->pid);
 
-		statusFin = serializarEstructura(PROCFALLA, NULL, 0, servidor);
+		serializarEstructura(PROCFALLA, NULL, 0, servidor);
 
 	}
 }
@@ -259,17 +260,24 @@ int buscarEnTablaDePaginas( pid, pagina) {
 	bool buscarEnPaginaEnTP(t_tablaDePaginas * tablaDePaginas) {
 		return tablaDePaginas->pid == pid && tablaDePaginas->pagina == pagina;
 	}
-	bool verificarBitValidezYPresencia(t_tablaDePaginas * paginasEncontradas) {
-		return paginasEncontradas->bitValidez == 0
-				&& paginasEncontradas->presencia == 1;
+	bool verificarBitValidezYPresencia(
+			t_tablaDePaginas * tablaDePaginasEncontradas) {
+		return tablaDePaginasEncontradas->bitValidez == 0
+				&& tablaDePaginasEncontradas->presencia == 1;
+		/*&& string_is_empty(tablaDePaginasEncontradas->contenido)*/
 	}
+	log_info(logMemoria, "FIN CLOSURE");
 	t_list * paginasEncontradas = list_create();
 	paginasEncontradas = list_find(tablaDePaginas, (void*) buscarEnPaginaEnTP);
-	if (paginasEncontradas->elements_count == 1) {
+	int cantidadDeElementos = list_size(paginasEncontradas);
+	log_info(logMemoria, "Cantidad de elementos: %d", cantidadDeElementos);
+	if ((paginasEncontradas->elements_count) == 1) {
+
 		log_info(logMemoria, "PAGINA ENCONTRADA EN TABLA DE PAGINAS");
 		return list_all_satisfy(paginasEncontradas,
 				(void *) verificarBitValidezYPresencia);
 	} else {
+
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN TABLA DE PAGINAS");
 		return 0; // si la pagina para el pid NO es unica retorno falso
 	}
@@ -282,14 +290,12 @@ char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 		return tablaDePaginas->pid == pid && tablaDePaginas->pagina == pagina;
 	}
 	char * contenido;
-	t_list * tlbContenido = list_create();
 	t_tablaDePaginas * estructContenidoPaginas = malloc(
 			sizeof(t_tablaDePaginas));
 	estructContenidoPaginas = list_find(tablaDePaginas,
 			(void*) buscarEnPaginaEnTP);
 	contenido = estructContenidoPaginas->contenido;
 	free(estructContenidoPaginas);
-	list_destroy(tlbContenido);
 	log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
 	return contenido;
 }
@@ -306,18 +312,24 @@ void buscarContenidoPagina(int pid, int pagina, int socketCPU) {
 }
 
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
+	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
-	send(cliente, &*estructuraLeerSwap, sizeof(t_leer), 0);
+	serializarEstructura(LEER, estructuraLeerSwap, sizeof(t_leer), 0);
 	recv(cliente, &tamanioLeido, sizeof(int), 0);
-	printf("tamaño: %d \n", tamanioLeido);
+	log_info(logMemoria, "tamaño: %d \n", tamanioLeido);
 	char* contenidoLeido = malloc(tamanioLeido + 1);
+	estructuraLeerSwap->pid = pid;
+	estructuraLeerSwap->pagina = pagina;
 	contenidoLeido[tamanioLeido] = '\0';
-	recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
-	printf("Contenido: %s", contenidoLeido);
 
+	recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
+
+	log_info(logMemoria, "Contenido: %s", contenidoLeido);
+	log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	return contenidoLeido;
 }
+
 void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap) {
 	bool buscarEnPaginaEnTP(t_tablaDePaginas * tablaDePaginas) {
@@ -331,12 +343,12 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 	paginaAAsignar->bitValidez = 1;
 	paginaAAsignar->presencia = 1;
 	paginaAAsignar->marco = 0; //NUMERO DE MARCO A ASIGNAR VA A VENIR POR PARAMETRO O EJECUTAR EL ALGORITMO ACA;
-	list_clean_and_destroy_elements(tablaDePaginas, (void*) buscarEnPaginaEnTP); //DESTRUYO LA PAGINA y la vuelvo a agregar automaticamente
 	list_add(tablaDePaginas, paginaAAsignar);
 
-	free(paginaAAsignar);
 }
-void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,t_mensajeHeader mensajeHeaderSwap) {
+
+void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
+		t_mensajeHeader mensajeHeaderSwap) {
 
 	int pid = estructuraLeerSwap.pid;
 	int pagina = estructuraLeerSwap.pagina;
@@ -348,37 +360,33 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,t_mensa
 			buscarContenidoPagina(pid, pagina, socketCPU);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
-			if (resultadoBusquedaTP == 0) {
+			if (resultadoBusquedaTP == 1) {
 				buscarContenidoPagina(pid, pagina, socketCPU);
 			} else {
-				send(socketSwap, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+				serializarEstructura(LEER, &estructuraLeerSwap,
+						sizeof(estructuraLeerSwap), socketSwap);
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
 				AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap);
 			}
 		}
-	}
-	else
-	{
+	} else {
 		int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
-				if (resultadoBusquedaTP == 0) {
-					buscarContenidoPagina(pid, pagina, socketCPU);
-				} else {
-					char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
-							pid, pagina, socketCPU);
-					AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap);
-				}
+		if (resultadoBusquedaTP == 0) {
+			buscarContenidoPagina(pid, pagina, socketCPU);
+		} else {
+			char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap, pid,
+					pagina, socketCPU);
+			AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap);
+		}
 	}
 }
 
 void procesamientoDeMensajes(int cliente, int servidor) {
 	t_iniciarPID *estructuraCPU = malloc(sizeof(t_iniciarPID));
-	int tamanioDatosSwap;
-	char mensajeRecibido[PACKAGESIZE];
+
 	t_finalizarPID *finalizarCPU = malloc(sizeof(t_finalizarPID));
-	t_iniciarPID estructuraSwap;
-	int tamanioLeido;
-	char * contenidoLeido;
+
 	t_leer estructuraLeerSwap;
 
 	t_escribir *estructuraEscribirSwap = malloc(sizeof(t_escribir));
@@ -387,7 +395,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			malloc(
 					sizeof(configMemoria.cantidadDeMarcos
 							* configMemoria.tamanioMarcos));
-	int statusMensajeRecibidoDeLaCPU, mensaje2, pidRecibido; //MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
+	int statusMensajeRecibidoDeLaCPU; //MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
 	t_mensajeHeader mensajeHeader, mensajeHeaderSwap;
 	statusMensajeRecibidoDeLaCPU = recv(servidor, &mensajeHeader,
 			sizeof(t_mensajeHeader), 0);
@@ -411,7 +419,6 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 				return pidFrame->pid == estructuraCPU->pid;
 			}
 			log_info(logMemoria, "FIN Closure");
-			;
 
 			int cantidadFramesAsignados = list_count_satisfying(
 					listaDePidFrames, (void*) FramesAsignados);
@@ -434,11 +441,12 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			mensajeHeaderSwap.idmensaje = LEER;
 
 			recv(servidor, &estructuraLeerSwap, sizeof(t_leer), 0);
-			leerPagina(estructuraLeerSwap, cliente, servidor,mensajeHeaderSwap);
+			serializarEstructura(LEER,&mensajeHeaderSwap,sizeof(mensajeHeaderSwap),cliente);
+			leerPagina(estructuraLeerSwap, cliente, servidor,
+					mensajeHeaderSwap);
 			//send(servidor, contenidoLeido, sizeof(tamanioLeido), 0);
 
 			log_info(logMemoria, "Finalizo comando LEER");
-			free(contenidoLeido);
 		}
 			break;
 		case ESCRIBIR:
@@ -449,7 +457,6 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 
 			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
 					sizeof(t_escribir), cliente);
-			int status;
 			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 
 			break;
@@ -464,17 +471,17 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 
 			fflush(stdout);
 
-			status = serializarEstructura(FINALIZAR, (void *) finalizarCPU,
+			serializarEstructura(FINALIZAR, (void *) finalizarCPU,
 					sizeof(t_finalizarPID), cliente);
 			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-			int statusFin;
+
 			if (mensajeHeaderSwap.idmensaje == OK)
 
-				statusFin = serializarEstructura(mensajeHeaderSwap.idmensaje,
+				serializarEstructura(mensajeHeaderSwap.idmensaje,
 				NULL, 0, servidor);
 			else
 
-				statusFin = serializarEstructura(mensajeHeaderSwap.idmensaje,
+				serializarEstructura(mensajeHeaderSwap.idmensaje,
 				NULL, 0, servidor);
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 

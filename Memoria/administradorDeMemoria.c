@@ -155,7 +155,6 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 		fflush(stdout);
 		list_add(tablaDePaginas, entrada);
 		pagina++;
-		free(entrada);
 	}
 	log_info(logMemoria, "FIN TABLAS DE PAGINAS");
 }
@@ -255,6 +254,20 @@ int buscarEnLaTLB( pid, pagina) {
 		return 1;
 	}
 }
+
+int busquedaPIDEnLista(int PID,int pagina) {
+	int posicion = 0;
+	t_tablaDePaginas* pag;
+	pag = list_get(tablaDePaginas, posicion);
+	while (pag->pid != PID && pag->pagina != pagina) {
+		if(posicion == list_size(tablaDePaginas))return -1;
+		posicion++;
+		pag = list_get(tablaDePaginas, posicion);
+
+	}
+	return posicion;
+}
+
 int buscarEnTablaDePaginas( pid, pagina) {
 	log_info(logMemoria, "INICIO BUSQUEDA EN TABLA DE PAGINAS");
 	bool buscarEnPaginaEnTP(t_tablaDePaginas * tablaDePaginas) {
@@ -263,18 +276,17 @@ int buscarEnTablaDePaginas( pid, pagina) {
 	bool verificarBitValidezYPresencia(
 			t_tablaDePaginas * tablaDePaginasEncontradas) {
 		return tablaDePaginasEncontradas->bitValidez == 0
-				&& tablaDePaginasEncontradas->presencia == 1;
-		/*&& string_is_empty(tablaDePaginasEncontradas->contenido)*/
+				&& tablaDePaginasEncontradas->presencia == 1
+		&& string_is_empty(tablaDePaginasEncontradas->contenido);
 	}
 	log_info(logMemoria, "FIN CLOSURE");
 	t_list * paginasEncontradas = list_create();
-	paginasEncontradas = list_find(tablaDePaginas, (void*) buscarEnPaginaEnTP);
-	int cantidadDeElementos = list_size(paginasEncontradas);
-	log_info(logMemoria, "Cantidad de elementos: %d", cantidadDeElementos);
+	paginasEncontradas = list_get(tablaDePaginas,busquedaPIDEnLista(pid,pagina));
+	log_info(logMemoria, "Cantidad de elementos: %d", paginasEncontradas->elements_count);
 	if ((paginasEncontradas->elements_count) == 1) {
 
 		log_info(logMemoria, "PAGINA ENCONTRADA EN TABLA DE PAGINAS");
-		return list_all_satisfy(paginasEncontradas,
+		return list_all_satisfy(tablaDePaginas,
 				(void *) verificarBitValidezYPresencia);
 	} else {
 
@@ -292,8 +304,7 @@ char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 	char * contenido;
 	t_tablaDePaginas * estructContenidoPaginas = malloc(
 			sizeof(t_tablaDePaginas));
-	estructContenidoPaginas = list_find(tablaDePaginas,
-			(void*) buscarEnPaginaEnTP);
+	estructContenidoPaginas = list_get(tablaDePaginas,busquedaPIDEnLista(pid,pagina));
 	contenido = estructContenidoPaginas->contenido;
 	free(estructContenidoPaginas);
 	log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
@@ -308,7 +319,7 @@ void buscarContenidoPagina(int pid, int pagina, int socketCPU) {
 	contenidoCPU->tamanio = sizeof(contenidoADevolver);
 	contenidoCPU->contenido = contenidoADevolver;
 	serializarEstructura(LEER, contenidoCPU, sizeof(contenidoCPU), socketCPU);
-	free(contenidoCPU);
+	//free(contenidoCPU);
 }
 
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
@@ -336,7 +347,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		return tablaDePaginas->pid == pid && tablaDePaginas->pagina == pagina;
 	}
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
-	paginaAAsignar = list_find(tablaDePaginas, (void*) buscarEnPaginaEnTP);
+	paginaAAsignar = list_get(tablaDePaginas,busquedaPIDEnLista(pid,pagina));
 	paginaAAsignar->contenido = contenidoPedidoAlSwap;
 	paginaAAsignar->bitModificado = 1;
 	paginaAAsignar->bitUso = 1;
@@ -357,11 +368,11 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		int resultadoBusqueda = buscarEnLaTLB(pid, pagina);
 		if (resultadoBusqueda == 0) //CASO VERDADERO
 				{
-			buscarContenidoPagina(pid, pagina, socketCPU);
+			//buscarContenidoPagina(pid, pagina, socketCPU);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTP == 1) {
-				buscarContenidoPagina(pid, pagina, socketCPU);
+				//buscarContenidoPagina(pid, pagina, socketCPU);
 			} else {
 				serializarEstructura(LEER, &estructuraLeerSwap,
 						sizeof(estructuraLeerSwap), socketSwap);
@@ -373,7 +384,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 	} else {
 		int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
 		if (resultadoBusquedaTP == 0) {
-			buscarContenidoPagina(pid, pagina, socketCPU);
+//			buscarContenidoPagina(pid, pagina, socketCPU);
 		} else {
 			char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap, pid,
 					pagina, socketCPU);

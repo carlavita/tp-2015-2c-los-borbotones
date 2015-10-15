@@ -1,55 +1,60 @@
-[INFO] 19:23:30:324 Administrador de memoria/(4933:4933): Inicio lectura de archivo de configuración
-[INFO] 19:23:30:324 Administrador de memoria/(4933:4933): 64000
-[INFO] 19:23:30:324 Administrador de memoria/(4933:4933): Finalizo lectura de archivo de configuración
-[INFO] 19:23:30:447 Administrador de memoria/(4933:4933): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 19:23:30:483 Administrador de memoria/(4933:4933): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 19:23:30:882 Administrador de memoria/(4933:4933): termino hiloSigUsr1
-[INFO] 19:23:31:286 Administrador de memoria/(4933:4933): Termino hiloSigUsr2
-[INFO] 19:23:31:460 Administrador de memoria/(4933:4933): Comienzo de las diferentes conexiones
-[INFO] 19:23:31:975 Administrador de memoria/(4933:4933): Inicio creacion estructura administrativa frame asignado a proceso
-[WARNING] 19:23:32:101 Administrador de memoria/(4933:4933): La TLB no esta activada por configuración
-[INFO] 19:23:32:223 Administrador de memoria/(4933:4933): La memoria se conecto satisfactoriamente al SWAP
-[INFO] 19:23:44:379 Administrador de memoria/(4933:4933): INICIO TABLAS DE PAGINAS
-[INFO] 19:23:44:379 Administrador de memoria/(4933:4933): FIN TABLAS DE PAGINAS
-[INFO] 19:23:44:639 Administrador de memoria/(4933:4933): INICIO ESTRUCTURA ADMINISTRATIVA, FRAMES-PID
-[INFO] 19:23:44:639 Administrador de memoria/(4933:4933): Cantidad maxima de frames por proceso: 5
-[INFO] 19:23:44:639 Administrador de memoria/(4933:4933): Paginas del proceso: 2
-[INFO] 19:23:44:639 Administrador de memoria/(4933:4933): FIN ESTRUCTURA ADMINISTRATIVA, FRAMES-PID
-[INFO] 19:23:45:27 Administrador de memoria/(4933:4933): INICIO Closure
-[INFO] 19:23:45:381 Administrador de memoria/(4933:4933): FIN Closure
-[INFO] 19:23:46:497 Administrador de memoria/(4933:4933): Inicio creacion estructura para algoritmos
-[INFO] 19:23:46:497 Administrador de memoria/(4933:4933): cantidad de frames 0
-[INFO] 19:23:46:498 Administrador de memoria/(4933:4933): FIN creacion estructura para algoritmos
-[INFO] 19:23:47:37 Administrador de memoria/(4933:4933): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 2
-[INFO] 19:23:47:422 Administrador de memoria/(4933:4933): Inicio del aviso al proceso SWAp del comando INICIAR
-[INFO] 19:23:47:838 Administrador de memoria/(4933:4933): Envio pagina al SWAP, PAGINA N°:2
-[INFO] 19:23:47:838 Administrador de memoria/(4933:4933): Envio pid al SWAP, PID:1
-[INFO] 19:23:47:838 Administrador de memoria/(4933:4933): SWAP recibio la pagina de forma correcta
-[INFO] 19:23:47:839 Administrador de memoria/(4933:4933): Se recibio este codigo de error: 14
-[INFO] 19:23:47:839 Administrador de memoria/(4933:4933): Se proceso correctamente el mensaje
-[INFO] 19:23:48:343 Administrador de memoria/(4933:4933): Fin del aviso al proceso SWAp del comando INICIAR
-[INFO] 19:23:50:839 Administrador de memoria/(4933:4933): Solicitud de lectura recibida
-[INFO] 19:23:50:839 Administrador de memoria/(4933:4933): 2do checkpoint: Se envia directo al swap
-[INFO] 19:23:53:709 Administrador de memoria/(4933:4933): INICIO BUSQUEDA EN TABLA DE PAGINAS
-[INFO] 19:23:53:710 Administrador de memoria/(4933:4933): FIN CLOSURE
-[INFO] 19:23:53:710 Administrador de memoria/(4933:4933): Cantidad de elementos: -1208380336
-[INFO] 19:23:53:710 Administrador de memoria/(4933:4933): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
-[INFO] 19:23:55:948 Administrador de memoria/(4933:4933): INICIO PEDIDO AL SWAP
-[INFO] 19:23:58:745 Administrador de memoria/(4933:4933): tamaño: 4 
+[INFO] 19:31:19:433 Administrador de memoria/(5264:5264): Inicio lectura de archivo de configuración
+[INFO] 19:31:19:433 Administrador de memoria/(5264:5264): 64000
+[INFO] 19:31:19:433 Administrador de memoria/(5264:5264): Finalizo lectura de archivo de configuración
+[INFO] 19:31:19:433 Administrador de memoria/(5264:5264): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 19:31:19:467 Administrador de memoria/(5264:5264): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
+[INFO] 19:31:19:467 Administrador de memoria/(5264:5264): termino hiloSigUsr1
+[INFO] 19:31:19:467 Administrador de memoria/(5264:5264): Termino hiloSigUsr2
+[INFO] 19:31:19:468 Administrador de memoria/(5264:5264): Comienzo de las diferentes conexiones
+[INFO] 19:31:19:468 Administrador de memoria/(5264:5264): Inicio creacion estructura administrativa frame asignado a proceso
+[INFO] 19:31:19:468 Administrador de memoria/(5264:5264): Inicio creacion de la TLB
+[INFO] 19:31:19:468 Administrador de memoria/(5264:5264): Finalizo existosamente la creacion de la TLB
+[INFO] 19:31:19:469 Administrador de memoria/(5264:5264): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 19:31:26:219 Administrador de memoria/(5264:5264): INICIO TABLAS DE PAGINAS
+[INFO] 19:31:26:219 Administrador de memoria/(5264:5264): FIN TABLAS DE PAGINAS
+[INFO] 19:31:26:219 Administrador de memoria/(5264:5264): INICIO ESTRUCTURA ADMINISTRATIVA, FRAMES-PID
+[INFO] 19:31:26:219 Administrador de memoria/(5264:5264): Cantidad maxima de frames por proceso: 5
+[INFO] 19:31:26:219 Administrador de memoria/(5264:5264): Paginas del proceso: 2
+[INFO] 19:31:26:219 Administrador de memoria/(5264:5264): FIN ESTRUCTURA ADMINISTRATIVA, FRAMES-PID
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): INICIO Closure
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): FIN Closure
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Inicio creacion estructura para algoritmos
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): cantidad de frames 0
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): FIN creacion estructura para algoritmos
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 2
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Envio pagina al SWAP, PAGINA N°:2
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Envio pid al SWAP, PID:1
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): SWAP recibio la pagina de forma correcta
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Se recibio este codigo de error: 14
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Se proceso correctamente el mensaje
+[INFO] 19:31:26:220 Administrador de memoria/(5264:5264): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 19:31:29:221 Administrador de memoria/(5264:5264): Solicitud de lectura recibida
+[INFO] 19:31:29:221 Administrador de memoria/(5264:5264): 2do checkpoint: Se envia directo al swap
+[INFO] 19:31:35:360 Administrador de memoria/(5264:5264): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 19:31:37:764 Administrador de memoria/(5264:5264): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 19:31:45:747 Administrador de memoria/(5264:5264): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 19:31:46:523 Administrador de memoria/(5264:5264): FIN CLOSURE
+[INFO] 19:31:56:489 Administrador de memoria/(5264:5264): Cantidad de elementos: -1208380336
+[INFO] 19:31:58:126 Administrador de memoria/(5264:5264): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 19:32:02:189 Administrador de memoria/(5264:5264): INICIO PEDIDO AL SWAP
+[INFO] 19:32:02:190 Administrador de memoria/(5264:5264): tamaño: 4 
 
-[INFO] 19:24:01:517 Administrador de memoria/(4933:4933): Contenido: AAAA
-[INFO] 19:24:02:267 Administrador de memoria/(4933:4933): FIN PEDIDO AL SWAP
-[INFO] 19:24:14:3 Administrador de memoria/(4933:4933): Finalizo comando LEER
-[INFO] 19:24:17:106 Administrador de memoria/(4933:4933): Solicitud de lectura recibida
-[INFO] 19:24:17:106 Administrador de memoria/(4933:4933): 2do checkpoint: Se envia directo al swap
-[INFO] 19:24:18:261 Administrador de memoria/(4933:4933): INICIO BUSQUEDA EN TABLA DE PAGINAS
-[INFO] 19:24:18:261 Administrador de memoria/(4933:4933): FIN CLOSURE
-[INFO] 19:24:18:261 Administrador de memoria/(4933:4933): Cantidad de elementos: 0
-[INFO] 19:24:18:262 Administrador de memoria/(4933:4933): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
-[INFO] 19:24:18:262 Administrador de memoria/(4933:4933): INICIO PEDIDO AL SWAP
-[INFO] 19:24:18:262 Administrador de memoria/(4933:4933): tamaño: 4 
+[INFO] 19:32:02:190 Administrador de memoria/(5264:5264): Contenido: AAAA
+[INFO] 19:32:02:190 Administrador de memoria/(5264:5264): FIN PEDIDO AL SWAP
+[INFO] 19:32:05:241 Administrador de memoria/(5264:5264): Finalizo comando LEER
+[INFO] 19:32:05:241 Administrador de memoria/(5264:5264): Solicitud de lectura recibida
+[INFO] 19:32:05:241 Administrador de memoria/(5264:5264): 2do checkpoint: Se envia directo al swap
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): FIN CLOSURE
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): Cantidad de elementos: 0
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 19:32:05:0 Administrador de memoria/(5264:5264): INICIO PEDIDO AL SWAP
+[INFO] 19:32:05:1 Administrador de memoria/(5264:5264): tamaño: 4 
 
-[INFO] 19:24:18:262 Administrador de memoria/(4933:4933): Contenido: AAAA
-[INFO] 19:24:18:262 Administrador de memoria/(4933:4933): FIN PEDIDO AL SWAP
-[INFO] 19:24:18:262 Administrador de memoria/(4933:4933): Finalizo comando LEER
-[INFO] 19:24:21:263 Administrador de memoria/(4933:4933): FINALIZAR!
+[INFO] 19:32:05:1 Administrador de memoria/(5264:5264): Contenido: AAAA
+[INFO] 19:32:05:1 Administrador de memoria/(5264:5264): FIN PEDIDO AL SWAP
+[INFO] 19:32:05:1 Administrador de memoria/(5264:5264): Finalizo comando LEER
+[INFO] 19:32:08:2 Administrador de memoria/(5264:5264): FINALIZAR!

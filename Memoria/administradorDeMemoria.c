@@ -376,7 +376,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
 		if (resultadoBusquedaTLB == 0) //CASO VERDADERO
 				{
-			//buscarContenidoPagina(pid, pagina, socketCPU);
+			buscarContenidoPagina(pid, pagina, socketCPU);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTP == 1) {

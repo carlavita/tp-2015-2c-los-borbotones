@@ -49,9 +49,12 @@ int main() {
 	 */
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
-	for (;;) {
-		escucharMensajes(servidor);
+	//for (;;) {
+	int recibir = 1;
+	while(recibir)	{
+	recibir = escucharMensajes(servidor);
 	}
+	close(servidor);
 
 	log_info(logSWAP, "Fin Proceso SWAP");
 	//servidorMemoria();
@@ -475,15 +478,21 @@ int buscarBloqueAMover(int DesdePosicion, int HastaPosicion) {
 
 /****************** FUNCIONES SOCKETS *****************/
 
-void escucharMensajes(int servidor) {
+int escucharMensajes(int servidor) {
 	int mensaje1 = 0;
 	int pid, paginas, status;
+	int recibir = 1;
 	t_mensajeHeader mensajeHeader;
 	t_iniciarPID estructuraMemoria;
 	t_finalizarPID estructuraMemoriaFinalizar;
 	t_leer estructuraMemoriaLeer;
 	t_escribir estructuraMemoriaEscribir;
 	mensaje1 = recv(servidor, &mensajeHeader, sizeof(t_mensajeHeader), 0);
+
+	if (mensaje1 <= 0) {
+		log_info("ERROR AL RECIBIR, CIERRO CONEXION SOCKET %d", servidor);
+		recibir = 0; // deja de recibir
+	}
 	printf("mensaje recibido: %d", mensajeHeader.idmensaje);
 	fflush(stdout);
 	switch (mensajeHeader.idmensaje) {
@@ -502,16 +511,17 @@ void escucharMensajes(int servidor) {
 		log_info(logSWAP, "Se recibio mensaje LEER");
 		recv(servidor, &estructuraMemoriaLeer, sizeof(t_leer), 0);
 
-		char * contenido = malloc(configuracionSWAP.TamanioPagina);
+		char * contenido = malloc(configuracionSWAP.TamanioPagina +1);
 		contenido = leer(estructuraMemoriaLeer.pid,
 				estructuraMemoriaLeer.pagina);
-		int tamanio = 4;
+		int tamanio =  configuracionSWAP.TamanioPagina + 1;
+		contenido[configuracionSWAP.TamanioPagina] = '\0';
 		/*if (contenido != NULL)
 			tamanio = string_length(contenido);*/
 		send(servidor, &tamanio, sizeof(int), 0);
 
-		send(servidor, contenido, string_length(contenido), 0);
-
+	//	send(servidor, contenido, string_length(contenido), 0);
+		send(servidor, contenido, tamanio, 0);
 		break;
 	case ESCRIBIR:
 		log_info(logSWAP, "Se recibio el mensaje ESCRIBIR");
@@ -543,5 +553,5 @@ void escucharMensajes(int servidor) {
 	default:
 		log_info(logSWAP, "Mensaje incorrecto");
 	}
-
+return recibir;
 }

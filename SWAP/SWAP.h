@@ -11,6 +11,7 @@
 #define PUERTO "6008"
 #define PACKAGESIZE 1024
 #define BACKLOG 5
+#include <errno.h>
 #include <commons/collections/list.h>
 
 typedef
@@ -72,7 +73,7 @@ void ordenarListaPorPagina();
 int buscarBloqueAMover (int DesdePosicion, int HastaPosicion);
 
 /*** FUNCIONES DE SOCKETS ***/
-void escucharMensajes(int servidor);
+int escucharMensajes(int servidor);
 void servidorMemoria();
 
 

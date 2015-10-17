@@ -1,5 +1,4 @@
 /*
- * planificador.c
  *
  *  Created on: 30/8/2015
  *      Author: carlavita
@@ -41,7 +40,7 @@ int main(void) {
 	pthread_create(&hiloConsola, NULL, (void *) &mostrarConsola, NULL);
 
 	pthread_create(&hiloIO, NULL, (void *) &procesarEntradasSalidas,
-			NULL);
+	NULL);
 
 	planificar(configPlanificador.quantum);
 
@@ -295,18 +294,26 @@ void servidorCPU(void *ptr) {
 						if (newsock > maxsock) {
 							maxsock = newsock;
 						}
-
+			//			t_saludoCPU saludoCPU;
 						int status = 1;	// Estructura que maneja el status de los recieve
 						//una vez detectada la conexion de una cpu se la agrega a la lista de cpus y se la coloca como libre -1
-						agregarCPU(newsock, -1);
-						ServidorP = newsock;
 						status = serializarEstructura(SALUDO,
 								(void *) PATH_MCODE, sizeof(PATH_MCODE) + 1,
 								newsock);
-						//int mensaje = SALUDO;
+						t_mensajeHeader header;
+	//					status = recv(newsock, &header, sizeof(t_mensajeHeader), 0);
+	/*					status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
 
+						agregarCPU(newsock, -1, saludoCPU.cpuID);
+						ServidorP = newsock;
+						/*status = serializarEstructura(SALUDO,
+						 (void *) PATH_MCODE, sizeof(PATH_MCODE) + 1,
+						 newsock);*/
+						//int mensaje = SALUDO;
 //						status = send(newsock, &mensaje, sizeof(int), 0);
+						agregarCPU(newsock, -1, 1);
 						printf("status send inicial %d \n", status);
+				//		printf("Se conectó la CPU con ID %d \n", saludoCPU.cpuID);
 						//status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
 						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,
 								status);
@@ -329,6 +336,8 @@ void servidorCPU(void *ptr) {
 
 void handle(int newsock, fd_set *set) {
 	t_finalizarPID rtaP;
+	//t_saludoCPU saludoCPU;
+
 	printf("En el handle de planificador \n");
 	//recepcion de msj del cpu segun protocolo
 	int status = 1;
@@ -403,15 +412,33 @@ void handle(int newsock, fd_set *set) {
 			 //todo no falta el id de cpu?*/
 			ejecutarIO(newsock);
 
-
 			break;
 		case FINDEQUANTUM:
-			// todo liberar cpu y sem_post(&semaforoCPU);
 
-			printf("Fin de quantum CPU \n");			//todo, agregar id cpu
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
 			pthread_mutex_unlock(&mutexLog);
+			t_finalizarPID finQuantum;
+			recv(newsock, &(finQuantum), sizeof(t_finalizarPID), 0);
+			printf(" con id: %d \n", finQuantum.pid);
+			printf(" de la cpu: %d \n", finQuantum.idCPU);
+
+			//actualizar el estado de la cola de listos
+
+			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
+			//int lalala = list_size(EJECUTANDO);
+			log_info(logger, "Al finalizar hay %d procesos ejecutando\n ",
+					lalala);
+
+			t_pcb *pcbProc = buscarEnListaPorPID(EJECUTANDO, finQuantum.pid);
+
+			pcbProc->status = LISTO;
+			list_add(LISTOS, pcbProc);
+			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
+			pthread_mutex_unlock(&mutexListas);
+
+			liberarCPU(finQuantum.idCPU);
+
 
 			break;
 		case FINDERAFAGA:
@@ -422,6 +449,16 @@ void handle(int newsock, fd_set *set) {
 			pthread_mutex_unlock(&mutexLog);
 			// todo liberar cpu y sem_post(&semaforoCPU);
 			break;
+		case SALUDO: {
+
+
+
+		//int status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
+
+			//agregarCPU(newsock, -1, saludoCPU.cpuID);
+//			log_info(logger, "se conectó la CPU con ID %d \n", saludoCPU.cpuID);
+		}
+		break;
 		default:
 			printf("codigo no reconocido\n");
 			break;
@@ -604,22 +641,25 @@ void ejecutarIO(int socketCPU) {
 
 	pthread_mutex_lock(&mutexLog);
 
-	log_info(logger, "el proceso esta realizando su entrada-salida, PID: %d, Tiempo: %d segundos , CPU %d \n ",
+	log_info(logger,
+			"el proceso esta realizando su entrada-salida, PID: %d, Tiempo: %d segundos , CPU %d \n ",
 			infoIO->pid, infoIO->tiempoIO, infoIO->idCPU);
-	log_info(logger,"La ultima ráfaga fue de %d instrucciones \n", infoIO->instrucciones);
+	log_info(logger, "La ultima ráfaga fue de %d instrucciones \n",
+			infoIO->instrucciones);
 	pthread_mutex_unlock(&mutexLog);
 
 	pthread_mutex_lock(&mutexListas);
 	//busco el proc por si pid, se borra de ejecutados y lo mando a bloqueados
 	//todo falta actualizar el puntero a proxima instruccion cuando lo recibe de cpu
 	t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO, infoIO->pid);
-	if (pcb->cantidadLineas == pcb->proxInst){
-		log_info(logger,"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
-		}else{
+	if (pcb->cantidadLineas == pcb->proxInst) {
+		log_info(logger,
+				"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
+	} else {
 
-			pcb->proxInst = pcb->proxInst + infoIO->instrucciones ;
-			log_info(logger," actualiza prox instrucción: %d\n", pcb->proxInst);
-		}
+		pcb->proxInst = pcb->proxInst + infoIO->instrucciones;
+		log_info(logger, " actualiza prox instrucción: %d\n", pcb->proxInst);
+	}
 	pcb->status = BLOQUEADO;
 
 	list_add(BLOQUEADOS, pcb);
@@ -654,13 +694,14 @@ void eliminarCPU(int socket_cpu) {
 }
 
 // CPUs nuevas, agregar con PID -1
-void agregarCPU(int cpuSocket, int pid) {
+void agregarCPU(int cpuSocket, int pid, int idCPU) {
 	t_cpu* cpu = malloc(sizeof(t_cpu));
 	int valCPU; //valor semaforo
 	cpu->socket = cpuSocket;
 	cpu->pid = pid;
-	CPUID++;
-	cpu->id = CPUID;
+	//CPUID++;
+	//cpu->id = CPUID;
+	cpu->id = idCPU;
 	cpu->porcentajeUso = 0; // inicial
 
 	pthread_mutex_lock(&mutexListaCpu);
@@ -845,9 +886,9 @@ void *procesarEntradasSalidas(void *info_proc) {
 		pthread_mutex_unlock(&mutexListas);
 		//Habilita el semaforo del consumidor de listos
 		sem_post(&semaforoListos);
-		}
-     	free(mjeIO);
-		free(pcb);
+	}
+	free(mjeIO);
+	free(pcb);
 
 }
 

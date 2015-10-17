@@ -177,7 +177,7 @@ void ejecutarIO(int socketCPU);
  * @NAME: agregar_CPU()
  * @DESC: Agrega CPU a la lista de cpus, con PID -1 (asi identificamos las que estan libres)
  */
-void agregarCPU(int cpuSocket, int pid);
+void agregarCPU(int cpuSocket, int pid, int idCPU) ;
 
 /**
  * @NAME: agregar_CPU()

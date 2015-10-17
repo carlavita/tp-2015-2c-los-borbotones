@@ -336,15 +336,20 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 	serializarEstructura(LEER, estructuraLeerSwap, sizeof(t_leer), cliente);
 	recv(cliente, &tamanioLeido, sizeof(int), 0);
 	log_info(logMemoria, "tamaño: %d \n", tamanioLeido);
-	char* contenidoLeido = malloc(tamanioLeido + 1);
+	//char* contenidoLeido = malloc(tamanioLeido + 1);
+	char* contenidoLeido = malloc(tamanioLeido);
 
-	recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
+	//recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
+	recv(cliente, contenidoLeido, tamanioLeido, 0);
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
 	log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	contenidoLeido[tamanioLeido] = '\0';
+	//send(servidor, &tamanioLeido, tamanioLeido, 0);
+	//send(servidor, contenidoLeido, contenidoLeido, 0);
 	send(servidor, &tamanioLeido, sizeof(tamanioLeido), 0);
-	send(servidor, contenidoLeido, sizeof(contenidoLeido), 0);
+	send(servidor, contenidoLeido, tamanioLeido, 0);
+
 	return contenidoLeido;
 }
 
@@ -419,7 +424,11 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 	t_mensajeHeader mensajeHeader, mensajeHeaderSwap;
 	statusMensajeRecibidoDeLaCPU = recv(servidor, &mensajeHeader,
 			sizeof(t_mensajeHeader), 0);
-	printf("mensaje recibido: %d", mensajeHeader.idmensaje);
+	/*if ((errno == ECONNREFUSED) || (statusMensajeRecibidoDeLaCPU <= 0)) {
+			log_info("ERROR AL RECIBIR, CIERRO CONEXION SOCKET %d", servidor);
+			recibir = 0; // deja de recibir
+		}
+	*/printf("mensaje recibido: %d", mensajeHeader.idmensaje);
 	fflush(stdout);
 
 	if (statusMensajeRecibidoDeLaCPU < 0)

@@ -169,6 +169,7 @@ void Conexion_con_planificador(int cpu) {
 				log_info(logCPU, "PATH MCOD: %s", PATH);
 
 				pthread_mutex_unlock(&mutexLogueo);
+				send(serverSocket, &cpu, sizeof(int),0);
 
 				break;
 			case EJECUTARPROC:

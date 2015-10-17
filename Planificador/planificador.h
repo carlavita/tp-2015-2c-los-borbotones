@@ -201,11 +201,18 @@ void ejecutarPS(); //
  * @DESC: ordena una lista de pcbs ascendente por PID.
  */
 void ordernarPorPID(t_list* lista);
+/**
+ * @NAME: ordernarPorIDCPU()
+ * @DESC: ordena una lista de CPUs ascendente por ID.
+ */
+
+void ordernarPorIDCPU(t_list* lista);
 
 /**
  * @NAME: ejecutarCPU()
  * @DESC: Muestra los porcentajes de uso de cada CPU.
  */
+
 void ejecutarCPU();
 
 /**

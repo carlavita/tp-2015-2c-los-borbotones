@@ -1,0 +1,5 @@
+iniciar 2;
+leer 0;
+escribir 1 zzzz;
+leer 1;
+finalizar;

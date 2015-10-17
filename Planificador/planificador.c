@@ -300,7 +300,9 @@ void servidorCPU(void *ptr) {
 						status = serializarEstructura(SALUDO,
 								(void *) PATH_MCODE, sizeof(PATH_MCODE) + 1,
 								newsock);
-						t_mensajeHeader header;
+						int cpu;
+						status = recv(newsock, &cpu, sizeof(int), 0);
+					//	t_mensajeHeader header;
 	//					status = recv(newsock, &header, sizeof(t_mensajeHeader), 0);
 	/*					status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
 
@@ -311,7 +313,9 @@ void servidorCPU(void *ptr) {
 						 newsock);*/
 						//int mensaje = SALUDO;
 //						status = send(newsock, &mensaje, sizeof(int), 0);
-						agregarCPU(newsock, -1, 1);
+						//agregarCPU(newsock, -1, 1);
+						printf("agrega CPU: %d\n",cpu);
+						agregarCPU(newsock, -1, cpu);
 						printf("status send inicial %d \n", status);
 				//		printf("Se conectó la CPU con ID %d \n", saludoCPU.cpuID);
 						//status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
@@ -800,9 +804,16 @@ void ordernarPorPID(t_list* lista) {
 
 	list_sort(lista, (void*) _pidMayor);
 }
+void ordernarPorIDCPU(t_list* lista) {
+	bool _idMayor(t_cpu *cpu, t_cpu *cpuMenorID) {
+		return cpu->id < cpuMenorID->id;
+	}
+
+	list_sort(lista, (void*) _idMayor);
+}
 void ejecutarCPU() {
 	pthread_mutex_lock(&mutexListaCpu);
-
+	ordernarPorIDCPU(listaCPU);
 	printf("---  Cache 13 . Reporte de CPUs    --- \n \n");
 
 	int indexLista = 0;

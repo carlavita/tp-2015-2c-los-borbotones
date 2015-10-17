@@ -30,6 +30,10 @@ void * inicioHiloSigUsr1() {
 void * inicioHiloSigUsr2() {
 	return NULL;
 }
+pthread_mutex_t  mutexIniciar;
+pthread_mutex_t  mutexLeer;
+pthread_mutex_t  mutexEscribir;
+pthread_mutex_t  mutexFinalizar;
 
 int main() {
 	remove("logMemoria.txt"); //Cada vez que arranca el proceso borro el archivo de log.
@@ -49,10 +53,7 @@ int main() {
 	generarEstructuraAdministrativaPIDFrame();
 	creacionTLB(&configMemoria, logMemoria);
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
-	int servidorCPU = servidorMultiplexor(configMemoria.puertoEscucha);
-
-	for (;;)
-		procesamientoDeMensajes(clienteSwap, servidorCPU);
+	int servidorCPU = servidorMultiplexorCPU(configMemoria.puertoEscucha);
 
 }
 
@@ -336,14 +337,14 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 	recv(cliente, &tamanioLeido, sizeof(int), 0);
 	log_info(logMemoria, "tamaño: %d \n", tamanioLeido);
 	char* contenidoLeido = malloc(tamanioLeido + 1);
-	contenidoLeido[tamanioLeido] = '\0';
 
 	recv(cliente, contenidoLeido, sizeof(tamanioLeido), 0);
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
 	log_info(logMemoria, "FIN PEDIDO AL SWAP");
-	send(servidor,&tamanioLeido,sizeof(tamanioLeido),0);
-	send(servidor,contenidoLeido,sizeof(contenidoLeido),0);
+	contenidoLeido[tamanioLeido] = '\0';
+	send(servidor, &tamanioLeido, sizeof(tamanioLeido), 0);
+	send(servidor, contenidoLeido, sizeof(contenidoLeido), 0);
 	return contenidoLeido;
 }
 
@@ -391,7 +392,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 	case 0:
 		resultadoBusquedaTablaPaginas = buscarEnTablaDePaginas(pid, pagina);
 		if (resultadoBusquedaTablaPaginas == 0) {
-						buscarContenidoPagina(pid, pagina, socketCPU);
+			buscarContenidoPagina(pid, pagina, socketCPU);
 		} else {
 			char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap, pid,
 					pagina, socketCPU);
@@ -427,7 +428,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 
 		switch (mensajeHeader.idmensaje) {
 		case INICIAR:
-
+			pthread_mutex_lock(&mutexIniciar);
 			recv(servidor, estructuraCPU, sizeof(t_iniciarPID), 0);
 			generarTablaDePaginas(memoriaReservadaDeMemPpal, estructuraCPU->pid,
 					estructuraCPU->paginas);
@@ -453,8 +454,10 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			log_info(logMemoria,
 					"Fin del aviso al proceso SWAp del comando INICIAR");
 			free(estructuraCPU);
+			pthread_mutex_unlock(&mutexIniciar);
 			break;
 		case LEER: {
+			pthread_mutex_lock(&mutexLeer);
 			log_info(logMemoria, "Solicitud de lectura recibida");
 			log_info(logMemoria, "2do checkpoint: Se envia directo al swap");
 			mensajeHeaderSwap.idmensaje = LEER;
@@ -466,9 +469,11 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			//send(servidor, contenidoLeido, sizeof(tamanioLeido), 0);
 
 			log_info(logMemoria, "Finalizo comando LEER");
+			pthread_mutex_unlock(&mutexLeer);
 		}
 			break;
 		case ESCRIBIR:
+			pthread_mutex_lock(&mutexEscribir);
 			log_info(logMemoria, "Solicitud de escritura recbidia");
 			log_info(logMemoria, "2do chekcpoint NO APLICA");
 
@@ -477,9 +482,10 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
 					sizeof(t_escribir), cliente);
 			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-
+			pthread_mutex_unlock(&mutexEscribir);
 			break;
 		case FINALIZAR:
+			pthread_mutex_lock(&mutexFinalizar);
 			log_info(logMemoria, "FINALIZAR!");
 
 			//recv(servidor, finalizarCPU, sizeof(t_finalizarPID), 0);
@@ -503,7 +509,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 				serializarEstructura(mensajeHeaderSwap.idmensaje,
 				NULL, 0, servidor);
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
-
+			pthread_mutex_unlock(&mutexFinalizar);
 			break;
 		default:
 			log_error(logMemoria, "mensaje N°: %d",
@@ -546,4 +552,97 @@ void generarEstructuraAdministrativaPIDFrame() {
 	}
 	log_debug(logMemoria,
 			"Fin creacion estructura administrativa frame asignado a proceso");
+}
+int ServidorCPU(int PUERTO) {
+	int socketservidor;
+	int yes = 1;
+	struct sockaddr_in serveraddr;
+
+	if ((socketservidor = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+		perror("Error en la creacion del Socket");
+		return -1;
+	}
+	printf("Socket Servidor Creado\n");
+
+	if (setsockopt(socketservidor, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int))
+			== -1) {
+		perror("Error en la definicion del protocolo de comunicacion");
+		return -1;
+	}
+	printf("Protocolo de Comunicacion definido correctamente\n");
+
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_addr.s_addr = INADDR_ANY;
+	serveraddr.sin_port = htons(PUERTO);
+	memset(&(serveraddr.sin_zero), '\0', 8);
+
+	if (bind(socketservidor, (struct sockaddr *) &serveraddr,
+			sizeof(serveraddr)) == -1) {
+		perror("Error en el bind");
+		return -1;
+	}
+
+	if (listen(socketservidor, 10) == -1) {
+		perror("Error en el Listen");
+		return -1;
+	}
+	printf("Socket Escuchando\n");
+
+	return socketservidor;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+int servidorMultiplexorCPU(int PUERTO) {
+	fd_set master;
+	fd_set read_fds;
+	struct sockaddr_in clientaddr;
+	int fdmax;
+	int newfd;
+	//char paquete[1024];
+	char paquete[PACKAGESIZE];
+	int nbytes;
+	int i;
+	FD_ZERO(&master);
+	FD_ZERO(&read_fds);
+	//buffer = malloc(sizeof(paquete));
+	char * buffer = malloc(PACKAGESIZE);
+	int socketservidor = Servidor(PUERTO);
+
+	FD_SET(socketservidor, &master);
+	fdmax = socketservidor;
+	for (;;) {
+		read_fds = master;
+		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+			perror("Error en el Select");
+			exit(1);
+		}
+		printf("Select Activado\n");
+
+		for (i = 0; i <= fdmax; i++) {
+			if (FD_ISSET(i, &read_fds)) {
+				if (i == socketservidor) {
+					socklen_t addrlen = sizeof(clientaddr);
+					if ((newfd = accept(socketservidor,
+							(struct sockaddr *) &clientaddr, &addrlen)) == -1) {
+						perror("Error en el Accept");
+					} else {
+						printf("Socket Aceptado\n");
+
+						FD_SET(newfd, &master);
+						if (newfd > fdmax) {
+							fdmax = newfd;
+						}
+						printf("Nueva conexion de %s en el socket %d\n",
+								inet_ntoa(clientaddr.sin_addr), newfd);
+
+					}
+				} else {
+					procesamientoDeMensajes(clienteSwap, i);
+				}
+			}
+		}
+	}
+
+	exit(0);		//el descriptor del cliente seleccionado
 }

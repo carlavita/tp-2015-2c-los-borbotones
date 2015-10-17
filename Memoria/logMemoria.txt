@@ -58,3 +58,5 @@
 [INFO] 19:32:05:1 Administrador de memoria/(5264:5264): FIN PEDIDO AL SWAP
 [INFO] 19:32:05:1 Administrador de memoria/(5264:5264): Finalizo comando LEER
 [INFO] 19:32:08:2 Administrador de memoria/(5264:5264): FINALIZAR!
+[INFO] 19:35:22:304 Administrador de memoria/(5264:5264): FINALIZAR!
+[INFO] 19:35:22:305 Administrador de memoria/(5264:5264): FINALIZAR!

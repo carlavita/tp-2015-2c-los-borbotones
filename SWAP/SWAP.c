@@ -366,7 +366,7 @@ void inicializarDisco() {
 	int tamanioDisco = configuracionSWAP.CantidadPaginas
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
-	contenido = string_repeat('A', tamanioDisco);
+	contenido = string_repeat('\0', tamanioDisco);
 
 	fputs(contenido, archivoDisco);
 
@@ -535,7 +535,7 @@ int escucharMensajes(int servidor) {
 		//sendACK(servidor);
 		//char * contenidoEscribir = malloc(sizeContenido);
 		//recv(servidor, &contenidoEscribir, sizeof(char*), 0);
-		int status = escribir(estructuraMemoriaEscribir.pid, estructuraMemoriaEscribir.pagina, "HOLA");
+		int status = escribir(estructuraMemoriaEscribir.pid, estructuraMemoriaEscribir.pagina, estructuraMemoriaEscribir.contenidoPagina);
 		t_mensajeHeader escribir;
 				escribir.idmensaje = status;
 		send(servidor,&escribir, sizeof(t_mensajeHeader), 0);

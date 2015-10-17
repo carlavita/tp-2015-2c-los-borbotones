@@ -1,18 +1,24 @@
-[INFO] 17:50:37:477 SWAP/(2599:2599): Inicio Proceso SWAP
-[INFO] 17:50:37:618 SWAP/(2599:2599): Leyendo Archivo de Configuracion
-[INFO] 17:50:37:618 SWAP/(2599:2599): 6000
-[INFO] 17:50:37:618 SWAP/(2599:2599): Archivo de Configuracion Leido correctamente
-[INFO] 17:50:37:980 SWAP/(2599:2599): Creando archivo de tamanio: 256
-[INFO] 17:50:38:34 SWAP/(2599:2599): Archivo Creado correctamente
-[INFO] 17:50:50:202 SWAP/(2599:2599): Se recibio mensaje INICIAR
-[INFO] 17:50:50:202 SWAP/(2599:2599): Proceso mPRoc asignado
-[INFO] 17:50:50:202 SWAP/(2599:2599): PID asignado: 1
-[INFO] 17:50:50:202 SWAP/(2599:2599): Byte Inicial 0
-[INFO] 17:50:50:202 SWAP/(2599:2599): Tamaño en bytes de asignacion 8
-[INFO] 17:50:55:401 SWAP/(2599:2599): Se recibio el mensaje ESCRIBIR
-[INFO] 17:50:56:703 SWAP/(2599:2599): Escritura solicitada
-[INFO] 17:50:56:703 SWAP/(2599:2599): PID solicitado: 1
-[INFO] 17:50:56:703 SWAP/(2599:2599): Byte Inicial 4
-[INFO] 17:50:56:703 SWAP/(2599:2599): Tamaño solicitado para escritura 4
-[INFO] 17:50:56:703 SWAP/(2599:2599): El contenido de escritura es HOLA
-[INFO] 17:51:18:469 SWAP/(2599:2599): Se recibio el mensaje ESCRIBIR
+[INFO] 19:18:54:395 SWAP/(3319:3319): Inicio Proceso SWAP
+[INFO] 19:18:54:697 SWAP/(3319:3319): Leyendo Archivo de Configuracion
+[INFO] 19:18:54:697 SWAP/(3319:3319): 6000
+[INFO] 19:18:54:697 SWAP/(3319:3319): Archivo de Configuracion Leido correctamente
+[INFO] 19:18:55:73 SWAP/(3319:3319): Creando archivo de tamanio: 256
+[INFO] 19:18:55:165 SWAP/(3319:3319): Archivo Creado correctamente
+[INFO] 19:19:08:110 SWAP/(3319:3319): Se recibio mensaje INICIAR
+[INFO] 19:19:08:110 SWAP/(3319:3319): Proceso mPRoc asignado
+[INFO] 19:19:08:110 SWAP/(3319:3319): PID asignado: 1
+[INFO] 19:19:08:110 SWAP/(3319:3319): Byte Inicial 0
+[INFO] 19:19:08:110 SWAP/(3319:3319): Tamaño en bytes de asignacion 8
+[INFO] 19:19:11:122 SWAP/(3319:3319): Se recibio mensaje LEER
+[INFO] 19:19:11:122 SWAP/(3319:3319): Lectura solicitada
+[INFO] 19:19:11:122 SWAP/(3319:3319): PID solicitado: 1
+[INFO] 19:19:11:123 SWAP/(3319:3319): Byte Inicial 0
+[INFO] 19:19:11:123 SWAP/(3319:3319): Tamaño solicitado para lectura 4
+[INFO] 19:19:11:123 SWAP/(3319:3319): El contenido de lectura es AAAA
+[INFO] 19:19:19:650 SWAP/(3319:3319): Se recibio el mensaje ESCRIBIR
+[INFO] 19:19:28:629 SWAP/(3319:3319): Escritura solicitada
+[INFO] 19:19:28:629 SWAP/(3319:3319): PID solicitado: 1
+[INFO] 19:19:28:638 SWAP/(3319:3319): Byte Inicial 4
+[INFO] 19:19:28:639 SWAP/(3319:3319): Tamaño solicitado para escritura 4
+[INFO] 19:19:28:639 SWAP/(3319:3319): El contenido de escritura es HOLA
+[INFO] 19:19:59:539 SWAP/(3319:3319): Se recibio el mensaje ESCRIBIR

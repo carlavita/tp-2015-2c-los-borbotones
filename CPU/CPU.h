@@ -113,6 +113,7 @@ bool esEscribir(char* linea);
 bool esIO(char* linea);
 // Abre el path y parsea el contenido desde la linea indicada
 
-void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria);
+//void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria);
+void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria, int quantum);
 
 #endif /* CPU_H_ */

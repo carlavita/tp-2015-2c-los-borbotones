@@ -1,26 +1,31 @@
-[INFO] 16:38:08:115 CPU/(7117:7117): Inicio Proceso CPU
-[INFO] 16:38:08:115 CPU/(7117:7117): Leyendo Archivo de Configuracion
-[INFO] 16:38:08:115 CPU/(7117:7117): 4000
-[INFO] 16:38:08:115 CPU/(7117:7117): Archivo de Configuracion Leido correctamente
-[INFO] 16:38:08:115 CPU/(7117:7117): Se inicializaron los semaforos 
+[INFO] 14:59:02:601 CPU/(7292:7292): Inicio Proceso CPU
+[INFO] 14:59:02:604 CPU/(7292:7292): Leyendo Archivo de Configuracion
+[INFO] 14:59:02:605 CPU/(7292:7292): 4000
+[INFO] 14:59:02:609 CPU/(7292:7292): Archivo de Configuracion Leido correctamente
+[INFO] 14:59:02:610 CPU/(7292:7292): Se inicializaron los semaforos 
 
-[INFO] 16:38:08:145 CPU/(7117:7122): Conectando a memoria
+[INFO] 14:59:08:202 CPU/(7292:7312): Conectando a memoria
 
-[INFO] 16:38:08:145 CPU/(7117:7122): Conectando a planificador
-[INFO] 16:38:08:145 CPU/(7117:7122): se recibe el msj de saludo de planificador:
-[INFO] 16:38:08:145 CPU/(7117:7122): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
-[INFO] 16:38:08:150 CPU/(7117:7123): Conectando a memoria
+[INFO] 14:59:08:206 CPU/(7292:7312): Conectando a planificador
+[INFO] 14:59:08:214 CPU/(7292:7312): se recibe el msj de saludo de planificador:
+[INFO] 14:59:08:214 CPU/(7292:7312): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 14:59:25:243 CPU/(7292:7312): se recibe el msj de ejecucion de un proceso:
+[INFO] 14:59:25:244 CPU/(7292:7312): ejecutando el proceso con id:1
+[INFO] 14:59:25:244 CPU/(7292:7312): Inicia parseo desde linea incial: 0
+[INFO] 14:59:30:617 CPU/(7292:7312): El proceso 1 inició su ejecucion correctamente
 
-[INFO] 16:38:08:150 CPU/(7117:7123): Conectando a planificador
-[INFO] 16:38:08:150 CPU/(7117:7123): se recibe el msj de saludo de planificador:
-[INFO] 16:38:08:150 CPU/(7117:7123): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
-[INFO] 16:38:08:167 CPU/(7117:7124): Conectando a memoria
+[INFO] 14:59:33:618 CPU/(7292:7312): mProc 1 - Pagina 0 a leer, envio a memoria 
 
-[INFO] 16:38:08:167 CPU/(7117:7124): Conectando a planificador
-[INFO] 16:38:08:167 CPU/(7117:7124): se recibe el msj de saludo de planificador:
-[INFO] 16:38:08:168 CPU/(7117:7124): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
-[INFO] 16:38:08:181 CPU/(7117:7125): Conectando a memoria
+[INFO] 14:59:33:632 CPU/(7292:7312): El contenido es: AAAA 
 
-[INFO] 16:38:08:181 CPU/(7117:7125): Conectando a planificador
-[INFO] 16:38:08:182 CPU/(7117:7125): se recibe el msj de saludo de planificador:
-[INFO] 16:38:08:182 CPU/(7117:7125): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 14:59:36:634 CPU/(7292:7312): mProc 1 - Pagina 1 a leer, envio a memoria 
+
+[INFO] 14:59:36:679 CPU/(7292:7312): El contenido es: AAAA 
+
+[INFO] 14:59:42:734 CPU/(7292:7312): mProc 1 - Finalizado, de la cpu con id: 1
+
+[INFO] 14:59:43:98 CPU/(7292:7312): se recibe el msj de ejecucion de un proceso:
+[INFO] 14:59:43:98 CPU/(7292:7312): ejecutando el proceso con id:2
+[INFO] 14:59:43:99 CPU/(7292:7312): Inicia parseo desde linea incial: 0
+[INFO] 15:00:28:672 CPU/(7292:7312): El proceso 2 inició su ejecucion correctamente
+

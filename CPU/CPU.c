@@ -7,7 +7,6 @@
 
 #include "CPU.h"
 
-
 int main() {
 
 	pthread_t threads[MAXTHREADS];
@@ -24,29 +23,27 @@ int main() {
 	//serverMemoria = conexion_con_memoria();
 	//Conexion_con_planificador();
 
-	int id=1;//para que el id de cpu comience en 1
-	for (i=0; i < configuracionCPU.CantidadHilos; i++){
+	int id = 1;	//para que el id de cpu comience en 1
+	for (i = 0; i < configuracionCPU.CantidadHilos; i++) {
 
-		t_envio *envio=malloc(sizeof(t_envio));
-		envio->id = id+i;
-		pthread_create(&threads[i],NULL,thread_func,(void*)envio);
+		t_envio *envio = malloc(sizeof(t_envio));
+		envio->id = id + i;
+		pthread_create(&threads[i], NULL, thread_func, (void*) envio);
 	}
 
-	for (i=0; i < configuracionCPU.CantidadHilos; i++)
-	pthread_join(threads[i], NULL);
-
+	for (i = 0; i < configuracionCPU.CantidadHilos; i++)
+		pthread_join(threads[i], NULL);
 
 	return 0; //CARLA AMOR Y PAZ POR MI 0 :D
 }
 
-void* thread_func(void *envio)
-{
-		t_envio* num;
-		num = (t_envio*)envio;
-		printf("dentro del hilo de cpu con id:%d \n",num->id);
+void* thread_func(void *envio) {
+	t_envio* num;
+	num = (t_envio*) envio;
+	printf("dentro del hilo de cpu con id:%d \n", num->id);
 
-	    Conexion_con_planificador(num->id);
-		pthread_exit(NULL);
+	Conexion_con_planificador(num->id);
+	pthread_exit(NULL);
 }
 
 void LeerArchivoConfiguracion() {
@@ -111,9 +108,6 @@ int conexion_con_memoria() {
 	return serverSocketMemoria;
 }
 
-
-
-
 void Conexion_con_planificador(int cpu) {
 
 	int serverMemoria = conexion_con_memoria();
@@ -151,7 +145,7 @@ void Conexion_con_planificador(int cpu) {
 		//int status = recv(serverSocket, &mensaje, sizeof(mensaje), 0);
 		int status = recv(serverSocket, estructuraCabecera,
 				sizeof(t_mensajeHeader), 0);
-		//if (errno == ECONNREFUSED) enviar = 0;
+		if  (status <= 0) enviar = 0;
 		//printf("Error! %s\n", strerror(errno));
 		mensaje = (t_mensajeHeader *) estructuraCabecera;
 		if (status > 0) {
@@ -202,7 +196,8 @@ void Conexion_con_planificador(int cpu) {
 				//todo desarrollar funcion que acumula las rtas por instruccion-rta
 				/*		t_list* listaEjecucion;//lista local por cada proceso que se ejecuta
 				 listaEjecucion = ejecutarmProc(pcbProc);*/
-				parsermCod(cpu,pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,serverSocket,serverMemoria);
+				parsermCod(cpu, pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,
+						serverSocket, serverMemoria, pcbProc.quantum);
 
 				/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
 
@@ -259,10 +254,12 @@ void Conexion_con_planificador(int cpu) {
 }
 
 //funcion que recibe el pcb del mProc parsea el mismo y todo devuelve una lista formada por instruccion resultado
-t_list* ejecutarmProc(int cpu,t_pcb pcbProc,int serverSocket,int serverMemoria) {
+t_list* ejecutarmProc(int cpu, t_pcb pcbProc, int serverSocket,
+		int serverMemoria) {
 
 	printf("en la funcion ejecutar proceso  \n");
-	parsermCod(cpu, pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,serverSocket,serverMemoria);
+	parsermCod(cpu, pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,
+			serverSocket, serverMemoria, pcbProc.quantum);
 	printf("termino la funcion ejecutar proceso  \n");
 	t_list* listaRtasEjecucion;
 	listaRtasEjecucion = list_create();
@@ -293,8 +290,8 @@ char *parsearLinea(char * lineaLeida) {
 	return lineaParseada;
 }
 
-
-void iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria) {
+void iniciar(int cpu, int paginas, int mProcID, int serverSocket,
+		int serverMemoria) {
 
 	printf("mProc %d - Iniciado \n", mProcID);
 	//t_mensajeHeader inicia;
@@ -332,14 +329,17 @@ void iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria
 	free(mensajeFinalizar);
 }
 
-void escribir(int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria) {
+void escribir(int pagina, char *texto, int mProcID, int serverSocket,
+		int serverMemoria) {
 	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
 	t_escribir *mensajeEscribir = malloc(sizeof(t_escribir));
 	//int tamanio;
 	//char * contenido;
 
 	//inicia.idmensaje = LEER;
-	printf("mProc %d - Pagina %d a a escribir con contenido %s, envio a memoria \n", mProcID, pagina, texto);
+	printf(
+			"mProc %d - Pagina %d a a escribir con contenido %s, envio a memoria \n",
+			mProcID, pagina, texto);
 
 //	int status = send(serverMemoria, &(inicia.idmensaje),
 	//		sizeof(t_mensajeHeader), 0);
@@ -351,16 +351,15 @@ void escribir(int pagina, char *texto, int mProcID,int serverSocket,int serverMe
 	//status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
 	int status = serializarEstructura(ESCRIBIR, (void *) mensajeEscribir,
 			sizeof(t_escribir), serverMemoria);
-	free(mensajeEscribir);
+    free(mensajeEscribir);
 	t_mensajeHeader reta;
 	recv(serverMemoria, &reta, sizeof(t_mensajeHeader), 0);
 	printf("La respuesta fue %d", reta.idmensaje);
-
 	log_info(logCPU, "mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,
 			texto);
 	//t_mensajeHeader rta;
-		//recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
-			//printf("La respuesta es %d", rta.idmensaje);
+	//recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
+	//printf("La respuesta es %d", rta.idmensaje);
 
 	//todo msj de rta con memoria
 
@@ -368,7 +367,7 @@ void escribir(int pagina, char *texto, int mProcID,int serverSocket,int serverMe
 
 }
 
-void leer(int pagina, int mProcID,int serverSocket,int serverMemoria) {
+void leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 	//t_mensajeHeader inicia;
 	t_leer *mensajeLeer = malloc(sizeof(t_leer));
 	int tamanio;
@@ -376,8 +375,8 @@ void leer(int pagina, int mProcID,int serverSocket,int serverMemoria) {
 
 	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
-	log_info(logCPU, "mProc %d - Pagina %d a leer, envio a memoria \n",
-			mProcID, pagina);
+	log_info(logCPU, "mProc %d - Pagina %d a leer, envio a memoria \n", mProcID,
+			pagina);
 
 //	int status = send(serverMemoria, &(inicia.idmensaje),
 	//		sizeof(t_mensajeHeader), 0);
@@ -393,18 +392,27 @@ void leer(int pagina, int mProcID,int serverSocket,int serverMemoria) {
 	//t_mensajeHeader header;
 	//recv(serverMemoria, &header, sizeof(t_mensajeHeader), 0);
 	//tamanio = header.size;
-	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
-	recv(serverMemoria, contenido, sizeof(tamanio) + 1, 0);
-	printf("CONTENIDO:%s \n", contenido);
+//	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
+	printf("tamanio recibido %d\n ", tamanio);
+	contenido = malloc(tamanio );
+//	recv(serverMemoria, contenido, sizeof(tamanio), 0);
+	recv(serverMemoria, contenido, tamanio, 0);
+
+//	recv(serverMemoria, contenido, sizeof(tamanio), 0);
+
+	//contenido[tamanio-1] = '\0';
+	//printf("CONTENIDO:%s \n", contenido);
 	log_info(logCPU, "El contenido es: %s \n", contenido);
 	//fflush(stdout);
 	//}
 
 	sleep(configuracionCPU.Retardo);
 //	free(mensajeLeer);
+	free(contenido);
 }
 
-void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,int serverMemoria) {
+void procesaIO(int pid, int tiempo, int cpu, int instrucciones,
+		int serverSocket, int serverMemoria) {
 	//	envía mensaje de IO a planificador.
 	t_io *infoIO = malloc(sizeof(t_io));
 
@@ -422,7 +430,8 @@ void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,
 	//todo enviar las sentencias ejecutadas hasta ahora
 
 }
-void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serverMemoria) {
+void finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,
+		int serverMemoria) {
 
 	//t_mensajeHeader header;
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
@@ -434,7 +443,7 @@ void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serv
 	 if (status > 0) {*/
 	//	recvACK(serverMemoria);
 	mensajeFinalizar->pid = mProcID;
-    mensajeFinalizar->idCPU = cpu;
+	mensajeFinalizar->idCPU = cpu;
 	mensajeFinalizar->instrucciones = instrucciones;
 	/*
 	 status = send(serverMemoria, &mensajeFinalizar, sizeof(t_finalizarPID),0);
@@ -453,7 +462,7 @@ void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serv
 	t_finalizarPID *rtaFin = malloc(sizeof(t_finalizarPID));
 	rtaFin->pid = mProcID;
 	rtaFin->idCPU = cpu;
-        rtaFin->instrucciones = instrucciones;
+	rtaFin->instrucciones = instrucciones;
 	//status = send(serverSocket, &(rtaFin), sizeof(t_finalizarPID), 0);
 	status = serializarEstructura(FINALIZAPROCOK, (void *) rtaFin,
 			sizeof(t_finalizarPID), serverSocket);
@@ -463,13 +472,28 @@ void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serv
 	free(mensajeFinalizar);
 	free(rtaFin);
 }
+void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket) {
 
-void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria) {
+	t_finalizarPID *finQuantum = malloc(sizeof(t_finalizarPID));
+	printf("mProc %d - Finalizado \n", mProcID);
+	finQuantum->pid = mProcID;
+	finQuantum->idCPU = cpu;
+	finQuantum->instrucciones = instrucciones;
+
+	int status = serializarEstructura(FINDEQUANTUM, (void *) finQuantum,
+			sizeof(t_finalizarPID), serverSocket);
+	log_info(logCPU, "mProc %d - fin de quantum , CPU id: %d\n", mProcID,
+			finQuantum->idCPU);
+	free(finQuantum);
+}
+
+void parsermCod(int cpu, char *path, int pid, int lineaInicial,
+		int serverSocket, int serverMemoria, int quantum) {
 	int i = 0;
 	int contadorEjecutadas = 0;
 	int seguir = 1;
 	char *path_absoluto = string_new();
-	log_info (logCPU,"Inicia parseo desde linea incial: %d", lineaInicial);
+	log_info(logCPU, "Inicia parseo desde linea incial: %d", lineaInicial);
 	string_append(&path_absoluto, PATH);
 	string_append(&path_absoluto, path);
 
@@ -490,10 +514,10 @@ void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,i
 
 			p = strtok(string, ";");
 			if (i > lineaInicial) {
-			/*	i++;
-				fgets(string, 100, fid);
+				/*	i++;
+				 fgets(string, 100, fid);
 
-				p = strtok(string, ";");*/
+				 p = strtok(string, ";");*/
 
 				if (p != NULL) {
 					char *string = string_new();
@@ -504,29 +528,35 @@ void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,i
 						contadorEjecutadas++;
 						printf("comando iniciar, parametro %d \n",
 								atoi(substrings[1]));
-						iniciar(cpu, atoi(substrings[1]), pid,serverSocket,serverMemoria);
+						iniciar(cpu, atoi(substrings[1]), pid, serverSocket,
+								serverMemoria);
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);
+						continue;
 					}
 					if (esLeer(substrings[0])) {
 						contadorEjecutadas++;
 						printf("comando leer, parametro %d \n",
 								atoi(substrings[1]));
-						leer(atoi(substrings[1]), pid,serverSocket,serverMemoria);
+						leer(atoi(substrings[1]), pid, serverSocket,
+								serverMemoria);
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);
+						continue;
 					}
 					if (esEscribir(substrings[0])) {
 						contadorEjecutadas++;
 						printf("comando Escribir, parametros %d  %s \n",
 								atoi(substrings[1]), substrings[2]);
-						escribir(atoi(substrings[1]), substrings[2], pid,serverSocket,serverMemoria);
+						escribir(atoi(substrings[1]), substrings[2], pid,
+								serverSocket, serverMemoria);
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings[2]);
 						free(substrings);
+						continue;
 					}
 					if (esIO(substrings[0])) {
 						contadorEjecutadas++;
@@ -534,27 +564,37 @@ void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,i
 								atoi(substrings[1]));
 						//todo cuando haya n hilos pasar el id que corresponde
 						procesaIO(pid, atoi(substrings[1]), cpu,
-								contadorEjecutadas,serverSocket,serverMemoria);
+								contadorEjecutadas, serverSocket,
+								serverMemoria);
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);
 
 						//todo hay que salir de aca... exit? pongo break por ahora
 						seguir = 0; //para que salga del while
+						continue;
 					}
 					if (esFinalizar(substrings[0])) {
 						contadorEjecutadas++;
 						printf("comando Finalizar no tiene parametros \n");
-						finalizar(cpu, pid, contadorEjecutadas,serverSocket,serverMemoria);
+						finalizar(cpu, pid, contadorEjecutadas, serverSocket,
+								serverMemoria);
 						free(substrings[0]);
 						free(substrings);
+						seguir = 0;
+						continue;
 					}
 
 				}
 			}
+// chequeo de quantum
+			/*if (quantum > 0  // es RR
+			&& quantum == contadorEjecutadas) {
 
-
-		}
+				finalizarQuantum(cpu, pid, contadorEjecutadas, serverSocket);
+				seguir = 0;
+			}
+*/		}
 		fclose(fid);
 
 	}

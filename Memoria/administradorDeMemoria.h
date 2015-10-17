@@ -8,7 +8,7 @@
 #ifndef ADMINISTRADORDEMEMORIA_H_
 #define ADMINISTRADORDEMEMORIA_H_
 #define PACKAGESIZE 1024
-
+#include <errno.h>
 
 typedef struct
 {

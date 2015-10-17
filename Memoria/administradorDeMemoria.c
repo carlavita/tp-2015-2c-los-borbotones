@@ -482,7 +482,14 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
 					sizeof(t_escribir), cliente);
 			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+
 			pthread_mutex_unlock(&mutexEscribir);
+
+			serializarEstructura(mensajeHeaderSwap.idmensaje,
+							NULL, 0, servidor);
+			free(estructuraEscribirSwap);
+
+
 			break;
 		case FINALIZAR:
 			pthread_mutex_lock(&mutexFinalizar);
@@ -518,7 +525,9 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 					mensajeHeader.idmensaje);
 			log_info(logMemoria, "Mensaje incorrecto");
 		}
+
 	}
+
 }
 
 void creacionHilos(t_log* logMemoria) {

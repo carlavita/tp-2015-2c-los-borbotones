@@ -351,8 +351,10 @@ void escribir(int pagina, char *texto, int mProcID,int serverSocket,int serverMe
 	//status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
 	int status = serializarEstructura(ESCRIBIR, (void *) mensajeEscribir,
 			sizeof(t_escribir), serverMemoria);
-
-
+	free(mensajeEscribir);
+	t_mensajeHeader reta;
+	recv(serverMemoria, &reta, sizeof(t_mensajeHeader), 0);
+	printf("La respuesta fue %d", reta.idmensaje);
 
 	log_info(logCPU, "mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,
 			texto);

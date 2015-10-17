@@ -34,6 +34,7 @@ pthread_mutex_t  mutexIniciar;
 pthread_mutex_t  mutexLeer;
 pthread_mutex_t  mutexEscribir;
 pthread_mutex_t  mutexFinalizar;
+pthread_mutex_t  mutexFrame;
 
 int main() {
 	remove("logMemoria.txt"); //Cada vez que arranca el proceso borro el archivo de log.

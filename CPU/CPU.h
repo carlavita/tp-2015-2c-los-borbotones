@@ -39,6 +39,8 @@
 #define TOKENFINALIZAR "finalizar"
 #define TOKENIO "entrada-salida"
 
+#define SEPARADORINSTRUCCION "/"
+
 char PATH[256];
 
 #define MAXTHREADS 15
@@ -96,11 +98,10 @@ void inicializarSemaforosCPU();
 
 
 void *ejecucion (void *ptr);
-void iniciar (int cpu, int paginas, int mProcID,int serverSocket,int serverMemoria);
-//char* iniciar (int cpu, int paginas, int mProcID,int serverSocket,int serverMemoria);
+char *iniciar (int cpu, int paginas, int mProcID,int serverSocket,int serverMemoria);
 void escribir (int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria);
-void leer (int pagina, int mProcID,int serverSocket,int serverMemoria);
-void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serverMemoria);
+char *leer (int pagina, int mProcID,int serverSocket,int serverMemoria);
+char *finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serverMemoria);
 void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,int serverMemoria);
 
 

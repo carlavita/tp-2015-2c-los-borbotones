@@ -269,9 +269,7 @@ char *parsearLinea(char * lineaLeida) {
 	return lineaParseada;
 }
 
-//char *iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria) {
-void iniciar(int cpu, int paginas, int mProcID, int serverSocket,int serverMemoria) {
-
+char *iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria) {
 
 	printf("mProc %d - Iniciado \n", mProcID);
 
@@ -297,12 +295,10 @@ void iniciar(int cpu, int paginas, int mProcID, int serverSocket,int serverMemor
 		sleep(configuracionCPU.Retardo);
 
 		string_append(&comienzo,"mProc-");
-		//char *id = string_itoa(mProcID);
 		/*char id[12];
 		sprintf(id,"%d",mProcID);*/
 		string_append(&comienzo,id);
 		string_append(&comienzo,"-Iniciado");
-		printf("el resultado concatenado es: %s \n",comienzo);
 	}
 	if (mensajeCpu.idmensaje == PROCFALLA) {
 		mensajeFinalizar->pid = mProcID;
@@ -316,16 +312,15 @@ void iniciar(int cpu, int paginas, int mProcID, int serverSocket,int serverMemor
 				serverSocket);
 
 		string_append(&comienzo,"mProc-");
-		/*char id[12];
-		sprintf(id,"%d",mProcID);*/
 		string_append(&comienzo,id);
 		string_append(&comienzo,"-Fallo");
-		printf("el resultado concatenado es: %s \n",comienzo);
 
 		fseek(fid, -1, SEEK_END);	//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
 	}
 	free(mensajeIniciar);
 	free(mensajeFinalizar);
+
+	return comienzo;
 }
 
 void escribir(int pagina, char *texto, int mProcID, int serverSocket,
@@ -366,11 +361,15 @@ void escribir(int pagina, char *texto, int mProcID, int serverSocket,
 
 }
 
-void leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
+char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
+
 	//t_mensajeHeader inicia;
 	t_leer *mensajeLeer = malloc(sizeof(t_leer));
 	int tamanio;
 	char * contenido;
+	char *comienzo = string_new();//cadena donde devuelvo el resultado de la instruccion
+	char *id = string_itoa(mProcID);
+	char *pag = string_itoa(pagina);
 
 	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
@@ -393,7 +392,7 @@ void leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 	//tamanio = header.size;
 //	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
 	printf("tamanio recibido %d\n ", tamanio);
-	contenido = malloc(tamanio );
+	contenido = malloc(tamanio);
 //	recv(serverMemoria, contenido, sizeof(tamanio), 0);
 	recv(serverMemoria, contenido, tamanio, 0);
 
@@ -402,12 +401,20 @@ void leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 	//contenido[tamanio-1] = '\0';
 	//printf("CONTENIDO:%s \n", contenido);
 	log_info(logCPU, "El contenido es: %s \n", contenido);
-	//fflush(stdout);
+
 	//}
 
 	sleep(configuracionCPU.Retardo);
-//	free(mensajeLeer);
-	free(contenido);
+
+	string_append(&comienzo,"mProc-");
+	string_append(&comienzo,id);
+	string_append(&comienzo,"-Pagina-");
+	string_append(&comienzo,pag);
+	string_append(&comienzo,"-Leida:");
+	string_append(&comienzo,contenido);
+
+	//free(contenido);
+	return comienzo;
 }
 
 void procesaIO(int pid, int tiempo, int cpu, int instrucciones,
@@ -429,9 +436,12 @@ void procesaIO(int pid, int tiempo, int cpu, int instrucciones,
 	//todo enviar las sentencias ejecutadas hasta ahora
 
 }
-void finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,
-		int serverMemoria) {
 
+
+char *finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,int serverMemoria) {
+
+	char *comienzo = string_new();//cadena donde devuelvo el resultado de la instruccion
+	char *id = string_itoa(mProcID);
 	//t_mensajeHeader header;
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
 
@@ -468,9 +478,18 @@ void finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,
 	printf("de la cpu con id: %d \n", rtaFin->idCPU);
 	log_info(logCPU, "mProc %d - Finalizado, de la cpu con id: %d\n", mProcID,
 			rtaFin->idCPU);
+
+	string_append(&comienzo,"mProc-");
+	string_append(&comienzo,id);
+	string_append(&comienzo,"-Finalizado");
+
 	free(mensajeFinalizar);
 	free(rtaFin);
+
+	return comienzo;
+
 }
+
 void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket) {
 
 	t_finalizarPID *finQuantum = malloc(sizeof(t_finalizarPID));
@@ -533,12 +552,14 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 
 					if (esIniciar(substrings[0])) {
 						contadorEjecutadas++;
-						printf("comando iniciar, parametro %d \n",
-								atoi(substrings[1]));
-						iniciar(cpu, atoi(substrings[1]), pid, serverSocket,serverMemoria);
+						printf("comando iniciar, parametro %d \n",atoi(substrings[1]));
+						//iniciar(cpu, atoi(substrings[1]), pid, serverSocket,serverMemoria);
 
-						/*char *res = iniciar(cpu, atoi(substrings[1]), pid,serverSocket,serverMemoria);
-						printf("el res es:%s",res);*/
+						char *inicio = iniciar(cpu, atoi(substrings[1]), pid,serverSocket,serverMemoria);
+
+						string_append(&resultado,inicio);
+						string_append(&resultado,SEPARADORINSTRUCCION);
+						printf("el resultado de iniciar es %s \n",resultado);
 
 						free(substrings[0]);
 						free(substrings[1]);
@@ -549,8 +570,13 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						contadorEjecutadas++;
 						printf("comando leer, parametro %d \n",
 								atoi(substrings[1]));
-						leer(atoi(substrings[1]), pid, serverSocket,
-								serverMemoria);
+						//leer(atoi(substrings[1]), pid, serverSocket,serverMemoria);
+						char *lectura = leer(atoi(substrings[1]), pid, serverSocket,serverMemoria);
+
+						string_append(&resultado,lectura);
+						string_append(&resultado,SEPARADORINSTRUCCION);
+						printf("el resultado de leer es %s \n",resultado);
+
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);
@@ -587,10 +613,15 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 					if (esFinalizar(substrings[0])) {
 						contadorEjecutadas++;
 						printf("comando Finalizar no tiene parametros \n");
-						finalizar(cpu, pid, contadorEjecutadas, serverSocket,
-								serverMemoria);
+					//	finalizar(cpu, pid, contadorEjecutadas, serverSocket,serverMemoria);
+						char *fin = finalizar(cpu, pid, contadorEjecutadas, serverSocket,serverMemoria);
+						string_append(&resultado,fin);
+						string_append(&resultado,SEPARADORINSTRUCCION);
+						printf("el resultado de leer es %s \n",resultado);
+
 						free(substrings[0]);
 						free(substrings);
+
 						seguir = 0;
 						continue;
 					}

@@ -209,28 +209,6 @@ void Conexion_con_planificador(int cpu) {
 				 status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
 				 printf("envio de fin de rafaga del proceso con id: %d ", pcbProc.pid); */
 
-				//todo armar struct comun a planif y cpu de envio de fin de quantum
-				//todo rtas a memoria
-				//fin de quantum->parametros->pid, cpuid,mensaje de cada instruccion hecha y el tiempo consumido
-				/*t_mensajeHeader mjeFQ;
-				 mjeFQ.idmensaje = FINDEQUANTUM;
-				 status = send(serverSocket, &(mjeFQ.idmensaje), sizeof(t_mensajeHeader), 0);
-				 printf("envio de fin de quantum del proceso con id: %d ", pcbProc.pid);*/
-
-				//todo armar struct comun a planif y cpu de envio de fin de quantum
-				//todo rtas a memoria
-				//PROCIO->parametros->pid,Tiempo, todo no falta el id de cpu?
-				/*t_mensajeHeader mjeIO;
-				 mjeIO.idmensaje = PROCIO;
-				 status = send(serverSocket, &(mjeIO.idmensaje), sizeof(t_mensajeHeader), 0);
-				 printf("envio de entrada-salida del proceso con id: %d ", pcbProc.pid);
-
-				 t_io rtaIO;
-				 rtaIO.pid = pcbProc.pid;
-				 rtaIO.tiempoIO = 4; //todo seteado para probar-->proviene del parseo del mproc
-				 status = send(serverSocket, &(rtaIO), sizeof(t_io), 0);
-				 printf("y tiempo: %d \n",rtaIO.tiempoIO);*/
-				//todo rtas a memoria
 				break;
 
 			default:
@@ -291,10 +269,14 @@ char *parsearLinea(char * lineaLeida) {
 	return lineaParseada;
 }
 
-void iniciar(int cpu, int paginas, int mProcID, int serverSocket,
-		int serverMemoria) {
+//char *iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria) {
+void iniciar(int cpu, int paginas, int mProcID, int serverSocket,int serverMemoria) {
+
 
 	printf("mProc %d - Iniciado \n", mProcID);
+
+	char *comienzo = string_new();//cadena donde devuelvo el resultado de la instruccion
+	char *id = string_itoa(mProcID);
 	//t_mensajeHeader inicia;
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
 	t_iniciarPID *mensajeIniciar = malloc(sizeof(t_iniciarPID));
@@ -313,6 +295,14 @@ void iniciar(int cpu, int paginas, int mProcID, int serverSocket,
 		log_info(logCPU, "El proceso %d inició su ejecucion correctamente\n",
 				mProcID);
 		sleep(configuracionCPU.Retardo);
+
+		string_append(&comienzo,"mProc-");
+		//char *id = string_itoa(mProcID);
+		/*char id[12];
+		sprintf(id,"%d",mProcID);*/
+		string_append(&comienzo,id);
+		string_append(&comienzo,"-Iniciado");
+		printf("el resultado concatenado es: %s \n",comienzo);
 	}
 	if (mensajeCpu.idmensaje == PROCFALLA) {
 		mensajeFinalizar->pid = mProcID;
@@ -324,6 +314,14 @@ void iniciar(int cpu, int paginas, int mProcID, int serverSocket,
 		status = serializarEstructura(mensajeCpu.idmensaje,
 				(void *) mensajeFinalizar, sizeof(t_finalizarPID),
 				serverSocket);
+
+		string_append(&comienzo,"mProc-");
+		/*char id[12];
+		sprintf(id,"%d",mProcID);*/
+		string_append(&comienzo,id);
+		string_append(&comienzo,"-Fallo");
+		printf("el resultado concatenado es: %s \n",comienzo);
+
 		fseek(fid, -1, SEEK_END);	//TERMINO EL ARCHIVO!!!! NO SACAR!!!!!
 	}
 	free(mensajeIniciar);
@@ -488,8 +486,9 @@ void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket)
 	free(finQuantum);
 }
 
-void parsermCod(int cpu, char *path, int pid, int lineaInicial,
-		int serverSocket, int serverMemoria, int quantum) {
+void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket, int serverMemoria, int quantum) {
+
+	char *resultado = string_new();//variable a devolver al planificador con los resultados
 	int i = 0;
 	int contadorEjecutadas = 0;
 	int seguir = 1;
@@ -536,8 +535,11 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial,
 						contadorEjecutadas++;
 						printf("comando iniciar, parametro %d \n",
 								atoi(substrings[1]));
-						iniciar(cpu, atoi(substrings[1]), pid, serverSocket,
-								serverMemoria);
+						iniciar(cpu, atoi(substrings[1]), pid, serverSocket,serverMemoria);
+
+						/*char *res = iniciar(cpu, atoi(substrings[1]), pid,serverSocket,serverMemoria);
+						printf("el res es:%s",res);*/
+
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);

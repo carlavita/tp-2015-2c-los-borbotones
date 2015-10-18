@@ -70,7 +70,7 @@ typedef struct __attribute__((packed))
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 //static int serverMemoria = 0;//server para memoria
-//int cpuID = 1;
+
 //static int serverSocket; //socket de conexion con planificador
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
@@ -87,7 +87,6 @@ void* thread_func(void* cpu);
 void LeerArchivoConfiguracion();
 void Conexion_con_planificador(int cpu);
 
-//int Conexion_con_planificador();
 
 int conexion_con_memoria();
 int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
@@ -98,6 +97,7 @@ void inicializarSemaforosCPU();
 
 void *ejecucion (void *ptr);
 void iniciar (int cpu, int paginas, int mProcID,int serverSocket,int serverMemoria);
+//char* iniciar (int cpu, int paginas, int mProcID,int serverSocket,int serverMemoria);
 void escribir (int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria);
 void leer (int pagina, int mProcID,int serverSocket,int serverMemoria);
 void finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serverMemoria);
@@ -113,7 +113,6 @@ bool esEscribir(char* linea);
 bool esIO(char* linea);
 // Abre el path y parsea el contenido desde la linea indicada
 
-//void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria);
 void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria, int quantum);
 
 #endif /* CPU_H_ */

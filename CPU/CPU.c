@@ -476,7 +476,7 @@ void finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,
 void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket) {
 
 	t_finalizarPID *finQuantum = malloc(sizeof(t_finalizarPID));
-	printf("mProc %d - Finalizado \n", mProcID);
+	printf("mProc %d - Fin de quantum \n", mProcID);
 	finQuantum->pid = mProcID;
 	finQuantum->idCPU = cpu;
 	finQuantum->instrucciones = instrucciones;
@@ -509,6 +509,13 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial,
 
 		while (!feof(fid) && seguir) //Recorre el archivo
 		{
+			// chequeo de quantum
+						if (quantum > 0  // es RR
+						&& quantum == contadorEjecutadas) {
+
+							finalizarQuantum(cpu, pid, contadorEjecutadas, serverSocket);
+							break;
+						}
 			//printf(" I: %d, linea inicial: %d \n", i , lineaInicial);
 			i++;
 			fgets(string, 100, fid);
@@ -588,14 +595,8 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial,
 
 				}
 			}
-// chequeo de quantum
-			/*if (quantum > 0  // es RR
-			&& quantum == contadorEjecutadas) {
 
-				finalizarQuantum(cpu, pid, contadorEjecutadas, serverSocket);
-				seguir = 0;
-			}
-*/		}
+		}
 		fclose(fid);
 
 	}

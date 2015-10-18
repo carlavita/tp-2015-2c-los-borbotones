@@ -294,7 +294,7 @@ void servidorCPU(void *ptr) {
 						if (newsock > maxsock) {
 							maxsock = newsock;
 						}
-			//			t_saludoCPU saludoCPU;
+						//			t_saludoCPU saludoCPU;
 						int status = 1;	// Estructura que maneja el status de los recieve
 						//una vez detectada la conexion de una cpu se la agrega a la lista de cpus y se la coloca como libre -1
 						status = serializarEstructura(SALUDO,
@@ -302,22 +302,22 @@ void servidorCPU(void *ptr) {
 								newsock);
 						int cpu;
 						status = recv(newsock, &cpu, sizeof(int), 0);
-					//	t_mensajeHeader header;
-	//					status = recv(newsock, &header, sizeof(t_mensajeHeader), 0);
-	/*					status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
+						//	t_mensajeHeader header;
+						//					status = recv(newsock, &header, sizeof(t_mensajeHeader), 0);
+						/*					status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
 
-						agregarCPU(newsock, -1, saludoCPU.cpuID);
-						ServidorP = newsock;
-						/*status = serializarEstructura(SALUDO,
+						 agregarCPU(newsock, -1, saludoCPU.cpuID);
+						 ServidorP = newsock;
+						 /*status = serializarEstructura(SALUDO,
 						 (void *) PATH_MCODE, sizeof(PATH_MCODE) + 1,
 						 newsock);*/
 						//int mensaje = SALUDO;
 //						status = send(newsock, &mensaje, sizeof(int), 0);
 						//agregarCPU(newsock, -1, 1);
-						printf("agrega CPU: %d\n",cpu);
+						printf("agrega CPU: %d\n", cpu);
 						agregarCPU(newsock, -1, cpu);
 						printf("status send inicial %d \n", status);
-				//		printf("Se conectó la CPU con ID %d \n", saludoCPU.cpuID);
+						//		printf("Se conectó la CPU con ID %d \n", saludoCPU.cpuID);
 						//status = send(newsock, &PATH_MCODE, sizeof(PATH_MCODE), 0);
 						printf("SE ENVÍA PATH , %s STATUS %d \n", PATH_MCODE,
 								status);
@@ -404,18 +404,9 @@ void handle(int newsock, fd_set *set) {
 
 			break;
 		case PROCIO:
-			// todo liberar cpu y sem_post(&semaforoCPU);
-			//aca tambien me vas a tener que pasar como si fuera fin de rafaga
-			/*	t_io rtaIO;
-			 recv(newsock, &(rtaIO), sizeof(t_io), 0);
-			 printf(" con id: %d",rtaIO.pid);
-			 printf(" con tiempo: %d \n",rtaIO.tiempoIO);
-			 pthread_mutex_lock(&mutexLog);
-			 log_info(logger, "el proceso esta realizando su entrada-salida ");
-			 pthread_mutex_unlock(&mutexLog);
-			 //todo no falta el id de cpu?*/
-			ejecutarIO(newsock);
 
+			ejecutarIO(newsock);
+//todo recuperar instrucciones
 			break;
 		case FINDEQUANTUM:
 
@@ -431,18 +422,23 @@ void handle(int newsock, fd_set *set) {
 
 			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
 			//int lalala = list_size(EJECUTANDO);
-			log_info(logger, "Al finalizar hay %d procesos ejecutando\n ",
-					lalala);
 
 			t_pcb *pcbProc = buscarEnListaPorPID(EJECUTANDO, finQuantum.pid);
 
 			pcbProc->status = LISTO;
+			if (pcbProc->cantidadLineas == pcbProc->proxInst) {
+				log_info(logger,
+						"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
+			} else {
+
+				pcbProc->proxInst = pcbProc->proxInst + finQuantum.instrucciones ;
+				log_info(logger, " actualiza prox instrucción: %d\n", pcb->proxInst);
+			}
 			list_add(LISTOS, pcbProc);
 			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
 			pthread_mutex_unlock(&mutexListas);
-
+			sem_post(&semaforoListos);
 			liberarCPU(finQuantum.idCPU);
-
 
 			break;
 		case FINDERAFAGA:
@@ -455,14 +451,12 @@ void handle(int newsock, fd_set *set) {
 			break;
 		case SALUDO: {
 
-
-
-		//int status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
+			//int status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
 
 			//agregarCPU(newsock, -1, saludoCPU.cpuID);
 //			log_info(logger, "se conectó la CPU con ID %d \n", saludoCPU.cpuID);
 		}
-		break;
+			break;
 		default:
 			printf("codigo no reconocido\n");
 			break;
@@ -505,11 +499,16 @@ int crearPcb(char* path) {
 	strcpy(pcb->pathProc, path);
 
 	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
-
+	if (configPlanificador.algoritmo == FIFO) {
+		pcb->quantum = -1;
+	} else if (configPlanificador.algoritmo == RR) {
+		pcb->quantum = configPlanificador.quantum;
+	}
 	printf("PID mProc: %d \n", pcb->pid);
 	printf("Proxima instruccion mProc: %d \n", pcb->proxInst);
 	printf("Path mProc: %s \n", pcb->pathProc);
 	printf("Path mProc: %d \n", pcb->cantidadLineas);
+	printf("Quantum mProc: %d \n", pcb->quantum);
 	/*Lo agrega a la lista de listos*/
 	pthread_mutex_lock(&mutexListas);
 	list_add(LISTOS, pcb);

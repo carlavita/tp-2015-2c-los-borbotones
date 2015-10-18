@@ -1,11 +1,26 @@
-[INFO] 17:34:12:100 CPU/(9671:9671): Inicio Proceso CPU
-[INFO] 17:34:12:117 CPU/(9671:9671): Leyendo Archivo de Configuracion
-[INFO] 17:34:12:123 CPU/(9671:9671): 4000
-[INFO] 17:34:12:125 CPU/(9671:9671): Archivo de Configuracion Leido correctamente
-[INFO] 17:34:12:131 CPU/(9671:9671): Se inicializaron los semaforos 
+[INFO] 14:29:11:275 CPU/(3441:3441): Inicio Proceso CPU
+[INFO] 14:29:11:276 CPU/(3441:3441): Leyendo Archivo de Configuracion
+[INFO] 14:29:11:278 CPU/(3441:3441): 4000
+[INFO] 14:29:11:279 CPU/(3441:3441): Archivo de Configuracion Leido correctamente
+[INFO] 14:29:11:279 CPU/(3441:3441): Se inicializaron los semaforos 
 
-[INFO] 17:34:12:147 CPU/(9671:9673): Conectando a memoria
+[INFO] 14:29:28:908 CPU/(3441:3446): Conectando a memoria
 
-[INFO] 17:34:12:166 CPU/(9671:9673): Conectando a planificador
-[INFO] 17:34:12:192 CPU/(9671:9673): se recibe el msj de saludo de planificador:
-[INFO] 17:34:12:193 CPU/(9671:9673): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 14:29:28:910 CPU/(3441:3446): Conectando a planificador
+[INFO] 14:29:28:913 CPU/(3441:3446): se recibe el msj de saludo de planificador:
+[INFO] 14:29:28:914 CPU/(3441:3446): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 14:29:34:898 CPU/(3441:3446): se recibe el msj de ejecucion de un proceso:
+[INFO] 14:29:34:898 CPU/(3441:3446): ejecutando el proceso con id:1
+[INFO] 14:29:34:898 CPU/(3441:3446): Inicia parseo desde linea incial: 0
+[INFO] 14:30:13:367 CPU/(3441:3446): El proceso 1 inició su ejecucion correctamente
+
+[INFO] 14:30:39:859 CPU/(3441:3446): mProc 1 - Pagina 0 a leer, envio a memoria 
+
+[INFO] 14:30:39:866 CPU/(3441:3446): El contenido es:  
+
+[INFO] 14:31:00:408 CPU/(3441:3446): mProc 1 - Pagina 1 a leer, envio a memoria 
+
+[INFO] 14:31:00:415 CPU/(3441:3446): El contenido es:  
+
+[INFO] 14:32:25:34 CPU/(3441:3446): mProc 1 - fin de quantum , CPU id: 1
+

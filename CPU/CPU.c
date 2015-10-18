@@ -323,17 +323,21 @@ char *iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemori
 	return comienzo;
 }
 
-void escribir(int pagina, char *texto, int mProcID, int serverSocket,
-		int serverMemoria) {
+//void escribir(int pagina, char *texto, int mProcID, int serverSocket, int serverMemoria) {
+char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serverMemoria) {
+
 	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
 	t_escribir *mensajeEscribir = malloc(sizeof(t_escribir));
 	//int tamanio;
 	//char * contenido;
 
 	//inicia.idmensaje = LEER;
-	printf(
-			"mProc %d - Pagina %d a a escribir con contenido %s, envio a memoria \n",
+	printf("mProc %d - Pagina %d a escribir con contenido %s, envio a memoria \n",
 			mProcID, pagina, texto);
+
+	char *comienzo = string_new();//cadena donde devuelvo el resultado de la instruccion
+	char *id = string_itoa(mProcID);
+	char *pag = string_itoa(pagina);
 
 //	int status = send(serverMemoria, &(inicia.idmensaje),
 	//		sizeof(t_mensajeHeader), 0);
@@ -358,6 +362,15 @@ void escribir(int pagina, char *texto, int mProcID, int serverSocket,
 	//todo msj de rta con memoria
 
 	sleep(configuracionCPU.Retardo);
+
+	string_append(&comienzo,"mProc-");
+	string_append(&comienzo,id);
+	string_append(&comienzo,"-Pagina-");
+	string_append(&comienzo,pag);
+	string_append(&comienzo,"-escrita:");
+	string_append(&comienzo,texto);
+
+	return comienzo;
 
 }
 
@@ -417,8 +430,15 @@ char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 	return comienzo;
 }
 
-void procesaIO(int pid, int tiempo, int cpu, int instrucciones,
-		int serverSocket, int serverMemoria) {
+//void procesaIO(int pid, int tiempo, int cpu, int instrucciones, int serverSocket, int serverMemoria) {
+
+char *procesaIO(int pid, int tiempo, int cpu, int instrucciones,
+			int serverSocket, int serverMemoria) {
+
+	char *comienzo = string_new();//cadena donde devuelvo el resultado de la instruccion
+	char *id = string_itoa(pid);
+	char *time = string_itoa(tiempo);
+
 	//	envía mensaje de IO a planificador.
 	t_io *infoIO = malloc(sizeof(t_io));
 
@@ -433,7 +453,13 @@ void procesaIO(int pid, int tiempo, int cpu, int instrucciones,
 
 	log_info(logCPU, "Status envío IO: %d \n", status);
 	free(infoIO);
-	//todo enviar las sentencias ejecutadas hasta ahora
+
+	string_append(&comienzo,"mProc-");
+	string_append(&comienzo,id);
+	string_append(&comienzo,"-en entrada salida de tiempo-");
+	string_append(&comienzo,time);
+
+	return comienzo;
 
 }
 
@@ -586,8 +612,12 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						contadorEjecutadas++;
 						printf("comando Escribir, parametros %d  %s \n",
 								atoi(substrings[1]), substrings[2]);
-						escribir(atoi(substrings[1]), substrings[2], pid,
-								serverSocket, serverMemoria);
+						//escribir(atoi(substrings[1]), substrings[2], pid,serverSocket, serverMemoria);
+						char *escritura = escribir(atoi(substrings[1]), substrings[2], pid,serverSocket, serverMemoria);
+						string_append(&resultado,escritura);
+						string_append(&resultado,SEPARADORINSTRUCCION);
+						printf("el resultado de leer es %s \n",resultado);
+
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings[2]);
@@ -598,10 +628,13 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						contadorEjecutadas++;
 						printf("comando entrada salida, parametro %d \n",
 								atoi(substrings[1]));
-						//todo cuando haya n hilos pasar el id que corresponde
-						procesaIO(pid, atoi(substrings[1]), cpu,
-								contadorEjecutadas, serverSocket,
-								serverMemoria);
+
+					//procesaIO(pid, atoi(substrings[1]), cpu,contadorEjecutadas, serverSocket,serverMemoria);
+					char *entradaSalida = procesaIO(pid, atoi(substrings[1]), cpu,contadorEjecutadas, serverSocket,serverMemoria);
+					string_append(&resultado,entradaSalida);
+					string_append(&resultado,SEPARADORINSTRUCCION);
+					printf("el resultado de leer es %s \n",resultado);
+
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);

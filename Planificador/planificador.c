@@ -443,7 +443,7 @@ void handle(int newsock, fd_set *set) {
 
 			//actualizar el estado de la cola de listos
 
-			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
+			pthread_mutex_lock(&mutexListas);
 			//int lalala = list_size(EJECUTANDO);
 
 			t_pcb *pcbProc = buscarEnListaPorPID(EJECUTANDO, finQuantum.pid);
@@ -455,7 +455,7 @@ void handle(int newsock, fd_set *set) {
 			} else {
 
 				pcbProc->proxInst = pcbProc->proxInst + finQuantum.instrucciones ;
-				log_info(logger, " actualiza prox instrucción: %d\n", pcb->proxInst);
+				log_info(logger, " actualiza prox instrucción: %d\n", pcbProc->proxInst);
 			}
 			list_add(LISTOS, pcbProc);
 			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
@@ -482,6 +482,9 @@ void handle(int newsock, fd_set *set) {
 			break;
 		default:
 			printf("codigo no reconocido\n");
+			pthread_mutex_lock(&mutexLog);
+			log_info(logger, "error al recibir por codigo no reconocido");
+			pthread_mutex_unlock(&mutexLog);
 			break;
 
 		}

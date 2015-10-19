@@ -363,7 +363,14 @@ void handle(int newsock, fd_set *set) {
 			printf(" con id: %d \n", rtaProc.pid);
 			printf(" de la cpu: %d \n", rtaProc.idCPU);
 
-			//actualizarPcb();
+
+			int tamanio;
+			recv(newsock, &tamanio, sizeof(int), 0);
+			printf(" el tamanio recibido es: %d \n", tamanio);
+
+			char* contenido = malloc(tamanio);
+			recv(newsock, contenido, tamanio, 0);
+			printf(" el contenido recibido es: %s \n", contenido);
 
 			//actualizar el estado de la cola de finalizados
 
@@ -406,7 +413,15 @@ void handle(int newsock, fd_set *set) {
 		case PROCIO:
 
 			ejecutarIO(newsock);
-//todo recuperar instrucciones
+
+			int tamanioRec;
+			recv(newsock, &tamanioRec, sizeof(int), 0);
+			printf(" el tamanio recibido es: %d \n", tamanioRec);
+
+			char* contenidoIO = malloc(tamanioRec);
+			recv(newsock, contenidoIO, tamanioRec, 0);
+			printf(" el contenido recibido es: %s \n", contenidoIO);
+
 			break;
 		case FINDEQUANTUM:
 

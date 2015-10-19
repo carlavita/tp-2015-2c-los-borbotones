@@ -521,7 +521,7 @@ void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket)
 
 void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket, int serverMemoria, int quantum) {
 
-	char *resultado = string_new();//variable a devolver al planificador con los resultados
+	char *resultado = string_new();//instrucciones concatenadas con / a devolver al planificador con los resultados
 	int i = 0;
 	int contadorEjecutadas = 0;
 	int seguir = 1;
@@ -625,11 +625,15 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);
 
+						int tamanioIO;
+						tamanioIO = strlen(resultado)+1;//por el fin de cadena
+						send(serverSocket,&tamanioIO, sizeof(int), 0);
+						send(serverSocket,resultado, tamanioIO, 0);
+
 						free(substrings[0]);
 						free(substrings[1]);
 						free(substrings);
 
-						//todo hay que salir de aca... exit? pongo break por ahora
 						seguir = 0; //para que salga del while
 						continue;
 					}
@@ -641,6 +645,11 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						string_append(&resultado,fin);
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);
+
+						int tamanioFin;
+						tamanioFin = strlen(resultado)+1;//por el fin de cadena
+						send(serverSocket,&tamanioFin, sizeof(int), 0);
+						send(serverSocket,resultado, tamanioFin, 0);
 
 						free(substrings[0]);
 						free(substrings);
@@ -654,7 +663,6 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 
 		}
 
-		//enviar a planificador las rtas acumuladas
 		fclose(fid);
 
 	}

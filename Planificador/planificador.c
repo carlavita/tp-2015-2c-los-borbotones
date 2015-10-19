@@ -418,6 +418,14 @@ void handle(int newsock, fd_set *set) {
 			printf(" con id: %d \n", finQuantum.pid);
 			printf(" de la cpu: %d \n", finQuantum.idCPU);
 
+			int tamanioRecibido;
+			recv(newsock, &tamanioRecibido, sizeof(int), 0);
+			printf(" el tamanio recibido es: %d \n", tamanioRecibido);
+
+			char* contenidoLeido = malloc(tamanioRecibido);
+			recv(newsock, contenidoLeido, tamanioRecibido, 0);
+			printf(" el contenido recibido es: %s \n", contenidoLeido);
+
 			//actualizar el estado de la cola de listos
 
 			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso

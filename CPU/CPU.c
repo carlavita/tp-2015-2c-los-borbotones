@@ -176,21 +176,18 @@ void Conexion_con_planificador(int cpu) {
 				printf(
 						"recibido el mensaje de ejecutar proceso de planificador\n");
 				pthread_mutex_lock(&mutexLogueo);
-				log_info(logCPU,
-						"se recibe el msj de ejecucion de un proceso:");
+				log_info(logCPU,"se recibe el msj de ejecucion de un proceso:");
 				pthread_mutex_unlock(&mutexLogueo);
 
 				t_pcb pcbProc;
 
 				recv(serverSocket, &pcbProc, sizeof(t_pcb), 0);
-				printf("recibido el contexto del proceso con su id %d \n",
-						pcbProc.pid);
+				printf("recibido el contexto del proceso con su id %d \n",pcbProc.pid);
 				printf("recibido el contexto del proceso con su path %s \n",
 						pcbProc.pathProc);
 
 				pthread_mutex_lock(&mutexLogueo);
-				log_info(logCPU, "ejecutando el proceso con id:%d",
-						pcbProc.pid);
+				log_info(logCPU, "ejecutando el proceso con id:%d",pcbProc.pid);
 				pthread_mutex_unlock(&mutexLogueo);
 
 				//todo verificar que struct usar para enviar instruccion-rta
@@ -200,21 +197,12 @@ void Conexion_con_planificador(int cpu) {
 				parsermCod(cpu, pcbProc.pathProc, pcbProc.pid, pcbProc.proxInst,
 						serverSocket, serverMemoria, pcbProc.quantum);
 
-				/*todo estas rtas van dentro de una funcion segun la ejecucion por linea de mproc*/
-
-				//rtas al planificador en base a lo que se manda a ejecutar del proceso
-				//FINDERAFAGA->parametros->pid, idcpu, mensaje de cada instruccion hecha
-				/* t_mensajeHeader mjeFR;
-				 mjeFR.idmensaje = FINDERAFAGA;
-				 status = send(serverSocket, &(mjeFR.idmensaje), sizeof(t_mensajeHeader), 0);
-				 printf("envio de fin de rafaga del proceso con id: %d ", pcbProc.pid); */
-
 				break;
 
 			default:
 				printf("error al recibir\n");
 				pthread_mutex_lock(&mutexLogueo);
-				log_info(logCPU, "erro al recibir por codigo no reconocido");
+				log_info(logCPU, "error al recibir por codigo no reconocido");
 				pthread_mutex_unlock(&mutexLogueo);
 
 				enviar = 0;
@@ -554,22 +542,24 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 		while (!feof(fid) && seguir) //Recorre el archivo
 		{
 			// chequeo de quantum
-						if (quantum > 0  // es RR
+			if (quantum > 0  // es RR
 						&& quantum == contadorEjecutadas) {
 
-							finalizarQuantum(cpu, pid, contadorEjecutadas, serverSocket);
-							break;
-						}
+					finalizarQuantum(cpu, pid, contadorEjecutadas, serverSocket);
+					//envio a planificador las lineas ejecutadas hasta el quantum
+					int tamanio;
+					tamanio = strlen(resultado)+1;//por el fin de cadena
+					send(serverSocket,&tamanio, sizeof(int), 0);
+					send(serverSocket,resultado, tamanio, 0);
+
+					break;
+			}
 			//printf(" I: %d, linea inicial: %d \n", i , lineaInicial);
 			i++;
 			fgets(string, 100, fid);
 
 			p = strtok(string, ";");
 			if (i > lineaInicial) {
-				/*	i++;
-				 fgets(string, 100, fid);
-
-				 p = strtok(string, ";");*/
 
 				if (p != NULL) {
 					char *string = string_new();
@@ -629,11 +619,11 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						printf("comando entrada salida, parametro %d \n",
 								atoi(substrings[1]));
 
-					//procesaIO(pid, atoi(substrings[1]), cpu,contadorEjecutadas, serverSocket,serverMemoria);
-					char *entradaSalida = procesaIO(pid, atoi(substrings[1]), cpu,contadorEjecutadas, serverSocket,serverMemoria);
-					string_append(&resultado,entradaSalida);
-					string_append(&resultado,SEPARADORINSTRUCCION);
-					printf("el resultado de leer es %s \n",resultado);
+						//procesaIO(pid, atoi(substrings[1]), cpu,contadorEjecutadas, serverSocket,serverMemoria);
+						char *entradaSalida = procesaIO(pid, atoi(substrings[1]), cpu,contadorEjecutadas, serverSocket,serverMemoria);
+						string_append(&resultado,entradaSalida);
+						string_append(&resultado,SEPARADORINSTRUCCION);
+						printf("el resultado de leer es %s \n",resultado);
 
 						free(substrings[0]);
 						free(substrings[1]);
@@ -663,6 +653,8 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 			}
 
 		}
+
+		//enviar a planificador las rtas acumuladas
 		fclose(fid);
 
 	}

@@ -215,7 +215,7 @@ void Conexion_con_planificador(int cpu) {
 			case COMANDOCPU:
 
 				printf("recibido el comando cpu de planificador \n");
-				//todo enviar a planificador la valor del porcentaje de uso de cpu
+				//todo enviar a planificador el valor del porcentaje de uso de cpu
 
 				break;
 			default:

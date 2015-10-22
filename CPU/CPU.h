@@ -23,6 +23,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
+#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 
 // lIBRERIA COMPARTIDA
 #include <protocolo.h>
@@ -33,6 +34,8 @@
 #define PATH_CONFIG "archivoConfig.conf"
 #define PATH_LOG "ArchivoLogueoCPU.txt"
 
+
+#define COMANDOCPU 5
 #define TOKENINICIAR "iniciar"
 #define TOKENLEER "leer"
 #define TOKENESCRIBIR "escribir"
@@ -72,19 +75,22 @@ typedef struct __attribute__((packed))
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 //static int serverMemoria = 0;//server para memoria
+static double porcentajeCPU = 0;
 
 //static int serverSocket; //socket de conexion con planificador
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 
-//OJO!!!!!!
+//OJO!!!! todo revisar esto pasar a local
 FILE* fid;
 
 
 //funciones de la cpu
 
-
+void calcularPorc(void *ptr);
 void* thread_func(void* cpu);
+double diferenciaEnSegundos (time_t inicio, time_t fin);
+time_t obtenerTiempoActual();
 
 void LeerArchivoConfiguracion();
 void Conexion_con_planificador(int cpu);

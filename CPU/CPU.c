@@ -19,10 +19,6 @@ int main() {
 	LeerArchivoConfiguracion();
 	inicializarSemaforosCPU();
 
-//todo dentro de cada hilo
-	//serverMemoria = conexion_con_memoria();
-	//Conexion_con_planificador();
-
 	int id = 1;	//para que el id de cpu comience en 1
 	for (i = 0; i < configuracionCPU.CantidadHilos; i++) {
 
@@ -38,12 +34,31 @@ int main() {
 }
 
 void* thread_func(void *envio) {
+
+	pthread_t hiloPorc;
 	t_envio* num;
 	num = (t_envio*) envio;
 	printf("dentro del hilo de cpu con id:%d \n", num->id);
 
+	//creacion de hilo calculador de porcentaje de uso de cpu
+	pthread_create(&hiloPorc, NULL, (void *) &calcularPorc, NULL);
 	Conexion_con_planificador(num->id);
+
+	pthread_join(hiloPorc, NULL);
 	pthread_exit(NULL);
+
+}
+
+void calcularPorc(void *ptr){
+
+	printf("Calculando porcentaje de uso de cpu %lf \n", porcentajeCPU);
+
+	//aca un while con sleep de 60 seg para actualizar el porcentaje
+	/*while (1){
+		sleep(60);
+		//todo realizar el porcentaje de uso del último minuto de cada cpu
+	}*/
+
 }
 
 void LeerArchivoConfiguracion() {
@@ -173,8 +188,7 @@ void Conexion_con_planificador(int cpu) {
 
 				break;
 			case EJECUTARPROC:
-				printf(
-						"recibido el mensaje de ejecutar proceso de planificador\n");
+				printf("recibido el mensaje de ejecutar proceso de planificador\n");
 				pthread_mutex_lock(&mutexLogueo);
 				log_info(logCPU,"se recibe el msj de ejecucion de un proceso:");
 				pthread_mutex_unlock(&mutexLogueo);
@@ -198,7 +212,12 @@ void Conexion_con_planificador(int cpu) {
 						serverSocket, serverMemoria, pcbProc.quantum);
 
 				break;
+			case COMANDOCPU:
 
+				printf("recibido el comando cpu de planificador \n");
+				//todo enviar a planificador la valor del porcentaje de uso de cpu
+
+				break;
 			default:
 				printf("error al recibir\n");
 				pthread_mutex_lock(&mutexLogueo);
@@ -211,6 +230,7 @@ void Conexion_con_planificador(int cpu) {
 
 		}
 	}
+
 	free(estructuraCabecera);
 	close(serverSocket);
 	printf("Conexion a planificador cerrada \n");
@@ -519,8 +539,25 @@ void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket)
 	free(finQuantum);
 }
 
+time_t obtenerTiempoActual(void){
+
+	time_t timer;
+	time(&timer);
+	return timer;
+}
+
+double diferenciaEnSegundos (time_t inicio, time_t fin){
+
+	double segundos;
+	segundos = difftime(fin,inicio);
+	printf ("%.f  segundos en\n", segundos);
+	return segundos;
+}
+
 void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket, int serverMemoria, int quantum) {
 
+	time_t valori;
+	valori = obtenerTiempoActual();
 	char *resultado = string_new();//instrucciones concatenadas con / a devolver al planificador con los resultados
 	int i = 0;
 	int contadorEjecutadas = 0;
@@ -650,6 +687,18 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						tamanioFin = strlen(resultado)+1;//por el fin de cadena
 						send(serverSocket,&tamanioFin, sizeof(int), 0);
 						send(serverSocket,resultado, tamanioFin, 0);
+
+						//todo pasar al hilo calculador
+						//por finalizar proceso
+						time_t valorf;
+						valorf = obtenerTiempoActual();
+						double diferencia = diferenciaEnSegundos(valori,valorf);
+
+						//devuelve la cantidad de lineas ejecutadas cada 60 seg
+						double total=(60*contadorEjecutadas)/diferencia;
+						double porcentaje = (total* 100) / 60 ;
+						printf("el porcentaje de uso de cpu es %lf \n",porcentaje);
+						//hasta aca pasar al hilo
 
 						free(substrings[0]);
 						free(substrings);

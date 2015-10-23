@@ -76,6 +76,9 @@ t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 //static int serverMemoria = 0;//server para memoria
 static double porcentajeCPU = 0;
+static time_t valori = 0;
+static time_t valorf = 0;
+static int contadorEjecutadas = 0;
 
 //static int serverSocket; //socket de conexion con planificador
 //semaforos

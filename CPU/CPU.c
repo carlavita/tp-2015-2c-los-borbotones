@@ -52,12 +52,24 @@ void* thread_func(void *envio) {
 void calcularPorc(void *ptr){
 
 	printf("Calculando porcentaje de uso de cpu %lf \n", porcentajeCPU);
-
+	double total;
+	double diferencia;
 	//aca un while con sleep de 60 seg para actualizar el porcentaje
-	/*while (1){
+	while (1){
 		sleep(60);
+
+		diferencia = diferenciaEnSegundos(valori,valorf);
+		if (diferencia == 0){
+			printf("el porcentaje de uso de cpu es %lf \n",porcentajeCPU);
+		} else {
+		//devuelve la cantidad de lineas ejecutadas cada 60 seg
+		printf("la cantidad de lineas ejecutadas son %d \n",contadorEjecutadas);
+		total=(60*contadorEjecutadas)/diferencia;
 		//todo realizar el porcentaje de uso del último minuto de cada cpu
-	}*/
+		porcentajeCPU = (total* 100) / 60 ;
+		printf("el porcentaje de uso de cpu es %lf \n",porcentajeCPU);
+		}
+	}
 
 }
 
@@ -556,11 +568,13 @@ double diferenciaEnSegundos (time_t inicio, time_t fin){
 
 void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket, int serverMemoria, int quantum) {
 
-	time_t valori;
+	//time_t valori;
+	//todo cuidado que hay que sincronizar region critica
 	valori = obtenerTiempoActual();
 	char *resultado = string_new();//instrucciones concatenadas con / a devolver al planificador con los resultados
 	int i = 0;
-	int contadorEjecutadas = 0;
+	//int contadorEjecutadas = 0;
+	contadorEjecutadas = 0;
 	int seguir = 1;
 	char *path_absoluto = string_new();
 	log_info(logCPU, "Inicia parseo desde linea incial: %d", lineaInicial);
@@ -621,8 +635,7 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 					}
 					if (esLeer(substrings[0])) {
 						contadorEjecutadas++;
-						printf("comando leer, parametro %d \n",
-								atoi(substrings[1]));
+						printf("comando leer, parametro %d \n",atoi(substrings[1]));
 						//leer(atoi(substrings[1]), pid, serverSocket,serverMemoria);
 						char *lectura = leer(atoi(substrings[1]), pid, serverSocket,serverMemoria);
 
@@ -688,17 +701,9 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						send(serverSocket,&tamanioFin, sizeof(int), 0);
 						send(serverSocket,resultado, tamanioFin, 0);
 
-						//todo pasar al hilo calculador
-						//por finalizar proceso
-						time_t valorf;
+						//todo cuidado que hay que sincronizar region critica
 						valorf = obtenerTiempoActual();
-						double diferencia = diferenciaEnSegundos(valori,valorf);
 
-						//devuelve la cantidad de lineas ejecutadas cada 60 seg
-						double total=(60*contadorEjecutadas)/diferencia;
-						double porcentaje = (total* 100) / 60 ;
-						printf("el porcentaje de uso de cpu es %lf \n",porcentaje);
-						//hasta aca pasar al hilo
 
 						free(substrings[0]);
 						free(substrings);
@@ -713,6 +718,8 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 		}
 
 		fclose(fid);
+		//todo revisar para que actualice sino procesa nada
+		//contadorEjecutadas = 0;
 
 	}
 }

@@ -19,7 +19,10 @@
 #include <protocolo.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <pthread.h>
 
+
+pthread_mutex_t mutex;
 int main() {
 	remove("ArchivoLogueoSWAP.txt");
 	logSWAP = log_create("ArchivoLogueoSWAP.txt", "SWAP", true, LOG_LEVEL_INFO);
@@ -51,8 +54,10 @@ int main() {
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	//for (;;) {
 	int recibir = 1;
-	while(recibir)	{
-	recibir = escucharMensajes(servidor);
+	while (recibir) {
+		pthread_mutex_lock(&mutex);
+		recibir = escucharMensajes(servidor);
+		pthread_mutex_unlock(&mutex);
 	}
 	close(servidor);
 
@@ -107,16 +112,17 @@ int iniciar(int idProceso, int cantidadPaginas) {
 		paginasLibres = paginasLibres - cantidadPaginas;
 
 		/* ACTUALIZO MI LISTA DE PAGINAS LIBRES */
+		if (posicionEnLista != ERROR) {
+			t_tablaPaginasLibres * paginas = list_get(listaPaginasLibres,
+					posicionEnLista);
 
-		t_tablaPaginasLibres * paginas = list_get(listaPaginasLibres,
-				posicionEnLista);
+			if (paginas->hastaPagina + 1 - paginas->desdePagina
+					== cantidadPaginas) {
+				list_remove(listaPaginasLibres, 0);
 
-		if (paginas->hastaPagina + 1 - paginas->desdePagina
-				== cantidadPaginas) {
-			list_remove(listaPaginasLibres, 0);
-
-		} else {
-			paginas->desdePagina = paginas->desdePagina + cantidadPaginas;
+			} else {
+				paginas->desdePagina = paginas->desdePagina + cantidadPaginas;
+			}
 		}
 
 		/* LOGEO EN INICIAR */
@@ -149,7 +155,7 @@ int finalizar(int PID) {
 
 	//ACA VA LA ELIMINACION DEL CONTENIDO DEL SWAP DE ESAS PAGINAS
 	fseek(archivoDisco, primerPagina * configuracionSWAP.TamanioPagina,
-			SEEK_SET);
+	SEEK_SET);
 	//fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
 	fputs(contenido, archivoDisco);
 
@@ -227,7 +233,7 @@ int escribir(int PID, int nroPagina, char* contenidoPagina) {
 
 	//char* contenido = malloc(tamanioPagina - string_length(contenidoPagina));
 	//contenido = string_repeat('\0',
-			//tamanioPagina - string_length(contenidoPagina));
+	//tamanioPagina - string_length(contenidoPagina));
 
 	fseek(archivoDisco, primerBytePagina, SEEK_SET);
 	//fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
@@ -412,12 +418,19 @@ int busquedaPIDEnLista(int PID) {
 }
 
 int busquedaPaginaEnLista(int numeroPagina) {
+	bool paginas(t_tablaPaginasLibres * tpl) {
+		return tpl->desdePagina == numeroPagina;
+	}
 	int poss = 0;
 	t_tablaPaginasLibres* paginaLibre;
 	paginaLibre = list_get(listaPaginasLibres, poss);
-	while (paginaLibre->desdePagina != numeroPagina) {
-		poss++;
-		paginaLibre = list_get(listaProcesos, poss);
+	if (list_count_satisfying(listaPaginasLibres, (void *) paginas) >= 1) {
+		while (paginaLibre->desdePagina != numeroPagina) {
+			poss++;
+			paginaLibre = list_get(listaProcesos, poss);
+		}
+	} else {
+		return ERROR;
 	}
 	return poss;
 
@@ -511,16 +524,16 @@ int escucharMensajes(int servidor) {
 		log_info(logSWAP, "Se recibio mensaje LEER");
 		recv(servidor, &estructuraMemoriaLeer, sizeof(t_leer), 0);
 
-		char * contenido = malloc(configuracionSWAP.TamanioPagina +1);
+		char * contenido = malloc(configuracionSWAP.TamanioPagina + 1);
 		contenido = leer(estructuraMemoriaLeer.pid,
 				estructuraMemoriaLeer.pagina);
-		int tamanio =  configuracionSWAP.TamanioPagina + 1;
+		int tamanio = configuracionSWAP.TamanioPagina + 1;
 		contenido[configuracionSWAP.TamanioPagina] = '\0';
 		/*if (contenido != NULL)
-			tamanio = string_length(contenido);*/
+		 tamanio = string_length(contenido);*/
 		send(servidor, &tamanio, sizeof(int), 0);
 
-	//	send(servidor, contenido, string_length(contenido), 0);
+		//	send(servidor, contenido, string_length(contenido), 0);
 		send(servidor, contenido, tamanio, 0);
 		break;
 	case ESCRIBIR:
@@ -535,17 +548,18 @@ int escucharMensajes(int servidor) {
 		//sendACK(servidor);
 		//char * contenidoEscribir = malloc(sizeContenido);
 		//recv(servidor, &contenidoEscribir, sizeof(char*), 0);
-		int status = escribir(estructuraMemoriaEscribir.pid, estructuraMemoriaEscribir.pagina, estructuraMemoriaEscribir.contenidoPagina);
+		int status = escribir(estructuraMemoriaEscribir.pid,
+				estructuraMemoriaEscribir.pagina,
+				estructuraMemoriaEscribir.contenidoPagina);
 		t_mensajeHeader escribir;
-				escribir.idmensaje = status;
-		send(servidor,&escribir, sizeof(t_mensajeHeader), 0);
+		escribir.idmensaje = status;
+		send(servidor, &escribir, sizeof(t_mensajeHeader), 0);
 
 		break;
 	case FINALIZAR:
 		log_info(logSWAP, "Se recibio mensaje FINALIZAR");
 		recv(servidor, &estructuraMemoriaFinalizar, sizeof(t_finalizarPID), 0);
 		status = finalizar(estructuraMemoriaFinalizar.pid);
-		printf("FINALIZAR!!!!!: %d", status);
 		t_mensajeHeader finalizar;
 		finalizar.idmensaje = status;
 		send(servidor, &finalizar, sizeof(t_mensajeHeader), 0);
@@ -553,5 +567,5 @@ int escucharMensajes(int servidor) {
 	default:
 		log_info(logSWAP, "Mensaje incorrecto");
 	}
-return recibir;
+	return recibir;
 }

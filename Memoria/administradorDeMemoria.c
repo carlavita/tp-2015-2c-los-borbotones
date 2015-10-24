@@ -23,20 +23,30 @@
 #include <netdb.h>
 #include <protocolo.h>
 #include "administradorDeMemoria.h"
-
-void * inicioHiloSigUsr1() {
-	return NULL;
-}
-void * inicioHiloSigUsr2() {
-	return NULL;
-}
+#include <signal.h>
 pthread_mutex_t mutexIniciar;
 pthread_mutex_t mutexLeer;
 pthread_mutex_t mutexEscribir;
 pthread_mutex_t mutexFinalizar;
 pthread_mutex_t mutexFrame;
-
+pthread_mutex_t mutexSenhal;
+pthread_mutex_t mutexTLB;
 int ultimoFrameAsignado = 0;
+int senhal;
+
+
+void * inicioHiloSigUsr1() {
+	pthread_mutex_lock(&mutexTLB);
+	list_destroy(tlb);
+	list_create(tlb);
+	pthread_mutex_unlock(&mutexTLB);
+	return NULL;
+}
+void * inicioHiloSigUsr2() {
+	//LIMPIAR TODAS LAS TABLAS DE PAGINAS(cada tabla de paginas de cada proceso)
+	//pasarlas al LOG
+	return NULL;
+}
 
 void crearListas() {
 	tablaDePaginas = list_create();
@@ -52,11 +62,6 @@ int main() {
 			LOG_LEVEL_INFO);
 	leerConfiguracion();
 
-	creacionHilos(logMemoria);
-	pthread_join(*hiloSigUsr1, NULL);
-	log_info(logMemoria, "termino hiloSigUsr1");
-	pthread_join(*hiloSigUsr2, NULL);
-	log_info(logMemoria, "Termino hiloSigUsr2");
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();
 	creacionTLB(&configMemoria, logMemoria);
@@ -64,6 +69,7 @@ int main() {
 
 	int servidorCPU = servidorMultiplexorCPU(configMemoria.puertoEscucha);
 
+	exit(0);
 }
 
 void leerConfiguracion() {
@@ -191,28 +197,28 @@ void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas) {
 	bool CantidadDePaginasDelProceso(t_tablaDePaginas * tablaDePaginas) {
 		return tablaDePaginas->pid == pid;
 	}
-	int paginaAsignada = 0;
 	if (list_count_satisfying(listaDePidFrames, (void*) yaSeAsignoPid)
 			< configMemoria.maximoMarcosPorProceso) { //SI YA LE ASIGNE TODOS LOS frames posibles no le asigno ninguno mas
-		while (paginaAsignada < cantidadDePaginas) {
+
 			t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
-			if (configMemoria.maximoMarcosPorProceso > ultimoFrameAsignado) {
+			if ((configMemoria.cantidadDeMarcos > ultimoFrameAsignado) && (list_count_satisfying(listaDePidFrames, (void*) yaSeAsignoPid)
+					< configMemoria.maximoMarcosPorProceso)) {
 				estructuraPidFrame->frameAsignado = ultimoFrameAsignado;
 				estructuraPidFrame->pid = pid;
 				estructuraPidFrame->frameUsado = 0; //0 SIN USAR, 1 USADO.
 				list_add(listaDePidFrames, estructuraPidFrame);
 				log_info(logMemoria, "frame asignado: %d al pid:%d",
 						ultimoFrameAsignado, pid);
-				if (paginaAsignada
+				/*if (paginaAsignada
 						< list_count_satisfying(tablaDePaginas,
 								(void *) CantidadDePaginasDelProceso)) {
 					generarEstructuraParaAlgoritmos(pid, ultimoFrameAsignado,
-							paginaAsignada);
+							paginaAsignada);*/
 					ultimoFrameAsignado++;
 				}
-			}
 
-			paginaAsignada++;
+
+		//	paginaAsignada++;
 			free(estructuraPidFrame);
 		}
 		agregarAEstructuraGeneral(&estructurasDelProceso, pid);
@@ -221,7 +227,7 @@ void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas) {
 		pthread_mutex_unlock(&mutexFrame);
 	}
 
-}
+
 void generarEstructuraAdministrativaPidFrame(int pid, int paginas) {
 	log_info(logMemoria, "INICIO ESTRUCTURA ADMINISTRATIVA, FRAMES-PID");
 	log_info(logMemoria, "Cantidad maxima de frames por proceso: %d",
@@ -295,10 +301,10 @@ int buscarEnLaTLB( pid, pagina) {
 	int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
 	if (cantidad > 0) {
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB");
-		return 0;
+		return 1;
 	} else {
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB");
-		return 1;
+		return -1;
 	}
 }
 
@@ -306,7 +312,7 @@ int busquedaPIDEnLista(int PID, int pagina) {
 	int posicion = 0;
 	t_tablaDePaginas* pag;
 	pag = list_get(tablaDePaginas, posicion);
-	while (pag->pagina != pagina) {
+	if(pag->pagina != pagina) {
 		if (pag->pid == PID) {
 			if (posicion == list_size(tablaDePaginas))
 				return -1;
@@ -441,14 +447,11 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 	if (ultimoFrameAsignado == configMemoria.maximoMarcosPorProceso) {
 		log_warning(logMemoria,
 				"EJECUTAR ALGORITMO DE REEMPLAZO DE PAGINAS \0 ACTUALIZACION DE FRAMES \0 ACTUALIZACION DE TLB \n");
-		paginaAAsignar->marco = -1; //ASIGNO INVALIDO POR AHORA
+		algoritmoFifo(pid, paginaAAsignar->pagina);
+		//paginaAAsignar->marco = -1; //ASIGNO INVALIDO POR AHORA
 	} else
 		paginaAAsignar->marco = ultimoFrameAsignado;
 
-	printf("PAGINA    PID    MARCO\n");
-	printf("  %d       %d      %d", paginaAAsignar->pagina, paginaAAsignar->pid,
-			paginaAAsignar->marco);
-	fflush(stdout);
 	list_add(tablaDePaginas, paginaAAsignar);
 
 }
@@ -469,7 +472,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTP == 1) {
-				//buscarContenidoPagina(pid, pagina, socketCPU);
+				buscarContenidoPagina(pid, pagina, socketCPU);
 			} else {
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
@@ -490,7 +493,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 	}
 }
 
-void procesamientoDeMensajes(int cliente, int servidor) {
+void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 	t_iniciarPID *estructuraCPU = malloc(sizeof(t_iniciarPID));
 
 	t_finalizarPID *finalizarCPU = malloc(sizeof(t_finalizarPID));
@@ -505,19 +508,22 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 							* configMemoria.tamanioMarcos));
 	int statusMensajeRecibidoDeLaCPU; //MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
 	t_mensajeHeader mensajeHeader, mensajeHeaderSwap;
-	statusMensajeRecibidoDeLaCPU = recv(servidor, &mensajeHeader,
+	statusMensajeRecibidoDeLaCPU = recv(servidorCPU, &mensajeHeader,
 			sizeof(t_mensajeHeader), 0);
+
 	printf("mensaje recibido: %d", mensajeHeader.idmensaje);
 	fflush(stdout);
 
 	if (statusMensajeRecibidoDeLaCPU < 0)
 		log_info(logMemoria, "Error al recibir de la CPU");
+
+
 	else {
 
 		switch (mensajeHeader.idmensaje) {
 		case INICIAR:
 			pthread_mutex_lock(&mutexIniciar);
-			recv(servidor, estructuraCPU, sizeof(t_iniciarPID), 0);
+			recv(servidorCPU, estructuraCPU, sizeof(t_iniciarPID), 0);
 			generarTablaDePaginas(memoriaReservadaDeMemPpal, estructuraCPU->pid,
 					estructuraCPU->paginas);
 
@@ -534,8 +540,8 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 					estructuraCPU->pid, estructuraCPU->paginas);
 			log_info(logMemoria,
 					"Inicio del aviso al proceso SWAp del comando INICIAR");
-			enviarIniciarSwap(cliente, estructuraCPU, mensajeHeaderSwap,
-					servidor, logMemoria);
+			enviarIniciarSwap(clienteSWAP, estructuraCPU, mensajeHeaderSwap,
+					servidorCPU, logMemoria);
 			log_info(logMemoria,
 					"Fin del aviso al proceso SWAp del comando INICIAR");
 			free(estructuraCPU);
@@ -548,8 +554,8 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			log_info(logMemoria, "2do checkpoint: Se envia directo al swap");
 			mensajeHeaderSwap.idmensaje = LEER;
 
-			recv(servidor, &estructuraLeerSwap, sizeof(t_leer), 0);
-			leerPagina(estructuraLeerSwap, cliente, servidor,
+			recv(servidorCPU, &estructuraLeerSwap, sizeof(t_leer), 0);
+			leerPagina(estructuraLeerSwap, clienteSWAP, servidorCPU,
 					mensajeHeaderSwap);
 			//send(servidor, contenidoLeido, sizeof(tamanioLeido), 0);
 
@@ -562,16 +568,16 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 			log_info(logMemoria, "Solicitud de escritura recbidia");
 			log_info(logMemoria, "2do chekcpoint NO APLICA");
 
-			recv(servidor, estructuraEscribirSwap, sizeof(t_escribir), 0);
+			recv(servidorCPU, estructuraEscribirSwap, sizeof(t_escribir), 0);
 
 			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
-					sizeof(t_escribir), cliente);
-			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+					sizeof(t_escribir), clienteSWAP);
+			recv(clienteSWAP, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 
 			pthread_mutex_unlock(&mutexEscribir);
 
 			serializarEstructura(mensajeHeaderSwap.idmensaje,
-			NULL, 0, servidor);
+			NULL, 0, servidorCPU);
 			free(estructuraEscribirSwap);
 
 			break;
@@ -581,24 +587,24 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 
 			//recv(servidor, finalizarCPU, sizeof(t_finalizarPID), 0);
 			//recv(servidor, &finalizarCPU, sizeof(t_finalizarPID), 0);
-			recv(servidor, finalizarCPU, sizeof(t_finalizarPID), 0);
+			recv(servidorCPU, finalizarCPU, sizeof(t_finalizarPID), 0);
 
 			printf("FINALIZAR PID: %d\n", finalizarCPU->pid);
 
 			fflush(stdout);
 
 			serializarEstructura(FINALIZAR, (void *) finalizarCPU,
-					sizeof(t_finalizarPID), cliente);
-			recv(cliente, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+					sizeof(t_finalizarPID), clienteSWAP);
+			recv(clienteSWAP, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 
 			if (mensajeHeaderSwap.idmensaje == OK)
 
 				serializarEstructura(mensajeHeaderSwap.idmensaje,
-				NULL, 0, servidor);
+				NULL, 0, servidorCPU);
 			else
 
 				serializarEstructura(mensajeHeaderSwap.idmensaje,
-				NULL, 0, servidor);
+				NULL, 0, servidorCPU);
 			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			pthread_mutex_unlock(&mutexFinalizar);
 			break;
@@ -613,39 +619,7 @@ void procesamientoDeMensajes(int cliente, int servidor) {
 
 }
 
-void creacionHilos(t_log* logMemoria) {
-	/*
-	 * 	CREACION HILOS SINCRONIZADOS PARA ADMINISTRAR LAS SEÑALES sigusr1 y sigusr2
-	 */
-	log_info(logMemoria,
-			"Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2");
-	hiloSigUsr1 = malloc(sizeof(pthread_t*));
-	hiloSigUsr2 = malloc(sizeof(pthread_t*));
-	pthread_create(hiloSigUsr1, NULL, inicioHiloSigUsr1, NULL);
-	pthread_create(hiloSigUsr2, NULL, inicioHiloSigUsr2, NULL);
-	free(hiloSigUsr1);
-	free(hiloSigUsr2);
-	log_info(logMemoria,
-			"Fin creación hilos para atender señales SIGUSR1 y SIGUSR2");
-}
-/*void generarEstructuraAdministrativaPIDFrame() {
- pthread_mutex_lock(&mutexFrame);
- log_info(logMemoria,
- "Inicio creacion estructura administrativa frame asignado a proceso");
- listaDePidFrames = malloc(sizeof(t_list));/*ESTA CREACION VA A ESTAR EN EL MAIN*/
-/*listaDePidFrames = list_create();
- t_pidFrame *estructuraPidFrame = malloc(sizeof(t_pidFrame));
- while (ultimoFrameAsignado < configMemoria.cantidadDeMarcos) {
- log_trace(logMemoria, "N° frame:%d", ultimoFrameAsignado);
- estructuraPidFrame->frameAsignado = ultimoFrameAsignado;
- estructuraPidFrame->pid = -1;		// F RAME/MARCO LIBRE
- list_add(listaDePidFrames, estructuraPidFrame);
- ultimoFrameAsignado++;
- }
- log_debug(logMemoria,
- "Fin creacion estructura administrativa frame asignado a proceso");
- pthread_mutex_unlock(&mutexFrame);
- }*/
+
 int ServidorCPU(int PUERTO) {
 	int socketservidor;
 	int yes = 1;
@@ -684,7 +658,34 @@ int ServidorCPU(int PUERTO) {
 	return socketservidor;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+void RealizarVolcadoMemoriaLog()
+{
+
+}
+
+void atenderSeaniales(int senhal)
+{
+
+	pid_t pidProcesoClonado;
+	switch (senhal) {
+		case SIGUSR1:
+			pthread_create(hiloSigUsr1,NULL,inicioHiloSigUsr1,NULL);
+			pthread_join(*hiloSigUsr1,NULL);
+			break;
+		case SIGUSR2:
+			pthread_create(hiloSigUsr2,NULL,inicioHiloSigUsr2,NULL);
+			pthread_join(*hiloSigUsr2,NULL);
+			raise(SIGALRM);
+			break;
+		case SIGPOLL:
+			pidProcesoClonado = fork();
+			if (pidProcesoClonado == 0) //PROCESO HIJO
+				RealizarVolcadoMemoriaLog();
+			else
+				return;
+			break;
+	}
+}
 
 int servidorMultiplexorCPU(int PUERTO) {
 	fd_set master;
@@ -692,14 +693,10 @@ int servidorMultiplexorCPU(int PUERTO) {
 	struct sockaddr_in clientaddr;
 	int fdmax;
 	int newfd;
-	//char paquete[1024];
-	char paquete[PACKAGESIZE];
-	int nbytes;
 	int i;
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
-	//buffer = malloc(sizeof(paquete));
-	char * buffer = malloc(PACKAGESIZE);
+
 	int socketservidor = Servidor(PUERTO);
 
 	FD_SET(socketservidor, &master);
@@ -713,6 +710,7 @@ int servidorMultiplexorCPU(int PUERTO) {
 		printf("Select Activado\n");
 
 		for (i = 0; i <= fdmax; i++) {
+	//		signal(senhal,atenderSeaniales);
 			if (FD_ISSET(i, &read_fds)) {
 				if (i == socketservidor) {
 					socklen_t addrlen = sizeof(clientaddr);
@@ -731,11 +729,85 @@ int servidorMultiplexorCPU(int PUERTO) {
 
 					}
 				} else {
+
 					procesamientoDeMensajes(clienteSwap, i);
 				}
 			}
 		}
 	}
+	close(i);
 
 	exit(0);		//el descriptor del cliente seleccionado
+}
+/*FUNCIONES DE ALGORITMO FIFO!*/
+/*hay que devolver el frame*/
+void algoritmoFifo(int pid, int paginaLeida) {
+	log_info(logMemoria, "ALGORTIMO FIFO INICIADO");
+	FrameSinUsar(pid, paginaLeida);
+}
+
+int pageFault = 0;
+void reemplazoDePagina(int pid, int paginaRefenciada,
+		t_tablaDePaginas *reemplazo) {
+
+	bool framesDelPID(
+			t_estructuraAlgoritmoReemplazoPaginas * estructuraReemplazo) {
+		return estructuraReemplazo->pid == pid;
+	}
+	bool paginasDelPid(t_tablaDePaginas * tablaDePaginas) {
+		return tablaDePaginas->pid == pid;
+	}
+	int cantidadDeFrames = list_count_satisfying(estructuraAlgoritmos,
+			(void*) framesDelPID);
+	int i;
+	for (i = 0; i < cantidadDeFrames; i++) {
+		reemplazo = list_get(estructuraAlgoritmos, i);
+		reemplazo->marco = i;
+		if (reemplazo->pagina == paginaRefenciada) {
+			t_tablaDePaginas * reemplazarFrame = malloc(
+					sizeof(t_tablaDePaginas));
+			reemplazarFrame = list_get(tablaDePaginas, paginaRefenciada);
+			reemplazarFrame->marco = i;
+			list_replace(tablaDePaginas, paginaRefenciada, reemplazarFrame);
+			return;
+		}
+	}
+	if (reemplazo->marco == cantidadDeFrames - 1) {
+		reemplazo->marco = 0;
+	} else if (reemplazo->marco == -1) {
+		reemplazo->marco = 0;
+	} else {
+		reemplazo->marco = reemplazo->marco + 1;
+	}
+	reemplazo->pagina = paginaRefenciada;
+	pageFault++;
+}
+
+pthread_mutex_t mutexFrameSinUsar;
+void FrameSinUsar(int pid, int paginaReferenciada) {
+	pthread_mutex_lock(&mutexFrameSinUsar);
+	t_tablaDePaginas * reemplazo = malloc(sizeof(t_tablaDePaginas));
+	bool framesDelPID(
+			t_estructuraAlgoritmoReemplazoPaginas * estructuraReemplazo) {
+		return estructuraReemplazo->pid == pid;
+	}
+	bool paginasDelPid(t_tablaDePaginas * tablaDePaginas) {
+		return tablaDePaginas->pid == pid;
+	}
+	int cantidadDeFrames = configMemoria.maximoMarcosPorProceso;/*list_count_satisfying(estructuraAlgoritmos,
+	 (void*) framesDelPID);*/
+	int i = 0;
+	while (i < cantidadDeFrames) {
+		reemplazo = list_get(tablaDePaginas, i);
+		reemplazo->marco = i;
+
+		i++;
+	}
+	i = 0;
+	while (i < cantidadDeFrames) {
+		reemplazoDePagina(pid, paginaReferenciada, reemplazo);
+		i++;
+	}
+	//free(reemplazo);
+	pthread_mutex_unlock(&mutexFrameSinUsar);
 }

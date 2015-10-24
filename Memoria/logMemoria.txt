@@ -1,54 +1,293 @@
-[INFO] 20:06:32:480 Administrador de memoria/(6616:6616): Inicio lectura de archivo de configuración
-[INFO] 20:06:32:481 Administrador de memoria/(6616:6616): 64000
-[INFO] 20:06:32:481 Administrador de memoria/(6616:6616): Finalizo lectura de archivo de configuración
-[INFO] 20:06:32:481 Administrador de memoria/(6616:6616): Inicio creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): Fin creación hilos para atender señales SIGUSR1 y SIGUSR2
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): termino hiloSigUsr1
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): Termino hiloSigUsr2
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): Comienzo de las diferentes conexiones
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): Inicio creacion de la TLB
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): Finalizo existosamente la creacion de la TLB
-[INFO] 20:06:32:510 Administrador de memoria/(6616:6616): La memoria se conecto satisfactoriamente al SWAP
-[INFO] 20:06:39:888 Administrador de memoria/(6616:6616): INICIO TABLAS DE PAGINAS
-[INFO] 20:06:48:589 Administrador de memoria/(6616:6616): FIN TABLAS DE PAGINAS
-[INFO] 20:06:48:589 Administrador de memoria/(6616:6616): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 2
-[INFO] 20:06:48:589 Administrador de memoria/(6616:6616): Inicio del aviso al proceso SWAp del comando INICIAR
-[INFO] 20:06:48:589 Administrador de memoria/(6616:6616): Envio pagina al SWAP, PAGINA N°:2
-[INFO] 20:06:48:589 Administrador de memoria/(6616:6616): Envio pid al SWAP, PID:1
-[INFO] 20:06:48:590 Administrador de memoria/(6616:6616): SWAP recibio la pagina de forma correcta
-[INFO] 20:06:48:590 Administrador de memoria/(6616:6616): Se recibio este codigo de error: 14
-[INFO] 20:06:48:590 Administrador de memoria/(6616:6616): Se proceso correctamente el mensaje
-[INFO] 20:06:48:590 Administrador de memoria/(6616:6616): Fin del aviso al proceso SWAp del comando INICIAR
-[INFO] 20:06:51:591 Administrador de memoria/(6616:6616): Solicitud de lectura recibida
-[INFO] 20:06:51:591 Administrador de memoria/(6616:6616): 2do checkpoint: Se envia directo al swap
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): INICIO BUSQUEDA DE PAGINA EN TLB
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): PAGINA NO ENCONTRADA EN LA TLB
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): INICIO BUSQUEDA EN TABLA DE PAGINAS
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): FIN CLOSURE
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): Cantidad de elementos: -1
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
-[INFO] 20:06:52:618 Administrador de memoria/(6616:6616): INICIO PEDIDO AL SWAP
-[INFO] 20:06:52:619 Administrador de memoria/(6616:6616): tamaño: 5 
+[INFO] 11:22:48:270 Administrador de memoria/(3675:3675): Inicio lectura de archivo de configuración
+[INFO] 11:22:48:271 Administrador de memoria/(3675:3675): 64000
+[INFO] 11:22:48:271 Administrador de memoria/(3675:3675): Finalizo lectura de archivo de configuración
+[INFO] 11:22:48:271 Administrador de memoria/(3675:3675): Comienzo de las diferentes conexiones
+[INFO] 11:22:48:271 Administrador de memoria/(3675:3675): Inicio creacion de la TLB
+[INFO] 11:22:48:271 Administrador de memoria/(3675:3675): Finalizo existosamente la creacion de la TLB
+[INFO] 11:22:48:271 Administrador de memoria/(3675:3675): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): INICIO TABLAS DE PAGINAS
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): FIN TABLAS DE PAGINAS
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 10
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Envio pagina al SWAP, PAGINA N°:10
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Envio pid al SWAP, PID:1
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): SWAP recibio la pagina de forma correcta
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Se recibio este codigo de error: 14
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Se proceso correctamente el mensaje
+[INFO] 11:22:59:735 Administrador de memoria/(3675:3675): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:02:353 Administrador de memoria/(3675:3675): INICIO TABLAS DE PAGINAS
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): FIN TABLAS DE PAGINAS
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): Proceso mProc creado, PID: 2, Cantidad de paginas asignadas: 2
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): Envio pagina al SWAP, PAGINA N°:2
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): Envio pid al SWAP, PID:2
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): SWAP recibio la pagina de forma correcta
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): Se recibio este codigo de error: 14
+[INFO] 11:23:02:354 Administrador de memoria/(3675:3675): Se proceso correctamente el mensaje
+[INFO] 11:23:02:355 Administrador de memoria/(3675:3675): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): Cantidad de elementos: -1
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:02:757 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:02:758 Administrador de memoria/(3675:3675): tamaño: 5 
 
-[INFO] 20:06:52:619 Administrador de memoria/(6616:6616): Contenido: 
-[INFO] 20:06:52:619 Administrador de memoria/(6616:6616): FIN PEDIDO AL SWAP
-[INFO] 20:06:57:540 Administrador de memoria/(6616:6616): Finalizo comando LEER
-[INFO] 20:06:57:540 Administrador de memoria/(6616:6616): Solicitud de lectura recibida
-[INFO] 20:06:57:540 Administrador de memoria/(6616:6616): 2do checkpoint: Se envia directo al swap
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): INICIO BUSQUEDA DE PAGINA EN TLB
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): PAGINA NO ENCONTRADA EN LA TLB
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): INICIO BUSQUEDA EN TABLA DE PAGINAS
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): FIN CLOSURE
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): Cantidad de elementos: -1
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
-[INFO] 20:07:08:509 Administrador de memoria/(6616:6616): INICIO PEDIDO AL SWAP
-[INFO] 20:07:08:510 Administrador de memoria/(6616:6616): tamaño: 5 
+[INFO] 11:23:02:758 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:02:758 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:02:758 Administrador de memoria/(3675:3675): frame asignado: 0 al pid:1
+[INFO] 11:23:02:758 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): Cantidad de elementos: 1
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): PAGINA ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): tamaño: 5 
 
-[INFO] 20:07:08:510 Administrador de memoria/(6616:6616): Contenido: 
-[INFO] 20:07:08:510 Administrador de memoria/(6616:6616): FIN PEDIDO AL SWAP
-[INFO] 20:07:13:25 Administrador de memoria/(6616:6616): Pagina ASIGNADA: 0
-[INFO] 20:07:13:26 Administrador de memoria/(6616:6616): frame asignado: 0 al pid:1
-[INFO] 20:07:13:26 Administrador de memoria/(6616:6616): Inicio creacion estructura para algoritmos
-[INFO] 20:07:13:26 Administrador de memoria/(6616:6616): FIN creacion estructura para algoritmos
-[INFO] 20:07:13:26 Administrador de memoria/(6616:6616): Finalizo comando LEER
-[INFO] 20:07:13:26 Administrador de memoria/(6616:6616): FINALIZAR!
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): frame asignado: 1 al pid:2
+[INFO] 11:23:05:358 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): Cantidad de elementos: -1
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): frame asignado: 2 al pid:1
+[INFO] 11:23:05:778 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): INICIO TABLAS DE PAGINAS
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): FIN TABLAS DE PAGINAS
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Proceso mProc creado, PID: 3, Cantidad de paginas asignadas: 2
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Envio pagina al SWAP, PAGINA N°:2
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Envio pid al SWAP, PID:3
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): SWAP recibio la pagina de forma correcta
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Se recibio este codigo de error: 14
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Se proceso correctamente el mensaje
+[INFO] 11:23:06:715 Administrador de memoria/(3675:3675): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): Cantidad de elementos: 2
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:08:361 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:08:362 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:08:362 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:08:362 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:08:362 Administrador de memoria/(3675:3675): frame asignado: 3 al pid:2
+[INFO] 11:23:08:362 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): INICIO TABLAS DE PAGINAS
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): FIN TABLAS DE PAGINAS
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Proceso mProc creado, PID: 4, Cantidad de paginas asignadas: 2
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Envio pagina al SWAP, PAGINA N°:2
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Envio pid al SWAP, PID:4
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): SWAP recibio la pagina de forma correcta
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Se recibio este codigo de error: 14
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Se proceso correctamente el mensaje
+[INFO] 11:23:08:538 Administrador de memoria/(3675:3675): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): Cantidad de elementos: 3
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:08:788 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:08:789 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:08:789 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:08:789 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:08:789 Administrador de memoria/(3675:3675): frame asignado: 4 al pid:1
+[WARNING] 11:23:08:789 Administrador de memoria/(3675:3675): EJECUTAR ALGORITMO DE REEMPLAZO DE PAGINAS 
+[INFO] 11:23:08:789 Administrador de memoria/(3675:3675): ALGORTIMO FIFO INICIADO
+[INFO] 11:23:08:789 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): Cantidad de elementos: 0
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): frame asignado: 5 al pid:3
+[INFO] 11:23:09:722 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:11:373 Administrador de memoria/(3675:3675): FINALIZAR!
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): Cantidad de elementos: 6
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:11:541 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:11:542 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:11:542 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:11:542 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:11:542 Administrador de memoria/(3675:3675): frame asignado: 6 al pid:4
+[INFO] 11:23:11:542 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:11:791 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:11:791 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:11:791 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:11:791 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:11:792 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:11:792 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:11:792 Administrador de memoria/(3675:3675): Cantidad de elementos: 1
+[INFO] 11:23:11:792 Administrador de memoria/(3675:3675): PAGINA ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:11:792 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:11:793 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:11:793 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:11:793 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:11:793 Administrador de memoria/(3675:3675): frame asignado: 7 al pid:1
+[INFO] 11:23:11:793 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): Cantidad de elementos: 7
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:12:725 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:12:726 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:12:726 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:12:726 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:12:726 Administrador de memoria/(3675:3675): frame asignado: 8 al pid:3
+[INFO] 11:23:12:726 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): Cantidad de elementos: 9
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): frame asignado: 9 al pid:4
+[INFO] 11:23:14:545 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): Cantidad de elementos: 8
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): frame asignado: 10 al pid:1
+[INFO] 11:23:14:796 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:15:727 Administrador de memoria/(3675:3675): FINALIZAR!
+[INFO] 11:23:17:550 Administrador de memoria/(3675:3675): FINALIZAR!
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): Cantidad de elementos: 11
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:17:800 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:17:801 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:17:801 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:17:801 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:17:801 Administrador de memoria/(3675:3675): frame asignado: 11 al pid:1
+[INFO] 11:23:17:801 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): Cantidad de elementos: 12
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:20:804 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:20:805 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:20:805 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:20:805 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:20:805 Administrador de memoria/(3675:3675): frame asignado: 12 al pid:1
+[INFO] 11:23:20:805 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): Cantidad de elementos: 13
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:23:809 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:23:810 Administrador de memoria/(3675:3675): frame asignado: 13 al pid:1
+[INFO] 11:23:23:810 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): Cantidad de elementos: 14
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:26:812 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:26:813 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:26:813 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:26:813 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:26:813 Administrador de memoria/(3675:3675): frame asignado: 14 al pid:1
+[INFO] 11:23:26:813 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): Solicitud de lectura recibida
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): 2do checkpoint: Se envia directo al swap
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): FIN CLOSURE
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): Cantidad de elementos: 15
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): PAGINA NO ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 11:23:29:815 Administrador de memoria/(3675:3675): INICIO PEDIDO AL SWAP
+[INFO] 11:23:29:816 Administrador de memoria/(3675:3675): tamaño: 5 
+
+[INFO] 11:23:29:816 Administrador de memoria/(3675:3675): Contenido: 
+[INFO] 11:23:29:816 Administrador de memoria/(3675:3675): FIN PEDIDO AL SWAP
+[INFO] 11:23:29:816 Administrador de memoria/(3675:3675): frame asignado: 15 al pid:1
+[INFO] 11:23:29:816 Administrador de memoria/(3675:3675): Finalizo comando LEER
+[INFO] 11:23:32:818 Administrador de memoria/(3675:3675): FINALIZAR!

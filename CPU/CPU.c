@@ -567,7 +567,7 @@ double diferenciaEnSegundos (time_t inicio, time_t fin){
 }
 
 void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket, int serverMemoria, int quantum) {
-
+	FILE * fid;
 	//time_t valori;
 	//todo cuidado que hay que sincronizar region critica
 	valori = obtenerTiempoActual();
@@ -628,8 +628,8 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de iniciar es %s \n",resultado);
 
-						free(substrings[0]);
-						free(substrings[1]);
+						/*free(substrings[0]);
+						free(substrings[1]);*/
 						free(substrings);
 						continue;
 					}
@@ -643,8 +643,8 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);
 
-						free(substrings[0]);
-						free(substrings[1]);
+/*						free(substrings[0]);
+						free(substrings[1]);*/
 						free(substrings);
 						continue;
 					}
@@ -658,9 +658,9 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);
 
-						free(substrings[0]);
+/*						free(substrings[0]);
 						free(substrings[1]);
-						free(substrings[2]);
+						free(substrings[2]);*/
 						free(substrings);
 						continue;
 					}
@@ -680,8 +680,8 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						send(serverSocket,&tamanioIO, sizeof(int), 0);
 						send(serverSocket,resultado, tamanioIO, 0);
 
-						free(substrings[0]);
-						free(substrings[1]);
+						/*free(substrings[0]);
+						free(substrings[1]);*/
 						free(substrings);
 
 						seguir = 0; //para que salga del while

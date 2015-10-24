@@ -90,7 +90,7 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 int busquedaPIDEnLista(int PID, int pagina);
 
 /*ALGORITMO FIFO*/
-void algoritmoFifo(int pid,int paginaLeida);
+void algoritmoFifo(int pid, t_tablaDePaginas * paginaLeida);
 void reemplazoDePagina(int pid, int paginaRefenciada,t_tablaDePaginas *reemplazo);
-void FrameSinUsar(int pid, int paginaReferenciada);
+void FrameSinUsar(int pid, t_tablaDePaginas * paginaReferenciada);
 #endif /* ADMINISTRADORDEMEMORIA_H_ */

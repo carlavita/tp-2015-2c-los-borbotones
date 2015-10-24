@@ -35,7 +35,7 @@
 #define PATH_LOG "ArchivoLogueoCPU.txt"
 
 
-#define COMANDOCPU 5
+//#define COMANDOCPU 5
 #define TOKENINICIAR "iniciar"
 #define TOKENLEER "leer"
 #define TOKENESCRIBIR "escribir"
@@ -85,7 +85,7 @@ static int contadorEjecutadas = 0;
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 
 //OJO!!!! todo revisar esto pasar a local
-FILE* fid;
+//FILE* fid;
 
 
 //funciones de la cpu
@@ -107,7 +107,7 @@ void inicializarSemaforosCPU();
 
 
 void *ejecucion (void *ptr);
-char *iniciar (int cpu, int paginas, int mProcID,int serverSocket,int serverMemoria);
+char *iniciar (int cpu,FILE * fid, int paginas, int mProcID,int serverSocket,int serverMemoria);
 //void escribir (int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria);
 char *escribir (int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria);
 char *leer (int pagina, int mProcID,int serverSocket,int serverMemoria);

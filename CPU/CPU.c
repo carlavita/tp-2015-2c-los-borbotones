@@ -289,7 +289,7 @@ char *parsearLinea(char * lineaLeida) {
 	return lineaParseada;
 }
 
-char *iniciar(int cpu,int paginas, int mProcID,int serverSocket,int serverMemoria) {
+char *iniciar(int cpu,FILE * fid, int paginas, int mProcID,int serverSocket,int serverMemoria) {
 
 	printf("mProc %d - Iniciado \n", mProcID);
 
@@ -622,7 +622,7 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 						printf("comando iniciar, parametro %d \n",atoi(substrings[1]));
 						//iniciar(cpu, atoi(substrings[1]), pid, serverSocket,serverMemoria);
 
-						char *inicio = iniciar(cpu, atoi(substrings[1]), pid,serverSocket,serverMemoria);
+						char *inicio = iniciar(cpu,fid, atoi(substrings[1]), pid,serverSocket,serverMemoria);
 
 						string_append(&resultado,inicio);
 						string_append(&resultado,SEPARADORINSTRUCCION);

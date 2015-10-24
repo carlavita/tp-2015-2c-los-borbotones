@@ -35,7 +35,7 @@
 #define ERROR 15
 
 #define RESULTADOLECTURA 16
-
+#define COMANDOCPU 17
 //estados de linea de mCod
 
 
@@ -44,7 +44,8 @@
 #include <sys/socket.h>
 #include <string.h> // memcpy
 #include <stdlib.h> //malloc /realloc
-
+#include <stdio.h>      /* printf */
+#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 //estructura de header
 typedef struct __attribute__((packed))
 {
@@ -117,4 +118,6 @@ void recvACK(int socket);
 //int serializarEstructura(int id , void * estructura, int size , int socketDestino);
 int recibirEstructura(int sock, t_mensajeHeader header, void * estructura);
 int serializarEstructura(int id,  void *estructura, int size, int socketDestino);
+double diferenciaEnSegundos (time_t inicio, time_t fin);
+time_t  obtenerTiempoActual(void);
 #endif /* PROTOCOLO_H_ */

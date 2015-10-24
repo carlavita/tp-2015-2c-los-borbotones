@@ -35,7 +35,7 @@
 #define PATH_LOG "ArchivoLogueoCPU.txt"
 
 
-#define COMANDOCPU 5
+//#define COMANDOCPU 5
 #define TOKENINICIAR "iniciar"
 #define TOKENLEER "leer"
 #define TOKENESCRIBIR "escribir"

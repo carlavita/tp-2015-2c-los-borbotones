@@ -56,3 +56,16 @@ int serializarEstructura(int id,  void *estructura, int size, int socketDestino)
     return status;
 }
 
+double diferenciaEnSegundos (time_t inicio, time_t fin)
+{
+  double segundos;
+  segundos = difftime(inicio,fin);
+ // printf ("%.f  segundos en\n", segundos);
+  return segundos;
+}
+time_t  obtenerTiempoActual(void){
+
+time_t timer;
+time(&timer);
+return timer;
+}

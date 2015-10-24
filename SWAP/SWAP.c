@@ -35,21 +35,17 @@ int main() {
 	inicializarListas();
 
 	inicializarDisco();
-	/*
-	 PRUEBAS SWAP CON COMPACTACION
+/*
+	 //PRUEBAS SWAP CON COMPACTACION
 	 iniciar(1,10);
 	 iniciar(2,10);
 	 iniciar(3,10);
-	 iniciar(4,32);
-	 finalizar(2);
-	 escribir(3,1,"HOLA");
-	 escribir(4,3,"BUNE");
-	 escribir(4,5,"PEPE");
-	 iniciar(5,12);
-	 leer(3,1);
-	 leer(4,3);
-	 leer(4,5);
-	 */
+	 finalizar(3);
+	 finalizar(1);
+	 iniciar(4,10);
+
+*/
+
 
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	//for (;;) {
@@ -75,7 +71,6 @@ int iniciar(int idProceso, int cantidadPaginas) {
 	 * CASO -2: NO HAY ESPACIO PARA ASIGNAR LA CANTIDAD SOLICITADA
 	 * CASO 2(DEVUELVE LA PRIMER PAGINA ASIGNADA) : HAY ESPACIO Y SE ASIGNA
 	 */
-	//int nroPagina;
 	int paginaInicial;
 	t_tablaProcesos* proceso = malloc(sizeof(t_tablaProcesos));
 	int posicionEnLista;
@@ -103,11 +98,6 @@ int iniciar(int idProceso, int cantidadPaginas) {
 		proceso->cantidadEscrituras = 0;
 		proceso->cantidadLecturas = 0;
 		list_add(listaProcesos, proceso);
-
-		/*	char* contenido;
-		 contenido = string_repeat(' ', cantidadPaginas * configuracionSWAP.TamanioPagina);
-		 fseek(archivoDisco,paginaInicial*configuracionSWAP.TamanioPagina,SEEK_SET);
-		 fputs(contenido,archivoDisco);*/
 
 		paginasLibres = paginasLibres - cantidadPaginas;
 
@@ -150,13 +140,13 @@ int finalizar(int PID) {
 	int ultimaPagina = procesoFinalizado->ultimaPagina;
 	int bytesUsadosPorPID = ((ultimaPagina + 1 - primerPagina)
 			* configuracionSWAP.TamanioPagina);
-	//char * contenido = '\0';
+
 	char * contenido = string_repeat('\0', bytesUsadosPorPID);
 
 	//ACA VA LA ELIMINACION DEL CONTENIDO DEL SWAP DE ESAS PAGINAS
 	fseek(archivoDisco, primerPagina * configuracionSWAP.TamanioPagina,
 	SEEK_SET);
-	//fwrite(contenido,bytesUsadosPorPID,primerPagina,archivoDisco);
+
 	fputs(contenido, archivoDisco);
 
 	//ELIMINO DE LISTA DE PRCESOS Y AGREGO A LISTA DE PAGINAS LIBRES
@@ -181,7 +171,7 @@ int finalizar(int PID) {
 			cantidadEscrituras);
 	log_info(logSWAP, "Cantidad de Lecturas solicitadas: %d", cantidadLecturas);
 
-	ordenarLista();		//LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
+	//ordenarLista();		//LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
 	unificacionEspacioContiguo();
 
 	return OK;
@@ -195,8 +185,6 @@ char * leer(int PID, int nroPagina) {
 	int primerBytePagina = (nroPagina + procesoObtenido->primerPagina)
 			* tamanioPagina;
 	char * contenido = malloc(tamanioPagina);
-
-	//rewind(archivoDisco);
 
 	fseek(archivoDisco, primerBytePagina, SEEK_SET);
 	fgets(contenido, tamanioPagina + 1, archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
@@ -231,12 +219,12 @@ int escribir(int PID, int nroPagina, char* contenidoPagina) {
 			string_length(contenidoPagina));
 	log_info(logSWAP, "El contenido de escritura es %s", contenidoPagina);
 
-	//char* contenido = malloc(tamanioPagina - string_length(contenidoPagina));
-	//contenido = string_repeat('\0',
-	//tamanioPagina - string_length(contenidoPagina));
+	//VALIDO TAMAÑO DE LA PAGINA
+	if (string_length(contenidoPagina) > configuracionSWAP.TamanioPagina){
+		contenidoPagina = string_substring(contenidoPagina,0,configuracionSWAP.TamanioPagina);
+	}
 
 	fseek(archivoDisco, primerBytePagina, SEEK_SET);
-	//fwrite(contenidoPagina,tamanioPagina,primerBytePagina,archivoDisco);
 	fputs(contenidoPagina, archivoDisco);
 	//fputs(contenido, archivoDisco);
 
@@ -270,8 +258,6 @@ void * compactacion() {
 				int tamanioProceso = cantidadPaginas
 						* configuracionSWAP.TamanioPagina;
 				char * contenido = malloc(tamanioProceso);
-
-				//rewind(archivoDisco);
 
 				fseek(archivoDisco, primerBytePID, SEEK_SET);
 				fgets(contenido, tamanioProceso, archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
@@ -422,7 +408,7 @@ int busquedaPaginaEnLista(int numeroPagina) {
 		return tpl->desdePagina == numeroPagina;
 	}
 	int poss = 0;
-	t_tablaPaginasLibres* paginaLibre;
+	t_tablaPaginasLibres* paginaLibre = malloc(sizeof(t_tablaPaginasLibres));
 	paginaLibre = list_get(listaPaginasLibres, poss);
 	if (list_count_satisfying(listaPaginasLibres, (void *) paginas) >= 1) {
 		while (paginaLibre->desdePagina != numeroPagina) {
@@ -529,25 +515,14 @@ int escucharMensajes(int servidor) {
 				estructuraMemoriaLeer.pagina);
 		int tamanio = configuracionSWAP.TamanioPagina + 1;
 		contenido[configuracionSWAP.TamanioPagina] = '\0';
-		/*if (contenido != NULL)
-		 tamanio = string_length(contenido);*/
 		send(servidor, &tamanio, sizeof(int), 0);
 
-		//	send(servidor, contenido, string_length(contenido), 0);
 		send(servidor, contenido, tamanio, 0);
 		break;
 	case ESCRIBIR:
 		log_info(logSWAP, "Se recibio el mensaje ESCRIBIR");
-		//sendACK(servidor);
 		recv(servidor, &estructuraMemoriaEscribir, sizeof(t_escribir), 0);
-		//sendACK(servidor);
-		//recv(servidor, &paginas, sizeof(int), 0);
-		//sendACK(servidor);
-		//int sizeContenido;
-		//recv(servidor, &sizeContenido, sizeof(int), 0);
-		//sendACK(servidor);
-		//char * contenidoEscribir = malloc(sizeContenido);
-		//recv(servidor, &contenidoEscribir, sizeof(char*), 0);
+
 		int status = escribir(estructuraMemoriaEscribir.pid,
 				estructuraMemoriaEscribir.pagina,
 				estructuraMemoriaEscribir.contenidoPagina);

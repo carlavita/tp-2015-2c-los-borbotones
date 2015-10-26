@@ -49,6 +49,11 @@ char PATH[256];
 typedef struct __attribute__((packed))
 {
 	int id;
+	double porcentajeCPU;
+	time_t valori;
+	time_t valorf;
+	int contadorEjecutadas;
+
 }t_envio;
 
 typedef struct
@@ -72,23 +77,10 @@ typedef struct __attribute__((packed))
 
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
-//static int serverMemoria = 0;//server para memoria
-/*static __thread double porcentajeCPU = 0;
-static __thread time_t valori = 0;
-static __thread time_t valorf = 0;
-static __thread int contadorEjecutadas = 0;*/
-static double porcentajeCPU = 0;
-static time_t valori = 0;
-static time_t valorf = 0;
-static int contadorEjecutadas = 0;
 
-//static int serverSocket; //socket de conexion con planificador
 
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
-
-//FILE* fid;
-
 
 //funciones de la cpu
 
@@ -96,23 +88,20 @@ void calcularPorcentaje(void *ptr);
 void* thread_func(void* cpu);
 
 void LeerArchivoConfiguracion();
-void Conexion_con_planificador(int cpu);
+void Conexion_con_planificador(t_envio *param);
 
 
 int conexion_con_memoria();
 int busquedaPosicionCaracter (int posicion,char *listaDeArchivos, char valorABuscar);
 char *parsearLinea(char * lineaLeida);
-t_list* ejecutarmProc(int cpu,t_pcb pcbProc,int serverSocket,int serverMemoria);
 void inicializarSemaforosCPU();
 
 
 void *ejecucion (void *ptr);
 char *iniciar (int cpu,FILE * fid, int paginas, int mProcID,int serverSocket,int serverMemoria);
-//void escribir (int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria);
 char *escribir (int pagina, char *texto, int mProcID,int serverSocket,int serverMemoria);
 char *leer (int pagina, int mProcID,int serverSocket,int serverMemoria);
 char *finalizar(int cpu, int mProcID, int instrucciones,int serverSocket,int serverMemoria);
-//void procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,int serverMemoria);
 char *procesaIO(int pid, int tiempo, int cpu, int instrucciones,int serverSocket,int serverMemoria);
 
 
@@ -122,8 +111,8 @@ bool esIniciar(char* linea);
 bool esFinalizar(char* linea);
 bool esEscribir(char* linea);
 bool esIO(char* linea);
-// Abre el path y parsea el contenido desde la linea indicada
 
-void parsermCod(int cpu,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria, int quantum);
+// Abre el path y parsea el contenido desde la linea indicada
+void parsermCod(t_envio *param,char *path, int pid, int lineaInicial,int serverSocket,int serverMemoria, int quantum);
 
 #endif /* CPU_H_ */

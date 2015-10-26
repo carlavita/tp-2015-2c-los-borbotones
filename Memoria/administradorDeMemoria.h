@@ -80,7 +80,7 @@ void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas);
-void generarCantidadDeFramesAsignadosAlProceso(int pid, int cantidadDePaginas);
+void AsignarFrameAlProceso(int pid, int cantidadDePaginas);
 //void avisarAlSwap(int clienteSwap);
 void generarEstructuraAdministrativaPidFrame(int pid, int paginas);
 void procesamientoDeMensajes(int cliente, int servidor);
@@ -88,9 +88,9 @@ void generarEstructuraAdministrativaPIDFrame();
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria);
 int busquedaPIDEnLista(int PID, int pagina);
-
+void RealizarVolcadoMemoriaLog();
 /*ALGORITMO FIFO*/
-void algoritmoFifo(int pid, t_tablaDePaginas * paginaLeida);
-void reemplazoDePagina(int pid, int paginaRefenciada,t_tablaDePaginas *reemplazo);
-void FrameSinUsar(int pid, t_tablaDePaginas * paginaReferenciada);
+void algortimoFIFO(int pid);
+void llamar(int pid);
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
+

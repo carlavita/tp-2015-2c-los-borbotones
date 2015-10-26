@@ -7,7 +7,9 @@
 
 #include "CPU.h"
 
+
 int main() {
+
 
 	pthread_t threads[MAXTHREADS];
 	int i;
@@ -41,7 +43,7 @@ void* thread_func(void *envio) {
 	printf("dentro del hilo de cpu con id:%d \n", num->id);
 
 	//creacion de hilo calculador de porcentaje de uso de cpu
-	pthread_create(&hiloPorc, NULL, (void *) &calcularPorc, NULL);
+	pthread_create(&hiloPorc, NULL, (void *) &calcularPorcentaje, NULL);
 	Conexion_con_planificador(num->id);
 
 	pthread_join(hiloPorc, NULL);
@@ -49,7 +51,7 @@ void* thread_func(void *envio) {
 
 }
 
-void calcularPorc(void *ptr){
+void calcularPorcentaje(void *ptr){
 
 	printf("Calculando porcentaje de uso de cpu %lf \n", porcentajeCPU);
 	double total;
@@ -59,13 +61,14 @@ void calcularPorc(void *ptr){
 		sleep(60);
 
 		diferencia = diferenciaEnSegundos(valori,valorf);
+		printf("la diferencia es %lf \n",diferencia);
 		if (diferencia == 0){
 			printf("el porcentaje de uso de cpu es %lf \n",porcentajeCPU);
 		} else {
 		//devuelve la cantidad de lineas ejecutadas cada 60 seg
 		printf("la cantidad de lineas ejecutadas son %d \n",contadorEjecutadas);
 		total=(60*contadorEjecutadas)/diferencia;
-		//todo realizar el porcentaje de uso del último minuto de cada cpu
+		//calcula el porcentaje de uso del último minuto de cada cpu
 		porcentajeCPU = (total* 100) / 60 ;
 		printf("el porcentaje de uso de cpu es %lf \n",porcentajeCPU);
 		}
@@ -551,26 +554,14 @@ void finalizarQuantum(int cpu, int mProcID, int instrucciones, int serverSocket)
 	free(finQuantum);
 }
 
-time_t obtenerTiempoActual(void){
-
-	time_t timer;
-	time(&timer);
-	return timer;
-}
-
-double diferenciaEnSegundos (time_t inicio, time_t fin){
-
-	double segundos;
-	segundos = difftime(fin,inicio);
-	printf ("%.f  segundos en\n", segundos);
-	return segundos;
-}
 
 void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket, int serverMemoria, int quantum) {
+
 	FILE * fid;
 	//time_t valori;
 	//todo cuidado que hay que sincronizar region critica
 	valori = obtenerTiempoActual();
+	printf("el valor inicial es: %d",(int)valori);
 	char *resultado = string_new();//instrucciones concatenadas con / a devolver al planificador con los resultados
 	int i = 0;
 	//int contadorEjecutadas = 0;
@@ -703,7 +694,7 @@ void parsermCod(int cpu, char *path, int pid, int lineaInicial, int serverSocket
 
 						//todo cuidado que hay que sincronizar region critica
 						valorf = obtenerTiempoActual();
-
+						printf("el valor final es: %d",(int)valorf);
 
 						free(substrings[0]);
 						free(substrings);

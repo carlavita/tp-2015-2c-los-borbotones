@@ -34,8 +34,6 @@
 #define PATH_CONFIG "archivoConfig.conf"
 #define PATH_LOG "ArchivoLogueoCPU.txt"
 
-
-//#define COMANDOCPU 5
 #define TOKENINICIAR "iniciar"
 #define TOKENLEER "leer"
 #define TOKENESCRIBIR "escribir"
@@ -75,25 +73,27 @@ typedef struct __attribute__((packed))
 t_config_ProcesoCPU configuracionCPU;
 t_log * logCPU;
 //static int serverMemoria = 0;//server para memoria
+/*static __thread double porcentajeCPU = 0;
+static __thread time_t valori = 0;
+static __thread time_t valorf = 0;
+static __thread int contadorEjecutadas = 0;*/
 static double porcentajeCPU = 0;
 static time_t valori = 0;
 static time_t valorf = 0;
 static int contadorEjecutadas = 0;
 
 //static int serverSocket; //socket de conexion con planificador
+
 //semaforos
 pthread_mutex_t mutexLogueo;//Mutex para archivo de logueo
 
-//OJO!!!! todo revisar esto pasar a local
 //FILE* fid;
 
 
 //funciones de la cpu
 
-void calcularPorc(void *ptr);
+void calcularPorcentaje(void *ptr);
 void* thread_func(void* cpu);
-double diferenciaEnSegundos (time_t inicio, time_t fin);
-time_t obtenerTiempoActual();
 
 void LeerArchivoConfiguracion();
 void Conexion_con_planificador(int cpu);

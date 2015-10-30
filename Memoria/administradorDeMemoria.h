@@ -90,8 +90,8 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 int busquedaPIDEnLista(int PID, int pagina);
 void RealizarVolcadoMemoriaLog();
 /*ALGORITMO FIFO*/
-void algoritmoFIFO(int pid);
-void llamar(int pid);
+int algoritmoFIFO(int pid);
+int llamar(int pid);
 int CantidadDeFrames(int pid);
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

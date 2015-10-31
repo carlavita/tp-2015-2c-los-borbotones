@@ -130,7 +130,7 @@ int iniciar(int idProceso, int cantidadPaginas) {
 int finalizar(int PID) {
 
 	/* OBTENDO LA INFORMACION DEL PRCESO A FINALIZAR Y ALMACENO EN VARIABLES LOCALES */
-	int posicionPIDLista = busquedaPIDEnLista(PID);
+	int posicionPIDLista = busquedaPidPaginaEnLista(PID);
 	t_tablaProcesos* procesoFinalizado = list_get(listaProcesos,
 			posicionPIDLista);
 	int cantidadPaginas = procesoFinalizado->cantidadPaginas;
@@ -180,7 +180,7 @@ int finalizar(int PID) {
 char * leer(int PID, int nroPagina) {
 
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
-	int posicionPID = busquedaPIDEnLista(PID);
+	int posicionPID = busquedaPidPaginaEnLista(PID);
 	t_tablaProcesos *procesoObtenido = list_get(listaProcesos, posicionPID);
 	int primerBytePagina = (nroPagina + procesoObtenido->primerPagina)
 			* tamanioPagina;
@@ -207,7 +207,7 @@ char * leer(int PID, int nroPagina) {
 int escribir(int PID, int nroPagina, char* contenidoPagina) {
 
 	int tamanioPagina = configuracionSWAP.TamanioPagina;
-	int posicionPID = busquedaPIDEnLista(PID);
+	int posicionPID = busquedaPidPaginaEnLista(PID);
 	t_tablaProcesos *procesoObtenido = list_get(listaProcesos, posicionPID);
 	int primerBytePagina = (nroPagina + procesoObtenido->primerPagina)
 			* tamanioPagina;
@@ -392,7 +392,7 @@ int controlInsercionPaginas(int cantidadPaginas) {
 	return estadoDevuelto;
 }
 
-int busquedaPIDEnLista(int PID) {
+int busquedaPidPaginaEnLista(int PID) {
 	int posicion = 0;
 	t_tablaProcesos* proceso;
 	proceso = list_get(listaProcesos, posicion);

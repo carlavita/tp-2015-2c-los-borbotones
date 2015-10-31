@@ -1,0 +1,99 @@
+[INFO] 16:05:38:697 Administrador de memoria/(13098:13098): Inicio lectura de archivo de configuración
+[INFO] 16:05:38:697 Administrador de memoria/(13098:13098): Finalizo lectura de archivo de configuración
+[INFO] 16:05:38:698 Administrador de memoria/(13098:13098): Comienzo de las diferentes conexiones
+[INFO] 16:05:38:698 Administrador de memoria/(13098:13098): La TLB esta habilitada, se procede a su creación
+[INFO] 16:05:38:698 Administrador de memoria/(13098:13098): Inicio creacion de la TLB
+[INFO] 16:05:38:698 Administrador de memoria/(13098:13098): Finalizo existosamente la creacion de la TLB
+[INFO] 16:05:38:698 Administrador de memoria/(13098:13098): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 16:05:45:851 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:851 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:851 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 6
+
+[INFO] 16:05:45:853 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:853 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:853 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 7
+
+[INFO] 16:05:45:854 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:854 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:854 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 8
+
+[INFO] 16:05:45:854 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:854 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:854 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 9
+
+[INFO] 16:05:45:855 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:855 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:855 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 10
+
+[INFO] 16:05:45:856 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:856 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:856 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 11
+
+[INFO] 16:05:45:857 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:857 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:857 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 12
+
+[INFO] 16:05:45:858 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:858 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:858 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 13
+
+[INFO] 16:05:45:860 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:860 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:860 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 14
+
+[INFO] 16:05:45:865 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:45:865 Administrador de memoria/(13098:13098): Socket Aceptado
+
+[INFO] 16:05:45:865 Administrador de memoria/(13098:13098): Nueva conexion de 127.0.0.1 en el socket 15
+
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): AGREGANDO ESTRUCTURAS AL PID: 1
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): INICIO TABLAS DE PAGINAS
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): FIN TABLAS DE PAGINAS
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 10
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): Envio pagina al SWAP, PAGINA N°:10
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): Envio pid al SWAP, PID:1
+[INFO] 16:05:51:727 Administrador de memoria/(13098:13098): SWAP recibio la pagina de forma correcta
+[INFO] 16:05:51:728 Administrador de memoria/(13098:13098): Se recibio este codigo de error: 14
+[INFO] 16:05:51:728 Administrador de memoria/(13098:13098): Se proceso correctamente el mensaje
+[INFO] 16:05:51:728 Administrador de memoria/(13098:13098): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): Solicitud de lectura recibida
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): 2do checkpoint: Se envia directo al swap
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): INICIO BUSQUEDA DE PAGINA EN TLB
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): PAGINA NO ENCONTRADA EN LA TLB
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): Cantidad de elementos: -1208380320
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): frame asignado: -1 al pid:1
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): AGREGANDO ESTRUCTURAS AL PID: 1
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): INICIO PEDIDO AL SWAP
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): tamaño: 9 
+
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): Contenido: 
+[INFO] 16:05:54:729 Administrador de memoria/(13098:13098): Finalizo comando LEER
+[INFO] 16:05:57:730 Administrador de memoria/(13098:13098): Select Activado
+
+[INFO] 16:05:57:730 Administrador de memoria/(13098:13098): Solicitud de lectura recibida
+[INFO] 16:05:57:731 Administrador de memoria/(13098:13098): 2do checkpoint: Se envia directo al swap

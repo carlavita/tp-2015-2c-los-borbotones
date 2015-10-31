@@ -65,7 +65,7 @@ void * compactacion();
 
 /*** FUNCIONES DE BUSQUEDA Y AUXILIARES***/
 int controlInsercionPaginas(int cantidadPaginas) ;
-int busquedaPIDEnLista(int PID);
+int busquedaPidPaginaEnLista(int PID);
 int busquedaPaginaEnLista(int numeroPagina);
 void * ordenarLista();
 void * unificacionEspacioContiguo();

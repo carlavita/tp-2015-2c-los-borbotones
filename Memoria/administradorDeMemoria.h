@@ -84,11 +84,11 @@ void procesamientoDeMensajes(int cliente, int servidor);
 void generarEstructuraAdministrativaPIDFrame();
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria);
 int busquedaPidPaginaEnLista(int PID, int pagina,t_list* tablaDePaginas);
-int buscarEnTablaDePaginas( int pid, int pagina,t_list * tablaDePaginas);
+int buscarEnTablaDePaginas(int pid, int pagina, t_list * tablaDePaginas,int posicion);
 void RealizarVolcadoMemoriaLog();
 void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid,char * contenido, int frame);
 void buscarContenidoPagina(int pid, int pagina, int socketCPU, t_list* tablaDePaginas);
-int buscarPaginasProceso( int pid);
+int buscarPaginasProceso(int pid,int pagina);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);

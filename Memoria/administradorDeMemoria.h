@@ -88,7 +88,7 @@ int buscarEnTablaDePaginas( int pid, int pagina,t_list * tablaDePaginas);
 void RealizarVolcadoMemoriaLog();
 void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid,char * contenido, int frame);
 void buscarContenidoPagina(int pid, int pagina, int socketCPU, t_list* tablaDePaginas);
-t_tablaDePaginas * buscarPaginasProceso( int pid);
+int buscarPaginasProceso( int pid);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);

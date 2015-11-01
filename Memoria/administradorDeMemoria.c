@@ -93,8 +93,7 @@ int main() {
 	/*SEÑALES*/
 
 	remove("logMemoria.txt"); //Cada vez que arranca el proceso borro el archivo de log.
-	logMemoria = log_create("logMemoria.txt", "Administrador de memoria", true,
-			LOG_LEVEL_INFO);
+	logMemoria = log_create("logMemoria.txt", "Administrador de memoria", true,LOG_LEVEL_INFO);
 	leerConfiguracion();
 	ultimoFrameAsignado = 0; //TODO
 
@@ -186,9 +185,8 @@ void generarTablaDePaginas(char* memoriaReservadaDeMemPpal, int pid,
 	//loginfo(logMemoria, "INICIO TABLAS DE PAGINAS");
 	int pagina = 0;
 
+
 	while (pagina < cantidadDePaginas) {
-		t_estructurasDelProceso * estructuraDelProceso = malloc(
-				sizeof(t_estructurasDelProceso));
 		t_tablaDePaginas * entrada = malloc(sizeof(t_tablaDePaginas));
 		entrada->bitModificado = 0;
 		entrada->bitUso = 0;
@@ -199,12 +197,14 @@ void generarTablaDePaginas(char* memoriaReservadaDeMemPpal, int pid,
 		entrada->presencia = 0;
 		list_add(tablaDePaginas, entrada);
 		pagina++;
+		t_estructurasDelProceso * estructuraDelProceso = malloc(sizeof(t_estructurasDelProceso));
 
 		estructuraDelProceso->pid = pid;
 		estructuraDelProceso->estructura = entrada;
 		list_add(estructurasPorProceso, estructuraDelProceso);
-		free(entrada);
-		free(estructuraDelProceso);
+		//free(entrada);
+		//free(estructuraDelProceso);
+
 	}
 
 	//loginfo(logMemoria, "FIN TABLAS DE PAGINAS");
@@ -549,10 +549,11 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 			recv(servidorCPU, &estructuraLeerSwap, sizeof(t_leer), 0);
 
 			//estructurasPorProceso
-			t_tablaDePaginas * listaPaginas = buscarPaginasProceso(
+			int pos = buscarPaginasProceso(
 					estructuraLeerSwap.pid);
+			t_estructurasDelProceso * listaPaginas = list_get(estructurasPorProceso,pos);
 			leerPagina(estructuraLeerSwap, clienteSWAP, servidorCPU,
-					mensajeHeaderSwap, listaPaginas);
+					mensajeHeaderSwap, listaPaginas->estructura);
 
 			//loginfo(logMemoria, "Finalizo comando LEER");
 			pthread_mutex_unlock(&mutexLeer);
@@ -817,10 +818,10 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 	return pf->frameAsignado;
 }
 
-t_tablaDePaginas * buscarPaginasProceso(int pid) {
-	t_estructurasDelProceso *estructura = malloc(
-			sizeof(t_estructurasDelProceso));
-	bool estructProc (t_estructurasDelProceso * ep)
+int buscarPaginasProceso(int pid) {
+	t_estructurasDelProceso * edP;
+	t_tablaDePaginas * estrucPagina;
+/*	bool estructProc (t_estructurasDelProceso * ep)
 	{
 		return ep->pid == pid;
 	}
@@ -828,6 +829,13 @@ t_tablaDePaginas * buscarPaginasProceso(int pid) {
 		list_add(l,list_find(estructurasPorProceso, (void*)estructProc));
 
 	estructura = list_remove(l,0);
-	return estructura->estructura;
+	return estructura->estructura;*/
+	int posicion = 0;
+	edP = list_get(estructurasPorProceso,posicion);
+	while ((edP->pid != pid) && (posicion < list_size(estructurasPorProceso)))
+		{ posicion++;
+		  edP= list_get(estructurasPorProceso,posicion);
+		}
+	return posicion;
 
 }

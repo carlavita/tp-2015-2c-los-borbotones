@@ -52,7 +52,7 @@ typedef struct {
 typedef struct
 {
 	int pid;
-	t_list * estructura;
+	t_tablaDePaginas * estructura;
 } t_estructurasDelProceso;
 
 t_config_memoria configMemoria;
@@ -88,7 +88,7 @@ int buscarEnTablaDePaginas( int pid, int pagina,t_list * tablaDePaginas);
 void RealizarVolcadoMemoriaLog();
 void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid,char * contenido, int frame);
 void buscarContenidoPagina(int pid, int pagina, int socketCPU, t_list* tablaDePaginas);
-t_list * buscarPaginasProceso( int pid);
+t_tablaDePaginas * buscarPaginasProceso( int pid);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);

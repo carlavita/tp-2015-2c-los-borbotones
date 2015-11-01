@@ -212,7 +212,7 @@ void generarTablaDePaginas(char* memoriaReservadaDeMemPpal, int pid,
 
 	estructuraDelProceso->pid = pid;
 	estructuraDelProceso->estructura = tablaDePaginas;
-	list_add(estructurasPorProceso, &estructuraDelProceso);
+	list_add(estructurasPorProceso, estructuraDelProceso);
 	free(estructuraDelProceso);
 	log_info(logMemoria, "FIN TABLAS DE PAGINAS");
 }
@@ -298,16 +298,19 @@ int buscarEnLaTLB( pid, pagina) {
 
 int busquedaPidPaginaEnLista(int PID, int pagina, t_list * tablaDePaginas) {
 	int posicion = 0;
-	t_tablaDePaginas* pag = list_get(tablaDePaginas, posicion);
+	t_tablaDePaginas* pag = malloc(sizeof(t_tablaDePaginas));
+	pag = list_get(tablaDePaginas, pagina);
 	if (pag != NULL) {
 		posicion = pagina;
 		return pagina;
 	}
+/*
 	while (pag->pagina != pagina) {
 		posicion++;
 		pag = list_get(tablaDePaginas, posicion);
-	}
+	}*/
 	log_info(logMemoria, "POSICION ENCONTRADA : %d", posicion);
+	free(pag);
 	return posicion;
 }
 
@@ -349,7 +352,7 @@ int buscarEnTablaDePaginas(int pid, int pagina, t_list * tablaDePaginas) {
 	}
 
 	t_list * paginasEncontradas = list_create();
-	int posicion = busquedaPidPaginaEnLista(pid, pagina, tablaDePaginas);
+	int posicion = busquedaPidPaginaEnLista(pid, pagina, buscarPaginasProceso(pid));
 	paginasEncontradas = list_get(tablaDePaginas, posicion);
 	log_info(logMemoria, "Cantidad de elementos: %d",
 			list_size(paginasEncontradas));
@@ -467,7 +470,7 @@ t_tablaDePaginas * buscarTP(int pid) {
 }
 
 void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
-		t_mensajeHeader mensajeHeaderSwap, t_tablaDePaginas * tablaDePaginas,
+		t_mensajeHeader mensajeHeaderSwap,
 		t_list * listaPaginas) {
 	int resultadoBusquedaTablaPaginas;
 	int resultadoBusquedaTLB;
@@ -481,16 +484,18 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			buscarContenidoPagina(pid, pagina, socketCPU, listaPaginas);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina,
-					listaPaginas);
+					listaPaginas); //todo
 			if (resultadoBusquedaTP >= 0) {
 				buscarContenidoPagina(pid, pagina, socketCPU, listaPaginas);
 			} else {
 				AsignarFrameAlProceso(pid, pagina);
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
-
-				AsignarContenidoALaPagina(tablaDePaginas, pid, pagina,
+				t_tablaDePaginas * paginaAsignarContenido = malloc(sizeof(t_tablaDePaginas));
+				paginaAsignarContenido = list_get(listaPaginas,pagina);
+				AsignarContenidoALaPagina(paginaAsignarContenido, pid, pagina,
 						contenidoPedidoAlSwap);
+				free(paginaAsignarContenido);
 			}
 		}
 		break;
@@ -503,8 +508,11 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			AsignarFrameAlProceso(pid, pagina);
 			char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap, pid,
 					pagina, socketCPU);
-			AsignarContenidoALaPagina(tablaDePaginas, pid, pagina,
+			t_tablaDePaginas * paginaAsignarContenido = malloc(sizeof(t_tablaDePaginas));
+			paginaAsignarContenido = list_get(listaPaginas,pagina);
+			AsignarContenidoALaPagina(paginaAsignarContenido, pid, pagina,
 					contenidoPedidoAlSwap);
+			free(paginaAsignarContenido);
 		}
 		break;
 	}
@@ -566,8 +574,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 			//estructurasPorProceso
 			t_list * listaPaginas = buscarPaginasProceso(estructuraLeerSwap.pid);
 			leerPagina(estructuraLeerSwap, clienteSWAP, servidorCPU,
-					mensajeHeaderSwap, buscarTP(estructuraLeerSwap.pid),
-					listaPaginas);
+					mensajeHeaderSwap,listaPaginas);
 
 			log_info(logMemoria, "Finalizo comando LEER");
 			pthread_mutex_unlock(&mutexLeer);

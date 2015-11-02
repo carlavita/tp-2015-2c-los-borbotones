@@ -8,9 +8,6 @@
 #ifndef ADMINISTRADORDEMEMORIA_H_
 #define ADMINISTRADORDEMEMORIA_H_
 #define PACKAGESIZE 1024
-
-#include <socket.h>
-#include <protocolo.h>
 #include <errno.h>
 
 typedef struct {
@@ -19,8 +16,7 @@ typedef struct {
 	int frameUsado;
 } t_pidFrame;
 
-typedef struct
-{
+typedef struct {
 	int puertoEscucha;
 	char* ipSwap;
 	char * puertoSwap;
@@ -35,7 +31,6 @@ typedef struct
 typedef struct {
 	int pid;
 	int pagina;
-	int frame;
 } t_TLB;
 
 typedef struct {
@@ -46,49 +41,54 @@ typedef struct {
 	int presencia;
 	int bitUso;
 	int bitModificado;
-	char * direccion;
+	char * contenido;
 } t_tablaDePaginas;
+
+typedef struct {
+	int frame;
+	int pid; //POR EL MULTIHILO
+	int pagina;
+} t_estructuraAlgoritmoReemplazoPaginas;
 
 typedef struct
 {
 	int pid;
-	t_tablaDePaginas * estructura;
-} t_estructurasDelProceso;
+	void * estructura;
+}t_estructurasDelProceso;
+
 
 t_config_memoria configMemoria;
 t_log * logMemoria;
+int clienteSwap;
+t_list * tablaDePaginas;
 t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
+int * memoriaReservadaDeMemPpal;
 pthread_t * hiloSigUsr1;
 pthread_t * hiloSigUsr2;
-
-
 t_list * listaDePidFrames;
 t_list * tlb;
+char * recibidoPorLaMemoria;
+char mensaje[1024];
 t_list * estructuraAlgoritmos;
 t_list * estructurasPorProceso;
 
-int clienteSwap;
-char * recibidoPorLaMemoria;
-char * memoriaReservadaDeMemPpal;
 
 void leerConfiguracion();
 void crearServidor();
 void generarTLB(int entradasTLB);
 void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
-void generarTablaDePaginas(char* memoriaReservadaDeMemPpal, int pid,
-int cantidadDePaginas, t_list  * tablaDePaginas);
+void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
+		int cantidadDePaginas);
 void AsignarFrameAlProceso(int pid, int cantidadDePaginas);
+//void avisarAlSwap(int clienteSwap);
 void generarEstructuraAdministrativaPidFrame(int pid, int paginas);
 void procesamientoDeMensajes(int cliente, int servidor);
 void generarEstructuraAdministrativaPIDFrame();
-void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria);
-int busquedaPidPaginaEnLista(int PID, int pagina,t_list* tablaDePaginas);
-int buscarEnTablaDePaginas(int pid, int pagina, t_list * tablaDePaginas,int posicion);
+void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
+		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria);
+int busquedaPIDEnLista(int PID, int pagina);
 void RealizarVolcadoMemoriaLog();
-void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid,char * contenido, int frame);
-void buscarContenidoPagina(int pid, int pagina, int socketCPU, t_list* tablaDePaginas);
-int buscarPaginasProceso(int pid,int pagina);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);

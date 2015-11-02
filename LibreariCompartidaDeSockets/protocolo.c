@@ -59,7 +59,7 @@ int serializarEstructura(int id,  void *estructura, int size, int socketDestino)
 double diferenciaEnSegundos (time_t inicio, time_t fin)
 {
   double segundos;
-  segundos = difftime(inicio,fin);
+  segundos = difftime(fin,inicio);
  // printf ("%.f  segundos en\n", segundos);
   return segundos;
 }

@@ -1,26 +1,29 @@
-[INFO] 14:29:11:275 CPU/(3441:3441): Inicio Proceso CPU
-[INFO] 14:29:11:276 CPU/(3441:3441): Leyendo Archivo de Configuracion
-[INFO] 14:29:11:278 CPU/(3441:3441): 4000
-[INFO] 14:29:11:279 CPU/(3441:3441): Archivo de Configuracion Leido correctamente
-[INFO] 14:29:11:279 CPU/(3441:3441): Se inicializaron los semaforos 
+[INFO] 23:21:21:697 CPU/(9984:9984): Inicio Proceso CPU
+[INFO] 23:21:21:717 CPU/(9984:9984): Leyendo Archivo de Configuracion
+[INFO] 23:21:21:719 CPU/(9984:9984): 4000
+[INFO] 23:21:21:721 CPU/(9984:9984): Archivo de Configuracion Leido correctamente
+[INFO] 23:21:21:722 CPU/(9984:9984): Se inicializaron los semaforos 
 
-[INFO] 14:29:28:908 CPU/(3441:3446): Conectando a memoria
+[INFO] 23:21:21:897 CPU/(9984:9994): Conectando a memoria
 
-[INFO] 14:29:28:910 CPU/(3441:3446): Conectando a planificador
-[INFO] 14:29:28:913 CPU/(3441:3446): se recibe el msj de saludo de planificador:
-[INFO] 14:29:28:914 CPU/(3441:3446): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
-[INFO] 14:29:34:898 CPU/(3441:3446): se recibe el msj de ejecucion de un proceso:
-[INFO] 14:29:34:898 CPU/(3441:3446): ejecutando el proceso con id:1
-[INFO] 14:29:34:898 CPU/(3441:3446): Inicia parseo desde linea incial: 0
-[INFO] 14:30:13:367 CPU/(3441:3446): El proceso 1 inició su ejecucion correctamente
+[INFO] 23:21:21:903 CPU/(9984:9994): Conectando a planificador
+[INFO] 23:21:21:909 CPU/(9984:9994): se recibe el msj de saludo de planificador:
+[INFO] 23:21:21:911 CPU/(9984:9994): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 23:21:31:701 CPU/(9984:9994): se recibe el msj de ejecucion de un proceso:
+[INFO] 23:21:31:702 CPU/(9984:9994): ejecutando el proceso con id:1
+[INFO] 23:21:41:734 CPU/(9984:9994): Inicia parseo desde linea incial: 0
+[INFO] 23:21:50:545 CPU/(9984:9994): El proceso 1 inició su ejecucion correctamente
 
-[INFO] 14:30:39:859 CPU/(3441:3446): mProc 1 - Pagina 0 a leer, envio a memoria 
+[INFO] 23:22:08:566 CPU/(9984:9994): mProc 1 - Pagina 0 a leer, envio a memoria 
 
-[INFO] 14:30:39:866 CPU/(3441:3446): El contenido es:  
+[INFO] 23:22:08:596 CPU/(9984:9994): El contenido es: AAAA 
 
-[INFO] 14:31:00:408 CPU/(3441:3446): mProc 1 - Pagina 1 a leer, envio a memoria 
+[INFO] 23:22:11:600 CPU/(9984:9994): mProc 1 - Pagina 1 a leer, envio a memoria 
 
-[INFO] 14:31:00:415 CPU/(3441:3446): El contenido es:  
+[INFO] 23:22:11:672 CPU/(9984:9994): El contenido es: AAAA 
 
-[INFO] 14:32:25:34 CPU/(3441:3446): mProc 1 - fin de quantum , CPU id: 1
+[INFO] 23:22:14:680 CPU/(9984:9994): mProc 1 - fin de quantum , CPU id: 1
 
+[INFO] 23:22:14:710 CPU/(9984:9994): se recibe el msj de ejecucion de un proceso:
+[INFO] 23:22:14:711 CPU/(9984:9994): ejecutando el proceso con id:1
+[INFO] 23:22:17:1 CPU/(9984:9994): Inicia parseo desde linea incial: 3

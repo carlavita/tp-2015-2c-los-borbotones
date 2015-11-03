@@ -28,6 +28,15 @@
 #include <protocolo.h>
 #include <socket.h>
 
+#define ROJO      "\x1B[31m"
+#define AZUL      "\x1B[34m"
+#define NORMAL    "\x1B[0m"
+#define VERDE     "\x1B[32m"
+#define AMARILLO  "\x1B[33m"
+#define MAGENTA   "\x1B[35m"
+#define CYAN      "\x1B[36m"
+#define BLANCO    "\x1B[37m"
+
 #define PATH_CONFIG "Planificador.config"
 #define PATH_MCODE "/home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/"
 
@@ -40,10 +49,13 @@
 #define PACKAGESIZE 1024	// Define cual va a ser el size maximo del paquete a enviar
 #define PUERTO_SIZE 7 //(MAXIMO 6 MAS EL FIN DE CADENA)
 
-
 // constantes para algoritmos
 #define FIFO 1
 #define RR 2
+
+// constantes para determinar tiempo de respuesta
+#define SINRESPUESTA 0
+#define CONRESPUESTA 1
 
 // constantes STATUS DE PROCESOS
 #define LISTO 1
@@ -60,7 +72,6 @@ typedef struct {
 
 } t_configPlanificador;
 
-
 typedef struct {
 	//int estado;//(0 libre, 1 ocupada)
 	int id;
@@ -69,7 +80,15 @@ typedef struct {
 	int porcentajeUso;
 } t_cpu;
 
-
+typedef struct {
+	//int estado;//(0 libre, 1 ocupada)
+	int pid;
+	double tiempoInicial;
+	double tiempoFinal;
+	double tiempoEspera;
+	double tiempoRespuesta;
+	int flagRespuesta; // SINRESPUESTA 0 = no tiene respuesta aun// CONRESPUESTA 1= ya tuvo una respuesta
+} t_metricas;
 
 int val; //variable para saber el valor del semaforoListos
 int PID = 0; // Para numerar los procesos
@@ -86,15 +105,17 @@ t_list* BLOQUEADOS;
 t_list* FINALIZADOS;
 t_list* listaCPU;
 t_list* IO;
+t_list* METRICAS;
 //Mutex
 pthread_mutex_t mutexListas; //Listas
 pthread_mutex_t mutexListaCpu; //Lista de cpus
-pthread_mutex_t mutexLog;//Mutex para archivo de logueo
+pthread_mutex_t mutexLog; //Mutex para archivo de logueo
+pthread_mutex_t mutexMetricas; //Mutex para registro de métricas
 // Semáforos
 
 sem_t semaforoListos; // productor - consumidor de listos
 sem_t semaforoCPU; // si no hay CPUs libres espera
-sem_t semaforoIO;// productor-consumidor IO
+sem_t semaforoIO; // productor-consumidor IO
 /**
  * @NAME: levantarConfiguracion()
  * @DESC:Levanta parametros de configuracion
@@ -177,7 +198,7 @@ void ejecutarIO(int socketCPU);
  * @NAME: agregar_CPU()
  * @DESC: Agrega CPU a la lista de cpus, con PID -1 (asi identificamos las que estan libres)
  */
-void agregarCPU(int cpuSocket, int pid, int idCPU) ;
+void agregarCPU(int cpuSocket, int pid, int idCPU);
 
 /**
  * @NAME: agregar_CPU()
@@ -233,6 +254,11 @@ void finalizarPid();
  */
 t_pcb* buscarEnListaPorPID(t_list* lista, int pid);
 /**
+ * @NAME: buscarEnMetricasPorPID()
+ * @DESC: Rcupera la posicion en las metricas de un PID
+ */
+t_metricas *buscarEnMetricasPorPID(int pid);
+/**
  * @NAME: liberarCPU()
  * @DESC: Libera una CPU cuando termino su ráfaga o quantum
  */
@@ -242,4 +268,10 @@ void liberarCPU(int idCPU);
  * @DESC: Funcion que procesa el hilo de IO
  */
 void *procesarEntradasSalidas(void *info_proc);
+
+/**
+ * @NAME: imprimirMetricas
+ * @DESC: Imprime las metricas de un proceso. Para llamar al finalizar.
+ */
+void imprimirMetricas(t_metricas *metricas);
 //int serializarEstructura(int id,  void *estructura, int size, int socketDestino);

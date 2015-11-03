@@ -58,6 +58,7 @@ void inicializarListas() {
 	FINALIZADOS = list_create();
 	listaCPU = list_create();
 	IO = list_create();
+	METRICAS = list_create();
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Se inicializaron las Listas de planificacion \n");
 	pthread_mutex_unlock(&mutexLog);
@@ -83,6 +84,7 @@ void destruirSemaforosYmutex() {
 	pthread_mutex_destroy(&mutexListaCpu);
 	pthread_mutex_destroy(&mutexListas);
 	pthread_mutex_destroy(&mutexLog);
+	pthread_mutex_destroy(&mutexMetricas);
 }
 
 void levantarConfiguracion() {
@@ -120,15 +122,17 @@ void mostrarConsola(void *ptr) {
 	int option = -1;
 	while (option != 0) {
 //todo: descomentar todos clear		system("clear");
-
-		puts("Consola - Planificador \n \n"
+		printf(CYAN "LOS BORBOTONES - BIENVENIDO \n \n");
+		//puts("%sConsola - Planificador \n \n"
+		printf(CYAN "Consola - Planificador \n \n"
 				"1  - Correr Path \n"
 				"2  - Finalizar PID\n"
 				"3  - ps \n"
 				"4  - CPU\n"
-				"0  - Terminar\n");
+				"0  - Terminar\n" BLANCO);
 
-		puts("Ingrese una opción\n");
+		//puts("Ingrese una opción\n");
+		printf(BLANCO "Ingrese una opción\n" BLANCO);
 		scanf("%d", &option);
 
 		switch (option) {
@@ -169,6 +173,7 @@ void mostrarConsola(void *ptr) {
 
 			puts("Gracias por venir, vuelva pronto! :)");
 			// todo: destruir semaforos?
+			destruirSemaforosYmutex();
 			esperaEnter();
 			break;
 
@@ -340,6 +345,7 @@ void servidorCPU(void *ptr) {
 
 void handle(int newsock, fd_set *set) {
 	t_finalizarPID rtaP;
+	double tiempoFin;
 	//t_saludoCPU saludoCPU;
 
 	printf("En el handle de planificador \n");
@@ -354,7 +360,7 @@ void handle(int newsock, fd_set *set) {
 		switch (codigoMsj) {
 
 		case FINALIZAPROCOK:
-
+			tiempoFin = 0;
 			log_info(logger,
 					"El proceso finalizo correctamente su ejecucion \n");
 
@@ -362,7 +368,6 @@ void handle(int newsock, fd_set *set) {
 			recv(newsock, &(rtaProc), sizeof(t_finalizarPID), 0);
 			printf(" con id: %d \n", rtaProc.pid);
 			printf(" de la cpu: %d \n", rtaProc.idCPU);
-
 
 			int tamanio;
 			recv(newsock, &tamanio, sizeof(int), 0);
@@ -372,25 +377,38 @@ void handle(int newsock, fd_set *set) {
 			recv(newsock, contenido, tamanio, 0);
 			printf(" el contenido recibido es: %s \n", contenido);
 
-			//actualizar el estado de la cola de finalizados
-
-			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
+			pthread_mutex_lock(&mutexListas);
 			int lalala = list_size(EJECUTANDO);
-			log_info(logger, "Al finalizar hay %d procesos ejecutando\n ",
+			log_info(logger, "Antes de finalizar hay %d procesos ejecutando\n ",
 					lalala);
 
 			t_pcb *pcb = buscarEnListaPorPID(EJECUTANDO, rtaProc.pid);
 
 			pcb->status = FINALIZADOOK;
 			list_add(FINALIZADOS, pcb);
+			tiempoFin = obtenerTiempoActual();
 			removerEnListaPorPid(EJECUTANDO, rtaProc.pid);
 			pthread_mutex_unlock(&mutexListas);
+// Actualiza Métricas
+			/*Impresión de métricas metricas*/
+			pthread_mutex_lock(&mutexMetricas);
+			//t_metricas *metricas = malloc(sizeof(t_metricas));
+			//metricas = buscarEnMetricasPorPID(rtaProc.pid);
+			//t_pcb *mProc = list_get(LISTOS, 0);
 
+
+			/*t_metricas *metricas = malloc(sizeof(t_metricas));
+			metricas = list_get(METRICAS, rtaProc.pid - 1);
+			metricas->tiempoFinal = tiempoFin;
+			tiempoFin = 0;
+			imprimirMetricas(metricas);
+			free(metricas);
+			pthread_mutex_unlock(&mutexMetricas);*/
 			liberarCPU(rtaProc.idCPU);
 
 			break;
 		case PROCFALLA:
-
+			//t_metricas *metricasFalla = malloc(sizeof(t_metricas));
 			recv(newsock, &(rtaP), sizeof(t_finalizarPID), 0);
 			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
 
@@ -400,7 +418,7 @@ void handle(int newsock, fd_set *set) {
 			list_add(FINALIZADOS, pcb1);
 			removerEnListaPorPid(EJECUTANDO, rtaP.pid);
 			pthread_mutex_unlock(&mutexListas);
-
+//TODO metricas idem finalizar ok
 			//funcion que pone a la cpu libre nuevamente
 			liberarCPU(rtaP.idCPU);
 
@@ -413,7 +431,6 @@ void handle(int newsock, fd_set *set) {
 		case PROCIO:
 
 			ejecutarIO(newsock);
-
 			int tamanioRec;
 			recv(newsock, &tamanioRec, sizeof(int), 0);
 			printf(" el tamanio recibido es: %d \n", tamanioRec);
@@ -421,12 +438,11 @@ void handle(int newsock, fd_set *set) {
 			char* contenidoIO = malloc(tamanioRec);
 			recv(newsock, contenidoIO, tamanioRec, 0);
 			printf(" el contenido recibido es: %s \n", contenidoIO);
-
 			break;
 		case FINDEQUANTUM:
 
 			pthread_mutex_lock(&mutexLog);
-			log_info(logger, "Fin de quantum CPU "); //todo, agregar id cpu
+			log_info(logger, "Fin de quantum CPU ");
 			pthread_mutex_unlock(&mutexLog);
 			t_finalizarPID finQuantum;
 			recv(newsock, &(finQuantum), sizeof(t_finalizarPID), 0);
@@ -440,10 +456,9 @@ void handle(int newsock, fd_set *set) {
 			char* contenidoLeido = malloc(tamanioRecibido);
 			recv(newsock, contenidoLeido, tamanioRecibido, 0);
 			printf(" el contenido recibido es: %s \n", contenidoLeido);
-
 			//actualizar el estado de la cola de listos
 
-			pthread_mutex_lock(&mutexListas);
+			pthread_mutex_lock(&mutexListas); //todo revisar porque bloquea al proceso
 			//int lalala = list_size(EJECUTANDO);
 
 			t_pcb *pcbProc = buscarEnListaPorPID(EJECUTANDO, finQuantum.pid);
@@ -454,24 +469,23 @@ void handle(int newsock, fd_set *set) {
 						"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
 			} else {
 
-				pcbProc->proxInst = pcbProc->proxInst + finQuantum.instrucciones ;
-				log_info(logger, " actualiza prox instrucción: %d\n", pcbProc->proxInst);
+				pcbProc->proxInst = pcbProc->proxInst
+						+ finQuantum.instrucciones;
+				log_info(logger, " actualiza prox instrucción: %d\n",
+						pcbProc->proxInst);
 			}
 			list_add(LISTOS, pcbProc);
 			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
 			pthread_mutex_unlock(&mutexListas);
 			sem_post(&semaforoListos);
+			int val ;
+			sem_getvalue(&semaforoListos,&val);
+			log_info(logger, " semaforo listos valor: %d\n",
+									val);
 			liberarCPU(finQuantum.idCPU);
 
 			break;
-		case FINDERAFAGA:
 
-			printf("el proceso finalizo correctamente su rafaga \n");
-			pthread_mutex_lock(&mutexLog);
-			log_info(logger, "Fin de rafaga del proceso: "); //todo, agregar id proceso
-			pthread_mutex_unlock(&mutexLog);
-			// todo liberar cpu y sem_post(&semaforoCPU);
-			break;
 		case SALUDO: {
 
 			//int status = recv(newsock, &saludoCPU, sizeof(t_saludoCPU), 0);
@@ -482,6 +496,7 @@ void handle(int newsock, fd_set *set) {
 			break;
 		default:
 			printf("codigo no reconocido\n");
+
 			pthread_mutex_lock(&mutexLog);
 			log_info(logger, "error al recibir por codigo no reconocido");
 			pthread_mutex_unlock(&mutexLog);
@@ -517,7 +532,7 @@ void correrPath() {
 int crearPcb(char* path) {
 
 	t_pcb* pcb = malloc(sizeof(t_pcb));
-
+	t_metricas* metricas = malloc(sizeof(t_metricas));
 	PID++;
 	pcb->pid = PID;
 	pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
@@ -530,6 +545,19 @@ int crearPcb(char* path) {
 	} else if (configPlanificador.algoritmo == RR) {
 		pcb->quantum = configPlanificador.quantum;
 	}
+	metricas->flagRespuesta = SINRESPUESTA;
+	metricas->pid = PID;
+	metricas->tiempoInicial = obtenerTiempoActual();
+	metricas->tiempoEspera = 0;
+	metricas->tiempoFinal = 0;
+	metricas->tiempoRespuesta = 0;
+	/*Lo agrega a la lista de metricas*/
+	pthread_mutex_lock(&mutexMetricas);
+	list_add(METRICAS, metricas);
+
+	t_metricas *met2 = list_get(METRICAS, 0);
+	printf("METRICAAAAAAAAAS PID %d", met2->pid);
+	pthread_mutex_unlock(&mutexMetricas);
 	printf("PID mProc: %d \n", pcb->pid);
 	printf("Proxima instruccion mProc: %d \n", pcb->proxInst);
 	printf("Path mProc: %s \n", pcb->pathProc);
@@ -538,7 +566,7 @@ int crearPcb(char* path) {
 	/*Lo agrega a la lista de listos*/
 	pthread_mutex_lock(&mutexListas);
 	list_add(LISTOS, pcb);
-	//t_pcb *mProc = list_get(LISTOS, 0);
+
 	pthread_mutex_unlock(&mutexListas);
 
 	pthread_mutex_lock(&mutexLog);
@@ -550,7 +578,7 @@ int crearPcb(char* path) {
 	printf(
 			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
 			val);
-
+	free(metricas);
 	return pcb->pid;
 }
 
@@ -614,6 +642,17 @@ t_pcb* buscarEnListaPorPID(t_list* lista, int pid) {
 	t_pcb* pcb = list_find(lista, (void*) _is_pcb);
 
 	return pcb;
+
+}
+t_metricas* buscarEnMetricasPorPID(int pid) {
+	// Busca por pid
+	int _is_pcb(t_metricas *p) {
+		return p->pid == pid;
+	}
+	t_metricas* metrica = malloc(sizeof(t_metricas));
+	metrica = list_find(METRICAS, (void*) _is_pcb);
+
+	return metrica;
 
 }
 
@@ -869,14 +908,23 @@ void finalizarPid() {
 	pthread_mutex_lock(&mutexListas);
 
 	t_pcb* pcbProc;
+
 	pcbProc = buscarEnListaPorPID(EJECUTANDO, idProc);
+//Si no lo encuentra en los que estan ejecutando, lo busca en listos
+	if (pcbProc == NULL) {
+		pcbProc = buscarEnListaPorPID(LISTOS, idProc);
+		}
+	//Si no lo encuentra en los que estan listos, lo busca en bloqueados
+		if (pcbProc == NULL) {
+			pcbProc = buscarEnListaPorPID(BLOQUEADOS, idProc);
+			}
 	int ultimaInst;
 	ultimaInst = pcbProc->cantidadLineas;
 	pcbProc->proxInst = ultimaInst;
 
 	pthread_mutex_unlock(&mutexListas);
 
-	//todo mandar a cpu??
+
 }
 
 int obtenerCantidadLineasPath(char* path) {
@@ -958,4 +1006,21 @@ void liberarCPU(int idCPU) {
  return status;
  }
  */
+void imprimirMetricas(t_metricas *metricas) {
+	pthread_mutex_lock(&mutexLog);
+	log_info(logger, "METRICAS - Fin de proceso %d \n\n", metricas->pid);
+	log_info(logger, "Tiempo de ejecucion %.f  segundos \n",
+			(metricas->tiempoFinal - metricas->tiempoInicial));
 
+// Si no tiene respuesta, el tiempo de respuesta es el tiempo de ejecución.
+	if (metricas->flagRespuesta == SINRESPUESTA) {
+		metricas->tiempoRespuesta = (metricas->tiempoFinal
+				- metricas->tiempoInicial);
+
+	}
+	log_info(logger, "Tiempo de Respuesta %.f  segundos \n",
+			metricas->tiempoRespuesta);
+	log_info(logger, "Tiempo de espera %.f  segundos \n",
+			metricas->tiempoEspera);
+	pthread_mutex_unlock(&mutexLog);
+}

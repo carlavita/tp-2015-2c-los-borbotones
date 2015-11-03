@@ -490,7 +490,9 @@ char *finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,int se
 	char *id = string_itoa(mProcID);
 
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
-
+	mensajeFinalizar->pid = mProcID;
+	mensajeFinalizar->idCPU = cpu;
+	mensajeFinalizar->instrucciones = instrucciones;
 	printf("mProc %d - Finalizado \n", mProcID);
 
 	int status = serializarEstructura(FINALIZAR, (void *) mensajeFinalizar,

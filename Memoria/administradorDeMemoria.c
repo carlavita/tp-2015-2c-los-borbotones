@@ -200,7 +200,8 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 	while (pagina < cantidadDePaginas) {
 		t_tablaDePaginas * entrada = malloc(sizeof(t_tablaDePaginas));
 		entrada->bitModificado = 1;
-		entrada->bitUso = 1;
+		entrada->bitUso = 0;
+		entrada->bitValidez = 1;
 		entrada->pagina = pagina;
 		entrada->pid = pid;
 		entrada->contenido = NULL;
@@ -303,22 +304,32 @@ int buscarEnLaTLB( pid, pagina) {
 int busquedaPIDEnLista(int PID, int pagina) {
 	int posicion = 0;
 	t_tablaDePaginas* pag = list_get(tablaDePaginas, posicion);
-	if (pag != NULL) {
+	/*if (pag != NULL) {
 		posicion = pagina;
 		return pagina;
-	}
-	while (pag->pagina != pagina) {
+	}*/
+	while (pag->pagina != pagina || pag->pid != PID) {
 
 		posicion++;
 		pag = list_get(tablaDePaginas, posicion);
 	}
-	log_info(logMemoria, "POSICION ENCONTRADA : %d", posicion);
-	fflush(stdout);
+	if	(pag->pagina == pagina && pag->pid == PID){
+	// todo	&& pag->bitValidez == 1){
+		//	&& pag->presencia == 1){
+	log_info(logMemoria, "POSICION ENCONTRADA : %d \n", posicion);
+	//fflush(stdout);
+
 	return posicion;
+	}else{
+		log_info(logMemoria, "Pagina no encontrada \n");
+
+		return -1;
+	}
+
 }
 
 int busquedaFRAMESinUsar(int PID) {
-	int posicion = 0;
+	int posicion = -1;
 	t_pidFrame* pframe = malloc(sizeof(t_pidFrame));
 	pframe = list_get(listaDePidFrames, posicion);
 	while (pframe->frameUsado == 0) {
@@ -334,6 +345,8 @@ int busquedaFRAMESinUsar(int PID) {
 }
 
 int buscarEnTablaDePaginas( pid, pagina) {
+	t_tablaDePaginas * entrada = malloc (sizeof(t_tablaDePaginas));
+
 	log_info(logMemoria, "INICIO BUSQUEDA EN TABLA DE PAGINAS");
 	bool verificarBitValidezYPresencia(t_list * tablaDePaginasEncontradas) {
 		int i = 0;
@@ -349,16 +362,20 @@ int buscarEnTablaDePaginas( pid, pagina) {
 				&& string_is_empty(tp->contenido);
 	}
 	log_info(logMemoria, "FIN CLOSURE");
-	t_list * paginasEncontradas = list_create();
+	//t_list * paginasEncontradas = list_create();
 	int posicion = busquedaPIDEnLista(pid, pagina);
-	paginasEncontradas = list_get(tablaDePaginas, posicion);
-	log_info(logMemoria, "Cantidad de elementos: %d",
+	if(posicion >=0){ //encontro la pagina, es valida y esta presente
+	//paginasEncontradas = list_get(tablaDePaginas, posicion);
+	entrada = list_get(tablaDePaginas, posicion);
+	/*	log_info(logMemoria, "Cantidad de elementos: %d",
 			list_size(paginasEncontradas));
+	}
 	if (list_size(paginasEncontradas) >= 1) {
-
+*/
 		log_info(logMemoria, "PAGINA ENCONTRADA EN TABLA DE PAGINAS");
-		return list_all_satisfy(tablaDePaginas,
-				(void *) verificarBitValidezYPresencia(tablaDePaginas));
+		return (entrada->bitValidez == 1 && entrada->presencia == 1);
+				/*list_all_satisfy(tablaDePaginas,
+				(void *) verificarBitValidezYPresencia(tablaDePaginas));*/
 	} else {
 
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN TABLA DE PAGINAS");
@@ -441,8 +458,10 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 	}
 	//AsignarFrameAlProceso(pid, pagina);
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
-	//int posicion = busquedaPIDEnLista(pid, pagina);
-	paginaAAsignar = list_get(tablaDePaginas, 0);
+	int posicion = busquedaPIDEnLista(pid, pagina);
+	//paginaAAsignar = list_get(tablaDePaginas, 0);
+	paginaAAsignar = list_get(tablaDePaginas, posicion);
+
 	paginaAAsignar->pid = pid;
 	paginaAAsignar->contenido = contenidoPedidoAlSwap;
 	paginaAAsignar->pagina = pagina;
@@ -458,7 +477,9 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		log_info(logMemoria,
 				"EJECUTAR ALGORITMO DE REEMPLAZO DE PAGINAS \0 ACTUALIZACION DE FRAMES \0 ACTUALIZACION DE TLB \n");
 
-		paginaAAsignar->marco = 0;//algoritmoFIFO(pid);
+		//paginaAAsignar->marco = 0;//algoritmoFIFO(pid);
+
+		paginaAAsignar->marco = algoritmoFIFO(pid);
 		sleep(configMemoria.retardoMemoria);
 	}
 	list_add(tablaDePaginas, paginaAAsignar);

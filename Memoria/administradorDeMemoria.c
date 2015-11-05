@@ -25,6 +25,8 @@
 #include "administradorDeMemoria.h"
 #include <signal.h>
 
+pthread_mutex_t BLOQUEAR;
+pthread_mutex_t BORRAR;
 /*SEMAFOROS*/
 pthread_mutex_t mutexFrameSinUsar;
 pthread_mutex_t mutexIniciar;
@@ -226,12 +228,16 @@ void AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
 	estructuraPidFrame->frameAsignado = ultimoFrameAsignado;
 	estructuraPidFrame->pid = pid;
 	estructuraPidFrame->frameUsado = 0; //0 SIN USAR, 1 USADO.
+
 	list_add(listaDePidFrames, estructuraPidFrame);
+
 	log_info(logMemoria, "frame asignado: %d al pid:%d",
 			ultimoFrameAsignado - 1, pid);
+
 	if (list_size(listaDePidFrames) <= configMemoria.maximoMarcosPorProceso) {
 		agregarAEstructuraGeneral(listaDePidFrames, pid);
 	}
+
 	pthread_mutex_unlock(&mutexFrame);
 }
 
@@ -337,6 +343,7 @@ int busquedaFRAMESinUsar(int PID) {
 		}
 	}
 	free(pframe);
+
 	return posicion;
 }
 
@@ -448,24 +455,24 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 	paginaAAsignar->bitValidez = 1;
 	paginaAAsignar->presencia = 1;
 
+	int cf = CantidadDeFrames(pid);
 	if (cf <= configMemoria.maximoMarcosPorProceso - 1) {
 		paginaAAsignar->marco = ultimoFrameAsignado;
 		ultimoFrameAsignado++;
-		cf++;
 	} else {
 		log_info(logMemoria,
 				"EJECUTAR ALGORITMO DE REEMPLAZO DE PAGINAS \0 ACTUALIZACION DE FRAMES \0 ACTUALIZACION DE TLB \n");
 
 		//paginaAAsignar->marco = 0;//algoritmoFIFO(pid);
-
+		pthread_mutex_lock(&BLOQUEAR);
 		paginaAAsignar->marco = algoritmoFIFO(pid);
+		pthread_mutex_unlock(&BLOQUEAR);
 		sleep(configMemoria.retardoMemoria);
 	}
-	list_add(tablaDePaginas, paginaAAsignar);
-	log_info(logMemoria, "PID    PAGINA    FRAME\n;");
-	log_info(logMemoria, "%d        %d        %d", paginaAAsignar->pid,
-			paginaAAsignar->pagina, paginaAAsignar->marco);
-
+	list_replace(tablaDePaginas, paginaAAsignar->pagina, paginaAAsignar);
+	/*log_info(logMemoria, "PID    PAGINA    FRAME\n;");
+	 log_info(logMemoria, "%d        %d        %d", paginaAAsignar->pid,
+	 paginaAAsignar->pagina, paginaAAsignar->marco);*/
 }
 
 void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
@@ -474,7 +481,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 	int resultadoBusquedaTLB;
 	int pid = estructuraLeerSwap.pid;
 	int pagina = estructuraLeerSwap.pagina;
-	generarEstructuraAdministrativaPidFrame(pid, pagina);
+//	generarEstructuraAdministrativaPidFrame(pid, pagina);
 	switch (configMemoria.tlbHabilitada) {
 	case 1:
 		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
@@ -486,7 +493,8 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			if (resultadoBusquedaTP == 1) {
 				buscarContenidoPagina(pid, pagina, socketCPU);
 			} else {
-				if (list_size(listaDePidFrames)<= configMemoria.maximoMarcosPorProceso) {
+				if (list_size(listaDePidFrames)
+						<= configMemoria.maximoMarcosPorProceso) {
 					AsignarFrameAlProceso(pid, pagina);
 				}
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
@@ -502,7 +510,8 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		if (resultadoBusquedaTablaPaginas == 0) {
 			buscarContenidoPagina(pid, pagina, socketCPU);
 		} else {
-			if (list_size(listaDePidFrames) <= configMemoria.maximoMarcosPorProceso) {//TODO funcion para que cuent
+			if (list_size(listaDePidFrames)
+					< configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
 				AsignarFrameAlProceso(pid, pagina);
 			}
 			char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap, pid,
@@ -512,6 +521,44 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		}
 		break;
 	}
+
+}
+
+void BorrarEstructuras(int PID)
+{
+   //list_remove_and_destroy_by_condition()
+	int posicion = 0;
+
+
+		while (posicion < list_size(listaDePidFrames)) {
+			t_pidFrame * pidFrame = list_get(listaDePidFrames, posicion);
+
+			if (pidFrame->pid == PID) {
+					list_remove(listaDePidFrames,posicion);
+					posicion++;
+			}
+			else
+			{
+				posicion++;
+			}
+
+		}
+		posicion = 0;
+		while (posicion < list_size(tablaDePaginas)) {
+			t_tablaDePaginas * pidFrame = list_get(tablaDePaginas, posicion);
+
+			if (pidFrame->pid == PID) {
+					list_remove(tablaDePaginas,posicion);
+					posicion++;
+			}
+			else
+			{
+				posicion++;
+			}
+
+		}
+
+
 }
 
 void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
@@ -598,6 +645,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			recv(servidorCPU, finalizarCPU, sizeof(t_finalizarPID), 0);
 
+			BorrarEstructuras(finalizarCPU->pid);
 			log_info(logMemoria, "FINALIZAR PID: %d\n", finalizarCPU->pid);
 
 			fflush(stdout);
@@ -614,7 +662,8 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 				serializarEstructura(mensajeHeaderSwap.idmensaje,
 				NULL, 0, servidorCPU);
-			//BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
+
+			//TODO BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			pthread_mutex_unlock(&mutexFinalizar);
 			break;
 		default:
@@ -727,7 +776,7 @@ int servidorMultiplexorCPU(int PUERTO) {
 /*FUNCIONES DE ALGORITMO FIFO!*/
 
 /*hay que devolver el frame*/
-pthread_mutex_t BLOQUEAR;
+
 int algoritmoFIFO(int pid) {
 	return llamar(pid);
 
@@ -820,13 +869,27 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 	t_pidFrame * pf = malloc(sizeof(t_pidFrame));
 	t_pidFrame * pidframe = malloc(sizeof(t_pidFrame));
 	posicion = ObtenerPrimerFrame(pid);
+	int i = 0;
+
+	while (i < list_size(listaDePidFrames)) {
+		t_pidFrame* lp = malloc(sizeof(t_pidFrame));
+		lp = list_get(listaDePidFrames, i);
+		log_warning(logMemoria, "FRAME: %d", lp->frameAsignado);
+		i++;
+	}
 
 	pf = list_remove(listaDePidFrames, posicion);
+
 	pidframe->frameAsignado = pf->frameAsignado;
 	pidframe->frameUsado = 1;
+	pidframe->pid = pid;
+
+
 	list_add(listaDePidFrames, pidframe);
-	free(pf);
-	free(pidframe);
-	return pf->frameAsignado;
+
+	log_warning(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
+			pf->frameAsignado, pidframe->frameAsignado);
+	int frameADevolver = pf->frameAsignado;
+	return frameADevolver;
 
 }

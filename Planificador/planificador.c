@@ -391,7 +391,7 @@ void handle(int newsock, fd_set *set) {
 			pthread_mutex_unlock(&mutexListas);
 // Actualiza Métricas
 			/*Impresión de métricas metricas*/
-			pthread_mutex_lock(&mutexMetricas);
+			//pthread_mutex_lock(&mutexMetricas);
 			//t_metricas *metricas = malloc(sizeof(t_metricas));
 			//metricas = buscarEnMetricasPorPID(rtaProc.pid);
 			//t_pcb *mProc = list_get(LISTOS, 0);

@@ -521,10 +521,12 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 					pagina, socketCPU);
 			AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap);
 
-		}
+			}
 		break;
 	}
 
+		}
+	}
 }
 
 void BorrarEstructuras(int PID)
@@ -538,7 +540,7 @@ void BorrarEstructuras(int PID)
 
 			if (pidFrame->pid == PID) {
 					list_remove(listaDePidFrames,posicion);
-					posicion++;
+					//posicion++;
 			}
 			else
 			{
@@ -822,7 +824,7 @@ int CantidadDeFrames(int pid) {
 	return cantidadDeFrames;
 }
 
-int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
+//int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
 
 int llamar(int pid) {
 	//pthread_mutex_lock(&BLOQUEAR);
@@ -831,7 +833,7 @@ int llamar(int pid) {
 
 	for (i = 0; i < cantidadDeFramesDelPid; i++) {
 		if (i > 5) {
-			pthread_mutex_unlock(&BLOQUEAR);
+			//pthread_mutex_unlock(&BLOQUEAR);
 			return ultimoFrameAsignado;
 		}
 		//	pthread_mutex_unlock(&BLOQUEAR);
@@ -883,32 +885,31 @@ int ObtenerPrimerFrame(int pid) {
 
 }
 
-int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
+int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid){
 	int posicion;
-	t_pidFrame * pf = malloc(sizeof(t_pidFrame));
-	t_pidFrame * pidframe = malloc(sizeof(t_pidFrame));
-	posicion = ObtenerPrimerFrame(pid);
-	int i = 0;
+		t_pidFrame * pf = malloc(sizeof(t_pidFrame));
+		t_pidFrame * pidframe = malloc(sizeof(t_pidFrame));
+		posicion = ObtenerPrimerFrame(pid);
+		int i = 0;
 
-	while (i < list_size(listaDePidFrames)) {
-		t_pidFrame* lp = malloc(sizeof(t_pidFrame));
-		lp = list_get(listaDePidFrames, i);
-		log_warning(logMemoria, "FRAME: %d", lp->frameAsignado);
-		i++;
-	}
+		while (i < list_size(listaDePidFrames)) {
+			t_pidFrame* lp = malloc(sizeof(t_pidFrame));
+			lp = list_get(listaDePidFrames, i);
+			log_warning(logMemoria, "FRAME: %d", lp->frameAsignado);
+			i++;
+		}
 
-	pf = list_remove(listaDePidFrames, posicion);
+		pf = list_remove(listaDePidFrames, posicion);
 
-	pidframe->frameAsignado = pf->frameAsignado;
-	pidframe->frameUsado = 1;
-	pidframe->pid = pid;
+		pidframe->frameAsignado = pf->frameAsignado;
+		pidframe->frameUsado = 1;
+		pidframe->pid = pid;
 
 
-	list_add(listaDePidFrames, pidframe);
+		list_add(listaDePidFrames, pidframe);
 
-	log_warning(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
-			pf->frameAsignado, pidframe->frameAsignado);
-	int frameADevolver = pf->frameAsignado;
-	return frameADevolver;
-
+		log_warning(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
+				pf->frameAsignado, pidframe->frameAsignado);
+		int frameADevolver = pf->frameAsignado;
+		return frameADevolver;
 }

@@ -1,0 +1,74 @@
+[INFO] 19:32:24:772 Administrador de memoria/(3553:3553): Inicio lectura de archivo de configuración
+[INFO] 19:32:24:773 Administrador de memoria/(3553:3553): 64000
+[INFO] 19:32:24:773 Administrador de memoria/(3553:3553): Finalizo lectura de archivo de configuración
+[INFO] 19:32:25:529 Administrador de memoria/(3553:3553): Comienzo de las diferentes conexiones
+[INFO] 19:32:26:328 Administrador de memoria/(3553:3553): La TLB no esta habilitada
+[INFO] 19:32:26:328 Administrador de memoria/(3553:3553): La TLB no esta activada por configuración
+[INFO] 19:32:26:497 Administrador de memoria/(3553:3553): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 19:32:32:351 Administrador de memoria/(3553:3553): Select Activado
+
+[INFO] 19:32:32:351 Administrador de memoria/(3553:3553): Socket Aceptado
+
+[INFO] 19:32:32:351 Administrador de memoria/(3553:3553): Nueva conexion de 127.0.0.1 en el socket 6
+
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): Select Activado
+
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): INICIO TABLAS DE PAGINAS
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): FIN TABLAS DE PAGINAS
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 10
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): Envio pagina al SWAP, PAGINA N°:10
+[INFO] 19:32:34:883 Administrador de memoria/(3553:3553): Envio pid al SWAP, PID:1
+[INFO] 19:32:34:886 Administrador de memoria/(3553:3553): SWAP recibio la pagina de forma correcta
+[INFO] 19:32:34:887 Administrador de memoria/(3553:3553): Se recibio este codigo de error: 14
+[INFO] 19:32:34:887 Administrador de memoria/(3553:3553): Se proceso correctamente el mensaje
+[INFO] 19:32:34:887 Administrador de memoria/(3553:3553): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 19:32:37:909 Administrador de memoria/(3553:3553): Select Activado
+
+[INFO] 19:32:41:666 Administrador de memoria/(3553:3553): Solicitud de lectura recibida
+[INFO] 19:32:42:542 Administrador de memoria/(3553:3553): 2do checkpoint: Se envia directo al swap
+[INFO] 19:32:45:133 Administrador de memoria/(3553:3553): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 19:32:45:133 Administrador de memoria/(3553:3553): POSICION ENCONTRADA : 0 
+
+[INFO] 19:32:45:133 Administrador de memoria/(3553:3553): PAGINA ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 19:32:45:133 Administrador de memoria/(3553:3553): frame asignado: -1 al pid:1
+[INFO] 19:32:45:133 Administrador de memoria/(3553:3553): AGREGANDO ESTRUCTURAS AL PID: 1
+[INFO] 19:32:45:133 Administrador de memoria/(3553:3553): INICIO PEDIDO AL SWAP
+[INFO] 19:32:45:135 Administrador de memoria/(3553:3553): tamaño: 5 
+
+[INFO] 19:32:45:136 Administrador de memoria/(3553:3553): Contenido: 
+[INFO] 19:32:45:136 Administrador de memoria/(3553:3553): FIN PEDIDO AL SWAP
+[INFO] 19:32:45:137 Administrador de memoria/(3553:3553): POSICION ENCONTRADA : 0 
+
+[INFO] 19:32:45:989 Administrador de memoria/(3553:3553): Finalizo comando LEER
+[INFO] 19:33:08:14 Administrador de memoria/(3553:3553): Select Activado
+
+[INFO] 19:33:09:986 Administrador de memoria/(3553:3553): Solicitud de lectura recibida
+[INFO] 19:33:09:986 Administrador de memoria/(3553:3553): 2do checkpoint: Se envia directo al swap
+[INFO] 19:33:09:986 Administrador de memoria/(3553:3553): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 19:33:09:986 Administrador de memoria/(3553:3553): POSICION ENCONTRADA : 1 
+
+[INFO] 19:33:09:986 Administrador de memoria/(3553:3553): PAGINA ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 19:33:09:987 Administrador de memoria/(3553:3553): frame asignado: 0 al pid:1
+[INFO] 19:33:09:987 Administrador de memoria/(3553:3553): AGREGANDO ESTRUCTURAS AL PID: 1
+[INFO] 19:33:09:987 Administrador de memoria/(3553:3553): INICIO PEDIDO AL SWAP
+[INFO] 19:33:09:989 Administrador de memoria/(3553:3553): tamaño: 5 
+
+[INFO] 19:33:09:990 Administrador de memoria/(3553:3553): Contenido: 
+[INFO] 19:33:09:990 Administrador de memoria/(3553:3553): FIN PEDIDO AL SWAP
+[INFO] 19:33:09:993 Administrador de memoria/(3553:3553): POSICION ENCONTRADA : 1 
+
+[INFO] 19:33:09:995 Administrador de memoria/(3553:3553): EJECUTAR ALGORITMO DE REEMPLAZO DE PAGINAS 
+[WARNING] 19:33:09:996 Administrador de memoria/(3553:3553): FRAME: 0
+[WARNING] 19:33:09:997 Administrador de memoria/(3553:3553): FRAME: 1
+[WARNING] 19:33:09:998 Administrador de memoria/(3553:3553): Frame asignado: 0, FRAME GRABADO: 0
+[INFO] 19:33:09:999 Administrador de memoria/(3553:3553): Finalizo comando LEER
+[INFO] 19:33:12:998 Administrador de memoria/(3553:3553): Select Activado
+
+[INFO] 19:33:16:203 Administrador de memoria/(3553:3553): Solicitud de lectura recibida
+[INFO] 19:33:16:722 Administrador de memoria/(3553:3553): 2do checkpoint: Se envia directo al swap
+[INFO] 19:33:18:603 Administrador de memoria/(3553:3553): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 19:33:18:604 Administrador de memoria/(3553:3553): POSICION ENCONTRADA : 2 
+
+[INFO] 19:33:18:604 Administrador de memoria/(3553:3553): PAGINA ENCONTRADA EN TABLA DE PAGINAS
+[INFO] 19:33:20:381 Administrador de memoria/(3553:3553): Finalizo comando LEER

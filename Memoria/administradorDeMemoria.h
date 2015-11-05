@@ -94,5 +94,6 @@ int algoritmoFIFO(int pid);
 int llamar(int pid);
 int CantidadDeFrames(int pid);
 t_list * busquedaListaFramesPorPid (int pid);
+int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

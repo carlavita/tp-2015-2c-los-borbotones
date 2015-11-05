@@ -495,6 +495,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			} else {
 				if (list_size(listaDePidFrames)
 						<= configMemoria.maximoMarcosPorProceso) {
+				if (list_size(busquedaListaFramesPorPid(pid))<= configMemoria.maximoMarcosPorProceso) {
 					AsignarFrameAlProceso(pid, pagina);
 				}
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
@@ -512,6 +513,8 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		} else {
 			if (list_size(listaDePidFrames)
 					< configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
+
+			if (list_size(busquedaListaFramesPorPid(pid)) <= configMemoria.maximoMarcosPorProceso) {//TODO funcion para que cuent
 				AsignarFrameAlProceso(pid, pagina);
 			}
 			char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap, pid,
@@ -559,6 +562,22 @@ void BorrarEstructuras(int PID)
 		}
 
 
+}
+
+//CREATE BY MARTIN
+t_list * busquedaListaFramesPorPid (int pid)  {
+	t_list * listaFramesPid = list_create();
+	t_pidFrame * pidFrame;
+		int contador = 0 ;
+		pidFrame = list_get(listaDePidFrames,contador);
+			while (contador < list_size(listaDePidFrames)){
+					if (pidFrame->pid == pid) {
+						list_add(listaFramesPid,pidFrame);
+					}
+					contador++;
+			}
+
+		return listaFramesPid;
 }
 
 void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {

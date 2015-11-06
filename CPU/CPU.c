@@ -424,9 +424,9 @@ char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 	recv(serverMemoria, &tamanio, sizeof(int), 0);
 	//t_mensajeHeader header;
 	//recv(serverMemoria, &header, sizeof(t_mensajeHeader), 0);
-	//tamanio = header.size;
+	//amanio = header.size;
 //	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
-	printf("tamanio recibido %d\n ", tamanio);
+	//printf("tamanio recibido %d\n ", tamanio);
 	contenido = malloc(tamanio);
 //	recv(serverMemoria, contenido, sizeof(tamanio), 0);
 	recv(serverMemoria, contenido, tamanio, 0);

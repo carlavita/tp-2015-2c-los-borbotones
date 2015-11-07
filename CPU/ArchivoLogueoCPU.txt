@@ -1,29 +1,145 @@
-[INFO] 23:21:21:697 CPU/(9984:9984): Inicio Proceso CPU
-[INFO] 23:21:21:717 CPU/(9984:9984): Leyendo Archivo de Configuracion
-[INFO] 23:21:21:719 CPU/(9984:9984): 4000
-[INFO] 23:21:21:721 CPU/(9984:9984): Archivo de Configuracion Leido correctamente
-[INFO] 23:21:21:722 CPU/(9984:9984): Se inicializaron los semaforos 
+[INFO] 12:17:19:404 CPU/(5865:5865): Inicio Proceso CPU
+[INFO] 12:17:19:404 CPU/(5865:5865): Leyendo Archivo de Configuracion
+[INFO] 12:17:19:404 CPU/(5865:5865): 4000
+[INFO] 12:17:19:404 CPU/(5865:5865): Archivo de Configuracion Leido correctamente
+[INFO] 12:17:19:404 CPU/(5865:5865): Se inicializaron los semaforos 
 
-[INFO] 23:21:21:897 CPU/(9984:9994): Conectando a memoria
+[INFO] 12:17:19:425 CPU/(5865:5870): Conectando a memoria
 
-[INFO] 23:21:21:903 CPU/(9984:9994): Conectando a planificador
-[INFO] 23:21:21:909 CPU/(9984:9994): se recibe el msj de saludo de planificador:
-[INFO] 23:21:21:911 CPU/(9984:9994): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
-[INFO] 23:21:31:701 CPU/(9984:9994): se recibe el msj de ejecucion de un proceso:
-[INFO] 23:21:31:702 CPU/(9984:9994): ejecutando el proceso con id:1
-[INFO] 23:21:41:734 CPU/(9984:9994): Inicia parseo desde linea incial: 0
-[INFO] 23:21:50:545 CPU/(9984:9994): El proceso 1 inició su ejecucion correctamente
+[INFO] 12:17:19:426 CPU/(5865:5870): Conectando a planificador
+[INFO] 12:17:19:426 CPU/(5865:5870): se recibe el msj de saludo de planificador:
+[INFO] 12:17:19:426 CPU/(5865:5870): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 12:17:19:450 CPU/(5865:5871): Conectando a memoria
 
-[INFO] 23:22:08:566 CPU/(9984:9994): mProc 1 - Pagina 0 a leer, envio a memoria 
+[INFO] 12:17:19:451 CPU/(5865:5871): Conectando a planificador
+[INFO] 12:17:19:451 CPU/(5865:5871): se recibe el msj de saludo de planificador:
+[INFO] 12:17:19:451 CPU/(5865:5871): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 12:17:26:938 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:26:938 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:26:938 CPU/(5865:5870): Inicia parseo desde linea incial: 0
+[INFO] 12:17:26:939 CPU/(5865:5870): El proceso 1 inició su ejecucion correctamente
 
-[INFO] 23:22:08:596 CPU/(9984:9994): El contenido es: AAAA 
+[INFO] 12:17:27:940 CPU/(5865:5870): mProc 1 - Pagina 0 a leer, envio a memoria 
 
-[INFO] 23:22:11:600 CPU/(9984:9994): mProc 1 - Pagina 1 a leer, envio a memoria 
+[INFO] 12:17:28:942 CPU/(5865:5870): El contenido es:  
 
-[INFO] 23:22:11:672 CPU/(9984:9994): El contenido es: AAAA 
+[INFO] 12:17:29:942 CPU/(5865:5870): mProc 1 - fin de quantum , CPU id: 1
 
-[INFO] 23:22:14:680 CPU/(9984:9994): mProc 1 - fin de quantum , CPU id: 1
+[INFO] 12:17:29:943 CPU/(5865:5871): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:29:943 CPU/(5865:5871): ejecutando el proceso con id:1
+[INFO] 12:17:29:943 CPU/(5865:5871): Inicia parseo desde linea incial: 2
+[INFO] 12:17:29:944 CPU/(5865:5871): mProc 1 - Pagina 1 a leer, envio a memoria 
 
-[INFO] 23:22:14:710 CPU/(9984:9994): se recibe el msj de ejecucion de un proceso:
-[INFO] 23:22:14:711 CPU/(9984:9994): ejecutando el proceso con id:1
-[INFO] 23:22:17:1 CPU/(9984:9994): Inicia parseo desde linea incial: 3
+[INFO] 12:17:30:945 CPU/(5865:5871): El contenido es:  
+
+[INFO] 12:17:32:947 CPU/(5865:5871): mProc 1 - Pagina 0 escrita:Hola 
+
+[INFO] 12:17:33:949 CPU/(5865:5871): mProc 1 - fin de quantum , CPU id: 2
+
+[INFO] 12:17:33:949 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:33:949 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:33:950 CPU/(5865:5870): Inicia parseo desde linea incial: 4
+[INFO] 12:17:34:950 CPU/(5865:5870): mProc 1 - Pagina 45 escrita:chau 
+
+[INFO] 12:17:35:951 CPU/(5865:5870): mProc 1 - Pagina 0 a leer, envio a memoria 
+
+[INFO] 12:17:36:953 CPU/(5865:5870): El contenido es: Hola 
+
+[INFO] 12:17:37:954 CPU/(5865:5870): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 12:17:37:955 CPU/(5865:5871): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:37:955 CPU/(5865:5871): ejecutando el proceso con id:1
+[INFO] 12:17:37:955 CPU/(5865:5871): Inicia parseo desde linea incial: 6
+[INFO] 12:17:37:955 CPU/(5865:5871): mProc 1 - Pagina 45 a leer, envio a memoria 
+
+[INFO] 12:17:38:957 CPU/(5865:5871): El contenido es: chau 
+
+[INFO] 12:17:40:959 CPU/(5865:5871): mProc 1 - Pagina 10 escrita:ERROR 
+
+[INFO] 12:17:41:960 CPU/(5865:5871): mProc 1 - fin de quantum , CPU id: 2
+
+[INFO] 12:17:41:961 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:41:961 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:41:961 CPU/(5865:5870): Inicia parseo desde linea incial: 8
+[INFO] 12:17:42:963 CPU/(5865:5870): mProc 1 - Pagina 9 escrita:Noooooo 
+
+[INFO] 12:17:43:963 CPU/(5865:5870): Entrada Salida- PID: 1, tiempo: 2, CPU: 1 
+
+[INFO] 12:17:43:963 CPU/(5865:5870): Status envío IO: 24 
+
+[INFO] 12:17:45:964 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:45:964 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:45:964 CPU/(5865:5870): Inicia parseo desde linea incial: 10
+[INFO] 12:17:46:965 CPU/(5865:5870): mProc 1 - Pagina 12 escrita:PorFavooor 
+
+[INFO] 12:17:47:966 CPU/(5865:5870): Entrada Salida- PID: 1, tiempo: 2, CPU: 1 
+
+[INFO] 12:17:47:966 CPU/(5865:5870): Status envío IO: 24 
+
+[INFO] 12:17:49:968 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:49:968 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:49:968 CPU/(5865:5870): Inicia parseo desde linea incial: 12
+[INFO] 12:17:50:970 CPU/(5865:5870): mProc 1 - Pagina 19 escrita:No? 
+
+[INFO] 12:17:51:970 CPU/(5865:5870): Entrada Salida- PID: 1, tiempo: 2, CPU: 1 
+
+[INFO] 12:17:51:970 CPU/(5865:5870): Status envío IO: 24 
+
+[INFO] 12:17:53:971 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:53:971 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:53:971 CPU/(5865:5870): Inicia parseo desde linea incial: 14
+[INFO] 12:17:54:973 CPU/(5865:5870): mProc 1 - Pagina 33 escrita:LoVemosEl28deNov 
+
+[INFO] 12:17:55:974 CPU/(5865:5870): Entrada Salida- PID: 1, tiempo: 4, CPU: 1 
+
+[INFO] 12:17:55:974 CPU/(5865:5870): Status envío IO: 24 
+
+[INFO] 12:17:59:976 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:17:59:976 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:17:59:976 CPU/(5865:5870): Inicia parseo desde linea incial: 16
+[INFO] 12:18:00:977 CPU/(5865:5870): mProc 1 - Pagina 46 escrita:Aprobas? 
+
+[INFO] 12:18:01:978 CPU/(5865:5870): mProc 1 - Pagina 46 a leer, envio a memoria 
+
+[INFO] 12:18:02:980 CPU/(5865:5870): El contenido es: Aprobas? 
+
+[INFO] 12:18:03:980 CPU/(5865:5870): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 12:18:03:981 CPU/(5865:5871): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:18:03:981 CPU/(5865:5871): ejecutando el proceso con id:1
+[INFO] 12:18:03:981 CPU/(5865:5871): Inicia parseo desde linea incial: 18
+[INFO] 12:18:03:981 CPU/(5865:5871): mProc 1 - Pagina 9 a leer, envio a memoria 
+
+[INFO] 12:18:04:983 CPU/(5865:5871): El contenido es: Noooooo 
+
+[INFO] 12:18:06:986 CPU/(5865:5871): mProc 1 - Pagina 1 escrita:Seguro? 
+
+[INFO] 12:18:07:986 CPU/(5865:5871): mProc 1 - fin de quantum , CPU id: 2
+
+[INFO] 12:18:07:987 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:18:07:987 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:18:07:987 CPU/(5865:5870): Inicia parseo desde linea incial: 20
+[INFO] 12:18:07:987 CPU/(5865:5870): mProc 1 - Pagina 1 a leer, envio a memoria 
+
+[INFO] 12:18:08:989 CPU/(5865:5870): El contenido es: Seguro? 
+
+[INFO] 12:18:10:991 CPU/(5865:5870): mProc 1 - Pagina 0 escrita:Seh 
+
+[INFO] 12:18:11:992 CPU/(5865:5870): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 12:18:11:993 CPU/(5865:5871): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:18:11:993 CPU/(5865:5871): ejecutando el proceso con id:1
+[INFO] 12:18:11:993 CPU/(5865:5871): Inicia parseo desde linea incial: 22
+[INFO] 12:18:11:993 CPU/(5865:5871): Entrada Salida- PID: 1, tiempo: 15, CPU: 2 
+
+[INFO] 12:18:11:993 CPU/(5865:5871): Status envío IO: 24 
+
+[INFO] 12:18:26:995 CPU/(5865:5870): se recibe el msj de ejecucion de un proceso:
+[INFO] 12:18:26:995 CPU/(5865:5870): ejecutando el proceso con id:1
+[INFO] 12:18:26:995 CPU/(5865:5870): Inicia parseo desde linea incial: 23
+[INFO] 12:18:26:995 CPU/(5865:5870): mProc 1 - Pagina 10 a leer, envio a memoria 
+
+[INFO] 12:18:27:997 CPU/(5865:5870): El contenido es: ERROR 
+
+[INFO] 12:18:28:998 CPU/(5865:5870): mProc 1 - Pagina 46 a leer, envio a memoria 
+

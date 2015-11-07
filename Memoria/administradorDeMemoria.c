@@ -231,8 +231,8 @@ void AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
 
 	list_add(listaDePidFrames, estructuraPidFrame);
 
-	log_info(logMemoria, "frame asignado: %d al pid:%d",
-			ultimoFrameAsignado - 1, pid);
+	log_info(logMemoria, "frame asignado: %d al pid:%d", ultimoFrameAsignado,
+			pid);
 
 	if (list_size(listaDePidFrames) <= configMemoria.maximoMarcosPorProceso) {
 		agregarAEstructuraGeneral(listaDePidFrames, pid);
@@ -385,32 +385,38 @@ char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 	return contenido;
 }
 
-void buscarContenidoPagina(int pid, int pagina, int socketCPU) {
+void buscarContenidoPagina(int socketSwap,int pid, int pagina, int socketCPU) {
 //ANTES DE USAR ESTA FUNCION SE VALIDA QUE EXISTA EN LA TLB, o en la TABLA DE PAGINAS, y despues se busca el contenido en la TABLA de paginas
 //porque si esta en la TLB, o en la tabla de paginas, TENGO EL CONTENIDO EN EL ADMINISTRADOR DE MEMORIA, sino debo pedirselo al swap
 
 	char* contenidoADevolver = buscarContenidoEnTablaDePaginas(pid, pagina);
 	int tamanio = strlen(contenidoADevolver);
-	send(socketCPU,&tamanio,sizeof(tamanio),0);
-	send(socketCPU,contenidoADevolver,tamanio,0);
+	if (strlen(contenidoADevolver) == 0){
+		contenidoADevolver = pedirContenidoAlSwap(socketSwap, pid, pagina,
+				socketCPU);
+	}
+	else {
+		send(socketCPU, &tamanio, sizeof(tamanio), 0);
+		send(socketCPU, contenidoADevolver, tamanio, 0);
+	}
+	sleep(5);
 }
 
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
-	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;
 	estructuraLeerSwap->pagina = pagina;
 	serializarEstructura(LEER, estructuraLeerSwap, sizeof(t_leer), cliente);
 	recv(cliente, &tamanioLeido, sizeof(int), 0);
-	log_info(logMemoria, "tamaño: %d \n", tamanioLeido);
 
 	char* contenidoLeido = malloc(tamanioLeido);
 
 	recv(cliente, contenidoLeido, tamanioLeido, 0);
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
-	log_info(logMemoria, "FIN PEDIDO AL SWAP");
+	//log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	contenidoLeido[tamanioLeido] = '\0';
 
 	send(servidor, &tamanioLeido, sizeof(tamanioLeido), 0);
@@ -488,11 +494,11 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
 		if (resultadoBusquedaTLB == 0) //CASO VERDADERO
 				{
-			buscarContenidoPagina(pid, pagina, socketCPU);
+			buscarContenidoPagina(socketSwap,pid, pagina, socketCPU);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTP == 1) {
-				buscarContenidoPagina(pid, pagina, socketCPU);
+				buscarContenidoPagina(socketSwap,pid, pagina, socketCPU);
 			} else {
 				if (list_size(busquedaListaFramesPorPid(pid))
 						<= configMemoria.maximoMarcosPorProceso) {
@@ -506,7 +512,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			case 0:
 			resultadoBusquedaTablaPaginas = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTablaPaginas == 0) {
-				buscarContenidoPagina(pid, pagina, socketCPU);
+				buscarContenidoPagina(socketSwap,pid, pagina, socketCPU);
 			} else {
 				//TODO funcion para que cuent
 
@@ -552,7 +558,7 @@ void BorrarEstructuras(int PID) {
 		}
 
 	}
-
+	ultimoFrameAsignado = 0;
 }
 
 //CREATE BY MARTIN
@@ -839,7 +845,7 @@ int busquedaPIDFrame(int PID) {
 
 	while (pidFrame->pid != PID) {
 		posicion++;
-		pidFrame = list_get(tablaDePaginas, posicion);
+		pidFrame = list_get(listaDePidFrames, posicion);
 	}
 	if (pidFrame->pid == PID) {
 		return posicion;

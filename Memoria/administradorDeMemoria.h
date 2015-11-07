@@ -95,5 +95,6 @@ int llamar(int pid);
 int CantidadDeFrames(int pid);
 t_list * busquedaListaFramesPorPid (int pid);
 int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
+char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

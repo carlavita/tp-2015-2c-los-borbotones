@@ -418,6 +418,7 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
 	//log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	contenidoLeido[tamanioLeido] = '\0';
+	//TODO agregar contenido
 
 	send(servidor, &tamanioLeido, sizeof(tamanioLeido), 0);
 	send(servidor, contenidoLeido, tamanioLeido, 0);

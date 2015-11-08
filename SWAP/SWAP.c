@@ -23,6 +23,7 @@
 
 
 pthread_mutex_t mutex;
+pthread_mutex_t listaOrdenar;
 int main() {
 	remove("ArchivoLogueoSWAP.txt");
 	logSWAP = log_create("ArchivoLogueoSWAP.txt", "SWAP", true, LOG_LEVEL_INFO);
@@ -170,9 +171,10 @@ int finalizar(int PID) {
 	log_info(logSWAP, "Cantidad de Escrituras solicitadas: %d",
 			cantidadEscrituras);
 	log_info(logSWAP, "Cantidad de Lecturas solicitadas: %d", cantidadLecturas);
-
-	//ordenarLista();		//LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
+	pthread_mutex_lock(&listaOrdenar);
+	ordenarLista();		//LUEGO DE INSERTAR ORDENO LA LISTA POR NRO PAGINA LIBRE
 	unificacionEspacioContiguo();
+	pthread_mutex_unlock(&listaOrdenar);
 
 	return OK;
 }
@@ -285,8 +287,10 @@ void * compactacion() {
 		}
 		pagLibre->desdePagina = DesdeBusqueda;
 		pagLibre->hastaPagina = DesdeBusqueda + BloquesLibres;
+		pthread_mutex_lock(&listaOrdenar);
 		ordenarLista();
 		unificacionEspacioContiguo();
+		pthread_mutex_unlock(&listaOrdenar);
 	}
 
 	sleep(configuracionSWAP.RetardoCompactacion); //SIMULO TIEMPO DE COMPACTACION
@@ -404,19 +408,12 @@ int busquedaPidPaginaEnLista(int PID) {
 }
 
 int busquedaPaginaEnLista(int numeroPagina) {
-	bool paginas(t_tablaPaginasLibres * tpl) {
-		return tpl->desdePagina == numeroPagina;
-	}
 	int poss = 0;
-	t_tablaPaginasLibres* paginaLibre = malloc(sizeof(t_tablaPaginasLibres));
+	t_tablaPaginasLibres* paginaLibre;
 	paginaLibre = list_get(listaPaginasLibres, poss);
-	if (list_count_satisfying(listaPaginasLibres, (void *) paginas) >= 1) {
-		while (paginaLibre->desdePagina != numeroPagina) {
+	while (paginaLibre->desdePagina != numeroPagina) {
 			poss++;
-			paginaLibre = list_get(listaProcesos, poss);
-		}
-	} else {
-		return ERROR;
+			paginaLibre = list_get(listaPaginasLibres, poss);
 	}
 	return poss;
 

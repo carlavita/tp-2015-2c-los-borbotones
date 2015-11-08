@@ -547,7 +547,7 @@ void BorrarEstructuras(int PID) {
 
 		if (pidFrame->pid == PID) {
 			list_remove(tablaDePaginas, posicion);
-			posicion++;
+
 		} else {
 			posicion++;
 		}
@@ -656,7 +656,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			recv(servidorCPU, finalizarCPU, sizeof(t_finalizarPID), 0);
 
-			BorrarEstructuras(finalizarCPU->pid);
+
 			log_info(logMemoria, "FINALIZAR PID: %d\n", finalizarCPU->pid);
 
 			fflush(stdout);
@@ -675,6 +675,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 				NULL, 0, servidorCPU);
 
 			//TODO BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
+			BorrarEstructuras(finalizarCPU->pid);
 			pthread_mutex_unlock(&mutexFinalizar);
 			break;
 		default:

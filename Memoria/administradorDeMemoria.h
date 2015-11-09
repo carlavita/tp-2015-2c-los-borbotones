@@ -14,6 +14,8 @@ typedef struct {
 	int pid;
 	int frameAsignado;
 	int frameUsado;
+	int frameModificado;
+	int puntero;
 } t_pidFrame;
 
 typedef struct {
@@ -96,5 +98,11 @@ int CantidadDeFrames(int pid);
 t_list * busquedaListaFramesPorPid (int pid);
 int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
+
+//ALGORITMO CLOCK
+int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
+int algoritmoClockModificado (int pid);
+int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
+
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

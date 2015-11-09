@@ -227,7 +227,9 @@ void AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
 
 	estructuraPidFrame->frameAsignado = ultimoFrameAsignado;
 	estructuraPidFrame->pid = pid;
-	estructuraPidFrame->frameUsado = 0; //0 SIN USAR, 1 USADO.
+	estructuraPidFrame->frameUsado = 1; //0 SIN USAR, 1 USADO.
+	estructuraPidFrame->frameModificado = 0; //0 NECESARIO PARA ALGORITMO CLOCK
+	estructuraPidFrame->puntero =0; //NECESARIO PARA SABER DONDE CONTINUAR EN EL ALGORITMO CLOCK
 
 	list_add(listaDePidFrames, estructuraPidFrame);
 
@@ -793,6 +795,91 @@ int algoritmoFIFO(int pid) {
 	return llamar(pid);
 
 }
+
+int algoritmoClockModificado (int pid){
+		t_list * listaParaAlgoritmo = list_create();
+		listaParaAlgoritmo = busquedaListaFramesPorPid (pid);
+return 	ejecutarAlgoritmoClock (pid, listaParaAlgoritmo);
+
+
+}
+
+
+int ejecutarAlgoritmoClock (int pid, t_list * listaAReemplazar){
+	int posicion = busquedaPosicionAlgoritmo (listaAReemplazar); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+	t_pidFrame * frameAReemplazar;
+	frameAReemplazar = list_get(listaAReemplazar,posicion);
+	while (posicion < list_size(listaAReemplazar)){
+		switch (frameAReemplazar->frameUsado){
+			case 0:
+					/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
+				if (posicion + 1 == list_size(listaAReemplazar)){
+										frameAReemplazar = list_get(listaAReemplazar,0); //INICIO EL CICLO NUEVAMENTE
+										frameAReemplazar->puntero = 1;
+									}
+									else
+									{
+										frameAReemplazar = list_get(listaAReemplazar,posicion+1) ; //LEO SIGUIENTE POSICION
+										frameAReemplazar->puntero = 1;
+									}
+				return frameAReemplazar->frameAsignado;
+
+				break;
+
+
+			case 1:
+				frameAReemplazar->frameUsado = 0;
+					if (posicion + 1 == list_size(listaAReemplazar)){
+						posicion = 0; //INICIO EL CICLO NUEVAMENTE
+						frameAReemplazar = list_get(listaAReemplazar,posicion);
+					}
+					else
+					{
+						posicion++ ;
+						frameAReemplazar = list_get(listaAReemplazar,posicion);//LEO SIGUIENTE POSICION
+					}
+				break;
+
+		}
+	}
+
+
+
+	return 1 ;
+}
+
+
+int busquedaPosicionAlgoritmo (t_list * listaBusqueda){
+	int posicion = 0;
+	t_pidFrame * frameBusqueda;
+	frameBusqueda = list_get(listaBusqueda,posicion);
+	while (posicion < list_size(listaBusqueda))
+	{
+			if (frameBusqueda->puntero == 1)
+			{
+				return posicion;
+			}
+			else
+			{
+
+					if (posicion+1 == list_size(listaBusqueda))
+					{
+						return 0;
+					}
+					else
+					{
+					posicion++;
+					frameBusqueda = list_get(listaBusqueda,posicion);
+					}
+
+			}
+
+	}
+
+	return 0 ;
+}
+
+
 int CantidadDeFrames(int pid) {
 	int cantidadDeFrames = 0;
 	int posicion = 0;
@@ -894,7 +981,9 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 
 	pidframe->frameAsignado = pf->frameAsignado;
 	pidframe->frameUsado = 1;
+	pidframe->frameModificado =0 ; //NECESARIO PARA CLOCK
 	pidframe->pid = pid;
+	pidframe->puntero =0; //NECESARIO PARA SABER DONDE CONTINUAR EN ALGORITMO CLOCK
 
 	list_add(listaDePidFrames, pidframe);
 

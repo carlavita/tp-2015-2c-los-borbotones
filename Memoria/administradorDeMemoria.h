@@ -41,7 +41,7 @@ typedef struct {
 	int presencia;
 	int bitUso;
 	int bitModificado;
-	char * contenido;
+	char * direccion;
 } t_tablaDePaginas;
 
 typedef struct {
@@ -62,7 +62,7 @@ t_log * logMemoria;
 int clienteSwap;
 t_list * tablaDePaginas;
 t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
-int * memoriaReservadaDeMemPpal;
+char * memoriaReservadaDeMemPpal;
 pthread_t * hiloSigUsr1;
 pthread_t * hiloSigUsr2;
 t_list * listaDePidFrames;
@@ -78,7 +78,7 @@ void crearServidor();
 void generarTLB(int entradasTLB);
 void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
-void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
+void generarTablaDePaginas(char * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas);
 void AsignarFrameAlProceso(int pid, int cantidadDePaginas);
 //void avisarAlSwap(int clienteSwap);

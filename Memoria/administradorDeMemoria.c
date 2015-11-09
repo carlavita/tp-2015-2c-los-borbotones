@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <commons/config.h>
 #include <commons/collections/list.h>
+#include <commons/string.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdbool.h>
@@ -91,6 +92,10 @@ int main() {
 	signal(SIGUSR2, atenderSeaniales);
 	signal(SIGPOLL, atenderSeaniales);
 	/*SEÑALES*/
+	memoriaReservadaDeMemPpal =
+			malloc(
+					sizeof(configMemoria.cantidadDeMarcos
+							* configMemoria.tamanioMarcos));
 	remove("logMemoria.txt"); //Cada vez que arranca el proceso borro el archivo de log.A
 	logMemoria = log_create("logMemoria.txt", "Administrador de memoria", true,
 			LOG_LEVEL_INFO);
@@ -189,7 +194,7 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
 	}
 	return clienteSwap;
 }
-void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
+void generarTablaDePaginas(char * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas) {
 	t_estructurasDelProceso estructuraDelProceso;
 	log_info(logMemoria, "INICIO TABLAS DE PAGINAS");
@@ -203,7 +208,7 @@ void generarTablaDePaginas(int * memoriaReservadaDeMemPpal, int pid,
 		entrada->presencia = 0;
 		entrada->pagina = pagina;
 		entrada->pid = pid;
-		entrada->contenido = NULL;
+		entrada->direccion = NULL;
 		entrada->marco = -1;
 		list_add(tablaDePaginas, entrada);
 		pagina++;
@@ -367,15 +372,21 @@ int buscarEnTablaDePaginas( pid, pagina) {
 char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 	log_info(logMemoria,
 			"OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS");
-	char * contenido;
+	char * direccion;
 	t_tablaDePaginas * estructContenidoPaginas = malloc(
 			sizeof(t_tablaDePaginas));
 	estructContenidoPaginas = list_get(tablaDePaginas,
 			busquedaPIDEnLista(pid, pagina));
-	contenido = estructContenidoPaginas->contenido;
+	direccion = estructContenidoPaginas->direccion;
 	//free(estructContenidoPaginas);
 	//log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
-	return contenido;
+	if(direccion == NULL) return "";
+	else
+	{
+		char * contenido ;
+		memmove(contenido,&direccion,strlen(direccion));
+		return contenido;
+	}
 }
 
 void buscarContenidoPagina(int socketSwap, int pid, int pagina, int socketCPU) {
@@ -432,45 +443,39 @@ void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
 
 void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap) {
-	bool framesPorPid() {
-		int i = 0;
-		int cantidadF = 0;
-		while (i < ultimoFrameAsignado) {
-			t_pidFrame * pf = list_get(listaDePidFrames, i);
-			if (pf->pid == pid)
-				cantidadF++;
-			i++;
-		}
-		return cantidadF > 0;
-	}
+
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
 	int posicion = busquedaPIDEnLista(pid, pagina);
 	if (posicion != -1) {
 		paginaAAsignar = list_get(tablaDePaginas, posicion);
 		paginaAAsignar->pid = pid;
-		paginaAAsignar->contenido = contenidoPedidoAlSwap;
+
 		paginaAAsignar->pagina = pagina;
 		paginaAAsignar->bitModificado = 1;
 		paginaAAsignar->bitUso = 1;
 		paginaAAsignar->bitValidez = 1;
 		paginaAAsignar->presencia = 1;
 
-		int cf = CantidadDeFrames(pid);
-		if (cf <= configMemoria.maximoMarcosPorProceso - 1) {
+		if (CantidadDeFrames(pid) <= configMemoria.maximoMarcosPorProceso-1 ) {
 			paginaAAsignar->marco = ultimoFrameAsignado;
 			ultimoFrameAsignado++;
 		} else {
-			log_info(logMemoria,
-					"EJECUTAR ALGORITMO DE REEMPLAZO DE PAGINAS \0 ACTUALIZACION DE FRAMES \0 ACTUALIZACION DE TLB \n");
-
-			//paginaAAsignar->marco = 0;//algoritmoFIFO(pid);
 			pthread_mutex_lock(&BLOQUEAR);
 			paginaAAsignar->marco = algoritmoFIFO(pid);
 			pthread_mutex_unlock(&BLOQUEAR);
 
-			//sleep(configMemoria.retardoMemoria);
+
+			char * contenido = calloc(1,strlen(contenidoPedidoAlSwap));
+			memcpy(memoriaReservadaDeMemPpal,contenido,paginaAAsignar->marco * configMemoria.tamanioMarcos);
+
+			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
+			sleep(configMemoria.retardoMemoria);
 		}
-		list_replace(tablaDePaginas, paginaAAsignar->pagina, paginaAAsignar);
+		int posicion = buscarEnTablaDePaginas(pid, pagina);
+		if (posicion != -1)
+			list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
+		else
+			list_replace(tablaDePaginas, pagina, paginaAAsignar);
 		/*log_info(logMemoria, "PID    PAGINA    FRAME\n;");
 		 log_info(logMemoria, "%d        %d        %d", paginaAAsignar->pid,
 		 paginaAAsignar->pagina, paginaAAsignar->marco);*/
@@ -509,8 +514,6 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			if (resultadoBusquedaTablaPaginas == 0) {
 				buscarContenidoPagina(socketSwap, pid, pagina, socketCPU);
 			} else {
-				//TODO funcion para que cuent
-
 				if (list_size(busquedaListaFramesPorPid(pid))
 						<= configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
 					AsignarFrameAlProceso(pid, pagina);
@@ -581,10 +584,6 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 	t_escribir *estructuraEscribirSwap = malloc(sizeof(t_escribir));
 
-	int * memoriaReservadaDeMemPpal =
-			malloc(
-					sizeof(configMemoria.cantidadDeMarcos
-							* configMemoria.tamanioMarcos));
 	int statusMensajeRecibidoDeLaCPU; //MENSAJES QUE SE USAN EN EL PASAMANOS, POR AHORA SE LLAMAN ASI, DESPUES LOS VOY A CAMBIAR.
 	t_mensajeHeader mensajeHeader, mensajeHeaderSwap;
 	statusMensajeRecibidoDeLaCPU = recv(servidorCPU, &mensajeHeader,
@@ -643,12 +642,12 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 					sizeof(t_escribir), clienteSWAP);
 			recv(clienteSWAP, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
 
-			pthread_mutex_unlock(&mutexEscribir);
+
 
 			serializarEstructura(mensajeHeaderSwap.idmensaje,
 			NULL, 0, servidorCPU);
 			free(estructuraEscribirSwap);
-
+			pthread_mutex_unlock(&mutexEscribir);
 			break;
 		case FINALIZAR:
 			pthread_mutex_lock(&mutexFinalizar);
@@ -673,15 +672,13 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 				serializarEstructura(mensajeHeaderSwap.idmensaje,
 				NULL, 0, servidorCPU);
-
-			//TODO BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			pthread_mutex_unlock(&mutexFinalizar);
 			break;
-		default:
-			log_info(logMemoria, "mensaje N°: %d", mensajeHeaderSwap.idmensaje);
-			log_info(logMemoria, "Mensaje que no es del SWAP N°:%d",
-					mensajeHeader.idmensaje);
-			log_info(logMemoria, "Mensaje incorrecto");
+			/*	default:
+			 log_info(logMemoria, "mensaje N°: %d", mensajeHeaderSwap.idmensaje);
+			 log_info(logMemoria, "Mensaje que no es del SWAP N°:%d",
+			 mensajeHeader.idmensaje);
+			 log_info(logMemoria, "Mensaje incorrecto");*/
 		}
 	}
 

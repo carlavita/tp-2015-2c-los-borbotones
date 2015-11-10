@@ -125,11 +125,11 @@ void mostrarConsola(void *ptr) {
 		printf(CYAN "LOS BORBOTONES - BIENVENIDO \n \n");
 		//puts("%sConsola - Planificador \n \n"
 		printf(CYAN "Consola - Planificador \n \n"
-				"1  - Correr Path \n"
-				"2  - Finalizar PID\n"
-				"3  - ps \n"
-				"4  - CPU\n"
-				"0  - Terminar\n" BLANCO);
+		"1  - Correr Path \n"
+		"2  - Finalizar PID\n"
+		"3  - ps \n"
+		"4  - CPU\n"
+		"0  - Terminar\n" BLANCO);
 
 		//puts("Ingrese una opción\n");
 		printf(BLANCO "Ingrese una opción\n" BLANCO);
@@ -391,19 +391,18 @@ void handle(int newsock, fd_set *set) {
 			pthread_mutex_unlock(&mutexListas);
 // Actualiza Métricas
 			/*Impresión de métricas metricas*/
-			//pthread_mutex_lock(&mutexMetricas);
-			//t_metricas *metricas = malloc(sizeof(t_metricas));
-			//metricas = buscarEnMetricasPorPID(rtaProc.pid);
+			pthread_mutex_lock(&mutexMetricas);
+			t_metricas *metricas = malloc(sizeof(t_metricas));
+			metricas = buscarEnMetricasPorPID(rtaProc.pid);
 			//t_pcb *mProc = list_get(LISTOS, 0);
 
-
-			/*t_metricas *metricas = malloc(sizeof(t_metricas));
-			metricas = list_get(METRICAS, rtaProc.pid - 1);
+			//t_metricas *metricas = malloc(sizeof(t_metricas));
+			//metricas = list_get(METRICAS, rtaProc.pid - 1);
 			metricas->tiempoFinal = tiempoFin;
 			tiempoFin = 0;
 			imprimirMetricas(metricas);
 			free(metricas);
-			pthread_mutex_unlock(&mutexMetricas);*/
+			pthread_mutex_unlock(&mutexMetricas);
 			liberarCPU(rtaProc.idCPU);
 
 			break;
@@ -476,12 +475,17 @@ void handle(int newsock, fd_set *set) {
 			}
 			list_add(LISTOS, pcbProc);
 			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
+
+			//Actualiza metricas
+			t_metricas *metricasPid = malloc(sizeof(t_metricas));
+			metricasPid = buscarEnMetricasPorPID(finQuantum.pid);
+			metricasPid->tiempoUltimaEntradaListo = obtenerTiempoActual();
+			//free(metricasPid);
 			pthread_mutex_unlock(&mutexListas);
 			sem_post(&semaforoListos);
-			int val ;
-			sem_getvalue(&semaforoListos,&val);
-			log_info(logger, " semaforo listos valor: %d\n",
-									val);
+			int val;
+			sem_getvalue(&semaforoListos, &val);
+			log_info(logger, " semaforo listos valor: %d\n", val);
 			liberarCPU(finQuantum.idCPU);
 
 			break;
@@ -551,12 +555,13 @@ int crearPcb(char* path) {
 	metricas->tiempoEspera = 0;
 	metricas->tiempoFinal = 0;
 	metricas->tiempoRespuesta = 0;
+	metricas->tiempoUltimaEntradaListo = obtenerTiempoActual();
 	/*Lo agrega a la lista de metricas*/
 	pthread_mutex_lock(&mutexMetricas);
 	list_add(METRICAS, metricas);
 
-	t_metricas *met2 = list_get(METRICAS, 0);
-	printf("METRICAAAAAAAAAS PID %d", met2->pid);
+	/*t_metricas *met2 = list_get(METRICAS, 0);
+	printf("METRICAAAAAAAAAS PID %d", met2->pid);*/
 	pthread_mutex_unlock(&mutexMetricas);
 	printf("PID mProc: %d \n", pcb->pid);
 	printf("Proxima instruccion mProc: %d \n", pcb->proxInst);
@@ -578,7 +583,7 @@ int crearPcb(char* path) {
 	printf(
 			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
 			val);
-	free(metricas);
+	//free(metricas);
 	return pcb->pid;
 }
 
@@ -593,7 +598,15 @@ t_pcb* planificarFifo() {
 	pcb->status = EJECUTA;
 	pthread_mutex_lock(&mutexListas);
 	list_add(EJECUTANDO, pcb);
+	double tiempoActual = obtenerTiempoActual();
 	pthread_mutex_unlock(&mutexListas);
+
+	//Actualiza valor de espera
+	t_metricas *metricas = malloc(sizeof(t_metricas));
+			metricas = buscarEnMetricasPorPID(pcb->pid);
+			metricas->tiempoEspera = metricas->tiempoEspera +
+			diferenciaEnSegundos(metricas->tiempoUltimaEntradaListo, obtenerTiempoActual());
+
 	printf("agrego el pid : % d a ejecutando \n", pcb->pid);
 
 	sem_getvalue(&semaforoListos, &val); // valor del contador del semáforo
@@ -601,7 +614,7 @@ t_pcb* planificarFifo() {
 			"Soy el semaforo despues de planificar un proceso  con el valor: %d\n",
 			val);
 
-	printf("termino la planificacion con fifo de un proceso \n");
+	printf("termino la planificacion de un proceso \n");
 
 	return pcb;
 
@@ -794,7 +807,7 @@ t_cpu* buscarCpuLibre() {
 }
 void ejecutarPS() {
 
-	pthread_mutex_lock(&mutexListas);
+//	pthread_mutex_lock(&mutexListas);
 // Crea una lista con todos los procesos.
 	t_list* PROCESOS = list_create();
 	int cantidadListos = list_size(LISTOS);
@@ -812,7 +825,7 @@ void ejecutarPS() {
 	list_add_all(PROCESOS, EJECUTANDO);
 	list_add_all(PROCESOS, BLOQUEADOS);
 	list_add_all(PROCESOS, FINALIZADOS);
-	pthread_mutex_unlock(&mutexListas);
+//	pthread_mutex_unlock(&mutexListas);
 
 	ordernarPorPID(PROCESOS);
 	printf("---  Status de Procesos mProc    --- \n \n");
@@ -913,17 +926,16 @@ void finalizarPid() {
 //Si no lo encuentra en los que estan ejecutando, lo busca en listos
 	if (pcbProc == NULL) {
 		pcbProc = buscarEnListaPorPID(LISTOS, idProc);
-		}
+	}
 	//Si no lo encuentra en los que estan listos, lo busca en bloqueados
-		if (pcbProc == NULL) {
-			pcbProc = buscarEnListaPorPID(BLOQUEADOS, idProc);
-			}
+	if (pcbProc == NULL) {
+		pcbProc = buscarEnListaPorPID(BLOQUEADOS, idProc);
+	}
 	int ultimaInst;
 	ultimaInst = pcbProc->cantidadLineas;
 	pcbProc->proxInst = ultimaInst;
 
 	pthread_mutex_unlock(&mutexListas);
-
 
 }
 
@@ -959,20 +971,32 @@ void *procesarEntradasSalidas(void *info_proc) {
 	t_pcb* pcb = malloc(sizeof(t_pcb));
 	while (true) {
 		sem_wait(&semaforoIO);
-		pthread_mutex_lock(&mutexListas);
+		//pthread_mutex_lock(&mutexListas);
 
 		mjeIO = list_remove(IO, 0);
 
 		sleep(mjeIO->tiempoIO); //HAY QUE ENCOLAR LOS BLOQUEOS
+		pthread_mutex_lock(&mutexListas);
+
 		pcb = list_remove(BLOQUEADOS, 0);
+		t_metricas *metricas = malloc(sizeof(t_metricas));
+		metricas = buscarEnMetricasPorPID(pcb->pid);
+		if (metricas->flagRespuesta == SINRESPUESTA){ //aun NO HIZO io
+		metricas->flagRespuesta = CONRESPUESTA;
+		metricas->tiempoRespuesta = diferenciaEnSegundos(
+		metricas->tiempoInicial, obtenerTiempoActual());
+		}
+		metricas->tiempoUltimaEntradaListo = obtenerTiempoActual();
 		pcb->status = LISTO;
 		list_add(LISTOS, pcb);
+	//	free(metricas);
 		pthread_mutex_unlock(&mutexListas);
 		//Habilita el semaforo del consumidor de listos
 		sem_post(&semaforoListos);
 	}
 	free(mjeIO);
 	free(pcb);
+
 
 }
 
@@ -1018,6 +1042,7 @@ void imprimirMetricas(t_metricas *metricas) {
 				- metricas->tiempoInicial);
 
 	}
+
 	log_info(logger, "Tiempo de Respuesta %.f  segundos \n",
 			metricas->tiempoRespuesta);
 	log_info(logger, "Tiempo de espera %.f  segundos \n",

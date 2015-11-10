@@ -14,6 +14,8 @@ typedef struct {
 	int pid;
 	int frameAsignado;
 	int frameUsado;
+	int frameModificado;
+	int puntero;
 } t_pidFrame;
 
 typedef struct {
@@ -99,5 +101,11 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
 void escribir(t_escribir * estructuraEscribir, int socketSwap);
 void escribirContenidoSwap(t_escribir * estructEscribir,int socketSwap);
 void escribirContenido(t_escribir * estructEscribir,int frame);
+
+//ALGORITMO CLOCK
+int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
+int algoritmoClockModificado (int pid);
+int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
+
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

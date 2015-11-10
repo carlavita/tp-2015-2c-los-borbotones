@@ -87,6 +87,7 @@ typedef struct {
 	double tiempoFinal;
 	double tiempoEspera;
 	double tiempoRespuesta;
+	double tiempoUltimaEntradaListo;
 	int flagRespuesta; // SINRESPUESTA 0 = no tiene respuesta aun// CONRESPUESTA 1= ya tuvo una respuesta
 } t_metricas;
 

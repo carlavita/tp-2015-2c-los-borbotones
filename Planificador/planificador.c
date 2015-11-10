@@ -16,7 +16,7 @@ int main(void) {
 
 	/*Log*/
 	remove(PATHLOG);
-	logger = log_create(PATHLOG, "Planificador", false, LOG_LEVEL_INFO);
+	logger = log_create(PATHLOG, "Planificador", true, LOG_LEVEL_INFO);
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Iniciando proceso planificador");
 	log_info(logger, "Leyendo Archivo de Configuracion");
@@ -125,11 +125,11 @@ void mostrarConsola(void *ptr) {
 		printf(CYAN "LOS BORBOTONES - BIENVENIDO \n \n");
 		//puts("%sConsola - Planificador \n \n"
 		printf(CYAN "Consola - Planificador \n \n"
-				"1  - Correr Path \n"
-				"2  - Finalizar PID\n"
-				"3  - ps \n"
-				"4  - CPU\n"
-				"0  - Terminar\n" BLANCO);
+		"1  - Correr Path \n"
+		"2  - Finalizar PID\n"
+		"3  - ps \n"
+		"4  - CPU\n"
+		"0  - Terminar\n" BLANCO);
 
 		//puts("Ingrese una opción\n");
 		printf(BLANCO "Ingrese una opción\n" BLANCO);
@@ -394,8 +394,7 @@ void handle(int newsock, fd_set *set) {
 			pthread_mutex_lock(&mutexMetricas);
 			t_metricas *metricas = malloc(sizeof(t_metricas));
 			metricas = buscarEnMetricasPorPID(rtaProc.pid);
-		 //t_pcb *mProc = list_get(LISTOS, 0);
-
+			//t_pcb *mProc = list_get(LISTOS, 0);
 
 			//t_metricas *metricas = malloc(sizeof(t_metricas));
 			//metricas = list_get(METRICAS, rtaProc.pid - 1);
@@ -478,10 +477,9 @@ void handle(int newsock, fd_set *set) {
 			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
 			pthread_mutex_unlock(&mutexListas);
 			sem_post(&semaforoListos);
-			int val ;
-			sem_getvalue(&semaforoListos,&val);
-			log_info(logger, " semaforo listos valor: %d\n",
-									val);
+			int val;
+			sem_getvalue(&semaforoListos, &val);
+			log_info(logger, " semaforo listos valor: %d\n", val);
 			liberarCPU(finQuantum.idCPU);
 
 			break;
@@ -913,17 +911,16 @@ void finalizarPid() {
 //Si no lo encuentra en los que estan ejecutando, lo busca en listos
 	if (pcbProc == NULL) {
 		pcbProc = buscarEnListaPorPID(LISTOS, idProc);
-		}
+	}
 	//Si no lo encuentra en los que estan listos, lo busca en bloqueados
-		if (pcbProc == NULL) {
-			pcbProc = buscarEnListaPorPID(BLOQUEADOS, idProc);
-			}
+	if (pcbProc == NULL) {
+		pcbProc = buscarEnListaPorPID(BLOQUEADOS, idProc);
+	}
 	int ultimaInst;
 	ultimaInst = pcbProc->cantidadLineas;
 	pcbProc->proxInst = ultimaInst;
 
 	pthread_mutex_unlock(&mutexListas);
-
 
 }
 
@@ -965,6 +962,12 @@ void *procesarEntradasSalidas(void *info_proc) {
 
 		sleep(mjeIO->tiempoIO); //HAY QUE ENCOLAR LOS BLOQUEOS
 		pcb = list_remove(BLOQUEADOS, 0);
+		t_metricas *metricas = malloc(sizeof(t_metricas));
+		metricas = buscarEnMetricasPorPID(pcb->pid);
+		metricas->flagRespuesta = CONRESPUESTA;
+		metricas->tiempoRespuesta = diferenciaEnSegundos(
+		metricas->tiempoInicial, obtenerTiempoActual());
+
 		pcb->status = LISTO;
 		list_add(LISTOS, pcb);
 		pthread_mutex_unlock(&mutexListas);
@@ -1018,6 +1021,7 @@ void imprimirMetricas(t_metricas *metricas) {
 				- metricas->tiempoInicial);
 
 	}
+
 	log_info(logger, "Tiempo de Respuesta %.f  segundos \n",
 			metricas->tiempoRespuesta);
 	log_info(logger, "Tiempo de espera %.f  segundos \n",

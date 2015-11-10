@@ -16,7 +16,7 @@ int main(void) {
 
 	/*Log*/
 	remove(PATHLOG);
-	logger = log_create(PATHLOG, "Planificador", true, LOG_LEVEL_INFO);
+	logger = log_create(PATHLOG, "Planificador", false, LOG_LEVEL_INFO);
 	pthread_mutex_lock(&mutexLog);
 	log_info(logger, "Iniciando proceso planificador");
 	log_info(logger, "Leyendo Archivo de Configuracion");
@@ -391,19 +391,19 @@ void handle(int newsock, fd_set *set) {
 			pthread_mutex_unlock(&mutexListas);
 // Actualiza Métricas
 			/*Impresión de métricas metricas*/
-			//pthread_mutex_lock(&mutexMetricas);
+			pthread_mutex_lock(&mutexMetricas);
+			t_metricas *metricas = malloc(sizeof(t_metricas));
+			metricas = buscarEnMetricasPorPID(rtaProc.pid);
+		 //t_pcb *mProc = list_get(LISTOS, 0);
+
+
 			//t_metricas *metricas = malloc(sizeof(t_metricas));
-			//metricas = buscarEnMetricasPorPID(rtaProc.pid);
-			//t_pcb *mProc = list_get(LISTOS, 0);
-
-
-			/*t_metricas *metricas = malloc(sizeof(t_metricas));
-			metricas = list_get(METRICAS, rtaProc.pid - 1);
+			//metricas = list_get(METRICAS, rtaProc.pid - 1);
 			metricas->tiempoFinal = tiempoFin;
 			tiempoFin = 0;
 			imprimirMetricas(metricas);
 			free(metricas);
-			pthread_mutex_unlock(&mutexMetricas);*/
+			pthread_mutex_unlock(&mutexMetricas);
 			liberarCPU(rtaProc.idCPU);
 
 			break;
@@ -578,7 +578,7 @@ int crearPcb(char* path) {
 	printf(
 			"Soy el semaforo despues de habilitar a planificador con el valor: %d\n",
 			val);
-	free(metricas);
+	//free(metricas);
 	return pcb->pid;
 }
 
@@ -601,7 +601,7 @@ t_pcb* planificarFifo() {
 			"Soy el semaforo despues de planificar un proceso  con el valor: %d\n",
 			val);
 
-	printf("termino la planificacion con fifo de un proceso \n");
+	printf("termino la planificacion de un proceso \n");
 
 	return pcb;
 
@@ -794,7 +794,7 @@ t_cpu* buscarCpuLibre() {
 }
 void ejecutarPS() {
 
-	pthread_mutex_lock(&mutexListas);
+//	pthread_mutex_lock(&mutexListas);
 // Crea una lista con todos los procesos.
 	t_list* PROCESOS = list_create();
 	int cantidadListos = list_size(LISTOS);
@@ -812,7 +812,7 @@ void ejecutarPS() {
 	list_add_all(PROCESOS, EJECUTANDO);
 	list_add_all(PROCESOS, BLOQUEADOS);
 	list_add_all(PROCESOS, FINALIZADOS);
-	pthread_mutex_unlock(&mutexListas);
+//	pthread_mutex_unlock(&mutexListas);
 
 	ordernarPorPID(PROCESOS);
 	printf("---  Status de Procesos mProc    --- \n \n");

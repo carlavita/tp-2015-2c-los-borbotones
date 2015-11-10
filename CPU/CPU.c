@@ -287,7 +287,7 @@ char *parsearLinea(char * lineaLeida) {
 	int posicion = busquedaPosicionCaracter(0, lineaLeida, ';');
 	char lineaParseada[100] = "";
 	strncpy(lineaParseada, &lineaLeida[0], posicion);
-	//printf("Linea leida1: %s\n", lineaParseada);
+
 	return lineaParseada;
 }
 
@@ -297,16 +297,13 @@ char *iniciar(int cpu,FILE * fid, int paginas, int mProcID,int serverSocket,int 
 
 	char *comienzo = string_new();//cadena donde devuelvo el resultado de la instruccion
 	char *id = string_itoa(mProcID);
-	//t_mensajeHeader inicia;
+
 	t_finalizarPID *mensajeFinalizar = malloc(sizeof(t_finalizarPID));
 	t_iniciarPID *mensajeIniciar = malloc(sizeof(t_iniciarPID));
 	t_mensajeHeader mensajeCpu;
 	mensajeIniciar->paginas = paginas;
 	mensajeIniciar->pid = mProcID;
-	//inicia.idmensaje = INICIAR;
-	//send(serverMemoria, &(inicia.idmensaje), sizeof(t_mensajeHeader), 0);
 
-	//send(serverMemoria, &mensajeIniciar, sizeof(t_iniciarPID), 0);
 	int status = serializarEstructura(INICIAR, (void *) mensajeIniciar,
 			sizeof(t_iniciarPID), serverMemoria);
 
@@ -317,16 +314,14 @@ char *iniciar(int cpu,FILE * fid, int paginas, int mProcID,int serverSocket,int 
 		sleep(configuracionCPU.Retardo);
 
 		string_append(&comienzo,"mProc-");
-		/*char id[12];
-		sprintf(id,"%d",mProcID);*/
+
 		string_append(&comienzo,id);
 		string_append(&comienzo,"-Iniciado");
 	}
 	if (mensajeCpu.idmensaje == PROCFALLA) {
 		mensajeFinalizar->pid = mProcID;
 		mensajeFinalizar->idCPU = cpu;
-		/* send(serverSocket,&mensajeCpu.idmensaje,sizeof(t_mensajeHeader),0);
-		 send(serverSocket,&mensajeFinalizar.pid,sizeof(t_finalizarPID),0);*/
+
 		log_info(logCPU, "proceso %d rechazado por falta de espacio en SWAP\n",
 				mProcID);
 		status = serializarEstructura(mensajeCpu.idmensaje,
@@ -350,10 +345,7 @@ char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serve
 
 	printf("mProc %d - Pagina %d escrita:%s \n", mProcID, pagina, texto);
 	t_escribir *mensajeEscribir = malloc(sizeof(t_escribir));
-	//int tamanio;
-	//char * contenido;
 
-	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a escribir con contenido %s, envio a memoria \n",
 			mProcID, pagina, texto);
 
@@ -361,14 +353,11 @@ char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serve
 	char *id = string_itoa(mProcID);
 	char *pag = string_itoa(pagina);
 
-//	int status = send(serverMemoria, &(inicia.idmensaje),
-	//		sizeof(t_mensajeHeader), 0);
-	//if (status > 0) {
 
 	mensajeEscribir->pid = mProcID;
 	mensajeEscribir->pagina = pagina;
 	strcpy(mensajeEscribir->contenidoPagina, texto);
-	//status = send(serverMemoria, &mensajeLeer, sizeof(t_leer), 0);
+
 	int status = serializarEstructura(ESCRIBIR, (void *) mensajeEscribir,
 			sizeof(t_escribir), serverMemoria);
     free(mensajeEscribir);
@@ -377,11 +366,7 @@ char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serve
 	printf("La respuesta fue %d", reta.idmensaje);
 	log_info(logCPU, "mProc %d - Pagina %d escrita:%s \n", mProcID, pagina,
 			texto);
-	//t_mensajeHeader rta;
-	//recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
-	//printf("La respuesta es %d", rta.idmensaje);
 
-	//todo msj de rta con memoria
 
 	sleep(configuracionCPU.Retardo);
 
@@ -398,7 +383,6 @@ char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serve
 
 char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 
-	//t_mensajeHeader inicia;
 	t_leer *mensajeLeer = malloc(sizeof(t_leer));
 	int tamanio;
 	char * contenido;
@@ -406,14 +390,10 @@ char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 	char *id = string_itoa(mProcID);
 	char *pag = string_itoa(pagina);
 
-	//inicia.idmensaje = LEER;
 	printf("mProc %d - Pagina %d a leer, envio a memoria \n", mProcID, pagina);
 	log_info(logCPU, "mProc %d - Pagina %d a leer, envio a memoria \n", mProcID,
 			pagina);
 
-//	int status = send(serverMemoria, &(inicia.idmensaje),
-	//		sizeof(t_mensajeHeader), 0);
-	//if (status > 0) {
 
 	mensajeLeer->pid = mProcID;
 	mensajeLeer->pagina = pagina;
@@ -422,22 +402,13 @@ char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 			sizeof(t_leer), serverMemoria);
 
 	recv(serverMemoria, &tamanio, sizeof(int), 0);
-	//t_mensajeHeader header;
-	//recv(serverMemoria, &header, sizeof(t_mensajeHeader), 0);
-	//amanio = header.size;
-//	contenido = malloc(tamanio + 1);	//+1 por fin de cadena
-	//printf("tamanio recibido %d\n ", tamanio);
+
+	printf("tamanio recibido %d\n ", tamanio);
 	contenido = malloc(tamanio);
-//	recv(serverMemoria, contenido, sizeof(tamanio), 0);
+
 	recv(serverMemoria, contenido, tamanio, 0);
 
-//	recv(serverMemoria, contenido, sizeof(tamanio), 0);
-
-	//contenido[tamanio-1] = '\0';
-	//printf("CONTENIDO:%s \n", contenido);
 	log_info(logCPU, "El contenido es: %s \n", contenido);
-
-	//}
 
 	sleep(configuracionCPU.Retardo);
 
@@ -584,7 +555,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 
 					break;
 			}
-			//printf(" I: %d, linea inicial: %d \n", i , lineaInicial);
+
 			i++;
 			fgets(string, 100, fid);
 
@@ -679,8 +650,6 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 						tamanioFin = strlen(resultado)+1;//por el fin de cadena
 						send(serverSocket,&tamanioFin, sizeof(int), 0);
 						send(serverSocket,resultado, tamanioFin, 0);
-
-						//todo cuidado que hay que sincronizar region critica
 
 						param->valorf = obtenerTiempoActual();
 						printf("el valor final es: %d",(int)param->valorf);

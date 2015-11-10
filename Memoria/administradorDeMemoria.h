@@ -96,5 +96,8 @@ int CantidadDeFrames(int pid);
 t_list * busquedaListaFramesPorPid (int pid);
 int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
+void escribir(t_escribir * estructuraEscribir, int socketSwap);
+void escribirContenidoSwap(t_escribir * estructEscribir,int socketSwap);
+void escribirContenido(t_escribir * estructEscribir,int frame);
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

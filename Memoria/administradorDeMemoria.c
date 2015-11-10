@@ -464,7 +464,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			ultimoFrameAsignado++;
 		} else {
 			pthread_mutex_lock(&BLOQUEAR);
-			paginaAAsignar->marco = algoritmoFIFO(pid);
+			paginaAAsignar->marco = algoritmoClockModificado(pid);
 			pthread_mutex_unlock(&BLOQUEAR);
 
 			char * contenido = calloc(1, strlen(contenidoPedidoAlSwap));

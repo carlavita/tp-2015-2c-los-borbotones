@@ -896,14 +896,15 @@ void ejecutarCPU() {
 	int indexLista = 0;
 
 	t_cpu *cpu = list_get(listaCPU, indexLista);
-	//pedir a cpu el porcentaje de uso cada cpu
-	int status = serializarEstructura(COMANDOCPU, (void *) cpu, sizeof(t_cpu),
-				cpu->socket);
 
 	while (cpu != NULL) {
 
 		printf("CPU %d:  %d  %\n", cpu->id, cpu->porcentajeUso);
 		//todo pasar el int y que muestre el nombre del estado. loguear
+		//pedir a cpu el porcentaje de uso cada cpu
+		int status = serializarEstructura(COMANDOCPU, (void *) cpu, sizeof(t_cpu),
+						cpu->socket);
+
 
 		indexLista++;
 		cpu = list_get(listaCPU, indexLista);

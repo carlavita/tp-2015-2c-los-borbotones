@@ -161,6 +161,8 @@ int conexion_con_memoria() {
 
 
 void Conexion_con_planificador(t_envio *param) {
+
+
 	int serverMemoria = conexion_con_memoria();
 	printf("Conectando a planificador \n");
 	pthread_mutex_lock(&mutexLogueo);
@@ -245,7 +247,14 @@ void Conexion_con_planificador(t_envio *param) {
 			case COMANDOCPU:
 
 				printf("recibido el comando cpu de planificador \n");
+				//todo revisar esta recepcion
+				t_cpu cpu;
+				recv(serverSocket, &cpu, sizeof(t_cpu), 0);
+				printf("el porcentaje recibido es:%d\n", cpu.porcentajeUso);
+
 				//todo enviar a planificador el valor del porcentaje de uso de cpu
+
+
 
 				break;
 			default:

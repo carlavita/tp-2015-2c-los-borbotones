@@ -67,6 +67,14 @@ typedef struct
 } t_config_ProcesoCPU;
 
 
+typedef struct {
+	//int estado;//(0 libre, 1 ocupada)
+	int id;
+	int socket;
+	int pid;
+	int porcentajeUso;
+} t_cpu;
+
 typedef struct __attribute__((packed))
 {
 	int instruccion;

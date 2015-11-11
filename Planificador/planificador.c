@@ -896,6 +896,9 @@ void ejecutarCPU() {
 	int indexLista = 0;
 
 	t_cpu *cpu = list_get(listaCPU, indexLista);
+	//pedir a cpu el porcentaje de uso cada cpu
+	int status = serializarEstructura(COMANDOCPU, (void *) cpu, sizeof(t_cpu),
+				cpu->socket);
 
 	while (cpu != NULL) {
 

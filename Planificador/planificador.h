@@ -77,7 +77,7 @@ typedef struct {
 	int id;
 	int socket;
 	int pid;
-	int porcentajeUso;
+	double porcentajeUso;
 } t_cpu;
 
 typedef struct {

@@ -250,10 +250,12 @@ void Conexion_con_planificador(t_envio *param) {
 
 				t_cpu cpu;
 				recv(serverSocket, &cpu, sizeof(t_cpu), 0);
-				printf("el porcentaje recibido es:%d de la cpu:%d \n",cpu.porcentajeUso,cpu.id);
+				printf("el porcentaje de uso calculado es:%lf de la cpu:%d \n",param->porcentajeCPU,cpu.id);
 
 				//todo enviar a planificador el valor del porcentaje de uso de cpu
-				printf("el porcentaje de uso calculado es:%lf de la cpu:%d \n",param->porcentajeCPU,cpu.id);
+				double porcentaje;
+				porcentaje = param->porcentajeCPU;
+				send(serverSocket,&porcentaje, sizeof(double), 0);
 
 				break;
 			default:

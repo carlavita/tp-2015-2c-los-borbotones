@@ -16,6 +16,7 @@ typedef struct {
 	int frameUsado;
 	int frameModificado;
 	int puntero;
+	struct tm ultimaReferencia; //Tomo el horario para el clock
 } t_pidFrame;
 
 typedef struct {
@@ -28,6 +29,7 @@ typedef struct {
 	int entradasTLB;
 	int tlbHabilitada; /*Las commons no tiene un config_ge_bool.... => 0 false, 1 true*/
 	int retardoMemoria;
+	int algoritmoReemplazo;
 } t_config_memoria;
 
 typedef struct {
@@ -101,11 +103,20 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
 void escribir(t_escribir * estructuraEscribir, int socketSwap);
 void escribirContenidoSwap(t_escribir * estructEscribir,int socketSwap);
 void escribirContenido(t_escribir * estructEscribir,int frame);
-
+int buscarEnTablaDePaginas( pid, pagina);
 //ALGORITMO CLOCK
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);
 int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
+
+
+//LRU
+int ejecutarlru(int pid, t_list * listaParaAlgoritmo);
+int algoritmoLRU(int pid);
+int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo);
+
+//FUNCION GENERICA para algoritmos
+int ejecutarAlgoritmo(int pid);
 
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

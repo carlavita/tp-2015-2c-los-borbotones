@@ -25,6 +25,7 @@
 #include <protocolo.h>
 #include "administradorDeMemoria.h"
 #include <signal.h>
+#include <errno.h>
 
 pthread_mutex_t BLOQUEAR;
 pthread_mutex_t BORRAR;
@@ -50,12 +51,13 @@ void * inicioHiloSigUsr1() {
 	return NULL;
 }
 void * inicioHiloSigUsr2() {
-	//LIMPIAR TODAS LAS TABLAS DE PAGINAS(cada tabla de paginas de cada proceso)
-	//pasarlas al LOG
+	list_destroy(tablaDePaginas);
+	list_create(tablaDePaginas);
+
 	return NULL;
 }
 
-void atenderSeaniales(int senhal) {
+void atenderSeniales(int senhal) {
 
 	pid_t pidProcesoClonado;
 	switch (senhal) {
@@ -75,6 +77,11 @@ void atenderSeaniales(int senhal) {
 		else
 			return;
 		break;
+	case SIGSEGV:
+		log_error(logMemoria,"POSIBLE FALLA DE MEMORIA GUARDADA");
+		return;
+	/*case errno:
+		return;*/
 	}
 }
 
@@ -88,9 +95,10 @@ void crearListas() {
 
 int main() {
 	/*SEÑALES*/
-	signal(SIGUSR1, atenderSeaniales);
-	signal(SIGUSR2, atenderSeaniales);
-	signal(SIGPOLL, atenderSeaniales);
+	signal(SIGUSR1, atenderSeniales);
+	signal(SIGUSR2, atenderSeniales);
+	signal(SIGPOLL, atenderSeniales);
+	signal(SIGSEGV, atenderSeniales);
 	/*SEÑALES*/
 	memoriaReservadaDeMemPpal =
 			malloc(
@@ -133,6 +141,8 @@ void leerConfiguracion() {
 			"TLB_HABILITADA");
 	configMemoria.retardoMemoria = config_get_int_value(configuracionMemoria,
 			"RETARDO_MEMORIA");
+	configMemoria.algoritmoReemplazo = config_get_int_value(
+			configuracionMemoria, "ALGORITMO_REEMPLAZO");
 	free(configuracionMemoria);
 	log_info(logMemoria, "%d", configMemoria.puertoEscucha);
 	log_info(logMemoria, "Finalizo lectura de archivo de configuración");
@@ -228,14 +238,15 @@ void agregarAEstructuraGeneral(void * estructurasDelProceso, int pid) {
 }
 
 void AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
+	time_t t = time(NULL);
 	t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
 
 	estructuraPidFrame->frameAsignado = ultimoFrameAsignado;
 	estructuraPidFrame->pid = pid;
 	estructuraPidFrame->frameUsado = 1; //0 SIN USAR, 1 USADO.
 	estructuraPidFrame->frameModificado = 0; //0 NECESARIO PARA ALGORITMO CLOCK
-	estructuraPidFrame->puntero =0; //NECESARIO PARA SABER DONDE CONTINUAR EN EL ALGORITMO CLOCK
-
+	estructuraPidFrame->puntero = 0; //NECESARIO PARA SABER DONDE CONTINUAR EN EL ALGORITMO CLOCK
+	estructuraPidFrame->ultimaReferencia = *localtime(&t);
 	list_add(listaDePidFrames, estructuraPidFrame);
 
 	log_info(logMemoria, "frame asignado: %d al pid:%d", ultimoFrameAsignado,
@@ -435,12 +446,14 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 }
 
 void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
+	time_t t = time(NULL);
 	int posicion = busquedaFRAMESinUsar(pid);
 	t_pidFrame * pidAAsignar = malloc(sizeof(t_pidFrame));
 	pidAAsignar = list_get(listaDePidFrames, posicion);
 	paginaAAsignar->marco = pidAAsignar->frameAsignado;
 
 	pidAAsignar->frameUsado = 1;
+	pidAAsignar->ultimaReferencia = *localtime(&t);
 	list_replace(listaDePidFrames, posicion, pidAAsignar);
 }
 
@@ -464,8 +477,9 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			ultimoFrameAsignado++;
 		} else {
 			pthread_mutex_lock(&BLOQUEAR);
-			paginaAAsignar->marco = algoritmoClockModificado(pid);
+			paginaAAsignar->marco = ejecutarAlgoritmo(pid);
 			pthread_mutex_unlock(&BLOQUEAR);
+			sleep(configMemoria.retardoMemoria);
 
 			char * contenido = calloc(1, strlen(contenidoPedidoAlSwap));
 			memcpy(memoriaReservadaDeMemPpal, contenido,
@@ -752,7 +766,7 @@ int servidorMultiplexorCPU(int PUERTO) {
 		log_info(logMemoria, "Select Activado\n");
 
 		for (i = 0; i <= fdmax; i++) {
-			//		signal(senhal,atenderSeaniales);
+			//		signal(senhal,atenderSeniales);
 			if (FD_ISSET(i, &read_fds)) {
 				if (i == socketservidor) {
 					socklen_t addrlen = sizeof(clientaddr);
@@ -793,89 +807,71 @@ int algoritmoFIFO(int pid) {
 
 }
 
-int algoritmoClockModificado (int pid){
-		t_list * listaParaAlgoritmo = list_create();
-		listaParaAlgoritmo = busquedaListaFramesPorPid (pid);
-return 	ejecutarAlgoritmoClock (pid, listaParaAlgoritmo);
-
+int algoritmoClockModificado(int pid) {
+	t_list * listaParaAlgoritmo = list_create();
+	listaParaAlgoritmo = busquedaListaFramesPorPid(pid);
+	return ejecutarAlgoritmoClock(pid, listaParaAlgoritmo);
 
 }
 
-
-int ejecutarAlgoritmoClock (int pid, t_list * listaAReemplazar){
-	int posicion = busquedaPosicionAlgoritmo (listaAReemplazar); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+int ejecutarAlgoritmoClock(int pid, t_list * listaAReemplazar) {
+	int posicion = busquedaPosicionAlgoritmo(listaAReemplazar); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
 	t_pidFrame * frameAReemplazar;
-	frameAReemplazar = list_get(listaAReemplazar,posicion);
-	while (posicion < list_size(listaAReemplazar)){
-		switch (frameAReemplazar->frameUsado){
-			case 0:
-					/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
-				if (posicion + 1 == list_size(listaAReemplazar)){
-										frameAReemplazar = list_get(listaAReemplazar,0); //INICIO EL CICLO NUEVAMENTE
-										frameAReemplazar->puntero = 1;
-									}
-									else
-									{
-										frameAReemplazar = list_get(listaAReemplazar,posicion+1) ; //LEO SIGUIENTE POSICION
-										frameAReemplazar->puntero = 1;
-									}
-				return frameAReemplazar->frameAsignado;
+	frameAReemplazar = list_get(listaAReemplazar, posicion);
+	while (posicion < list_size(listaAReemplazar)) {
+		switch (frameAReemplazar->frameUsado) {
+		case 0:
+			/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
+			if (posicion + 1 == list_size(listaAReemplazar)) {
+				frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
+				frameAReemplazar->puntero = 1;
+			} else {
+				frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
+				frameAReemplazar->puntero = 1;
+			}
+			return frameAReemplazar->frameAsignado;
 
-				break;
+			break;
 
-
-			case 1:
-				frameAReemplazar->frameUsado = 0;
-					if (posicion + 1 == list_size(listaAReemplazar)){
-						posicion = 0; //INICIO EL CICLO NUEVAMENTE
-						frameAReemplazar = list_get(listaAReemplazar,posicion);
-					}
-					else
-					{
-						posicion++ ;
-						frameAReemplazar = list_get(listaAReemplazar,posicion);//LEO SIGUIENTE POSICION
-					}
-				break;
+		case 1:
+			frameAReemplazar->frameUsado = 0;
+			if (posicion + 1 == list_size(listaAReemplazar)) {
+				posicion = 0; //INICIO EL CICLO NUEVAMENTE
+				frameAReemplazar = list_get(listaAReemplazar, posicion);
+			} else {
+				posicion++;
+				frameAReemplazar = list_get(listaAReemplazar, posicion); //LEO SIGUIENTE POSICION
+			}
+			break;
 
 		}
 	}
 
-
-
-	return 1 ;
+	return 1;
 }
 
-
-int busquedaPosicionAlgoritmo (t_list * listaBusqueda){
+int busquedaPosicionAlgoritmo(t_list * listaBusqueda) {
 	int posicion = 0;
 	t_pidFrame * frameBusqueda;
-	frameBusqueda = list_get(listaBusqueda,posicion);
-	while (posicion < list_size(listaBusqueda))
-	{
-			if (frameBusqueda->puntero == 1)
-			{
-				return posicion;
-			}
-			else
-			{
+	frameBusqueda = list_get(listaBusqueda, posicion);
+	while (posicion < list_size(listaBusqueda)) {
+		if (frameBusqueda->puntero == 1) {
+			return posicion;
+		} else {
 
-					if (posicion+1 == list_size(listaBusqueda))
-					{
-						return 0;
-					}
-					else
-					{
-					posicion++;
-					frameBusqueda = list_get(listaBusqueda,posicion);
-					}
-
+			if (posicion + 1 == list_size(listaBusqueda)) {
+				return 0;
+			} else {
+				posicion++;
+				frameBusqueda = list_get(listaBusqueda, posicion);
 			}
+
+		}
 
 	}
 
-	return 0 ;
+	return 0;
 }
-
 
 int CantidadDeFrames(int pid) {
 	int cantidadDeFrames = 0;
@@ -1019,6 +1015,7 @@ int ObtenerPrimerFrame(int pid) {
 
 int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 	int posicion;
+	time_t t = time(NULL);
 	t_pidFrame * pf = malloc(sizeof(t_pidFrame));
 	t_pidFrame * pidframe = malloc(sizeof(t_pidFrame));
 	posicion = ObtenerPrimerFrame(pid);
@@ -1035,14 +1032,69 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 
 	pidframe->frameAsignado = pf->frameAsignado;
 	pidframe->frameUsado = 1;
-	pidframe->frameModificado =0 ; //NECESARIO PARA CLOCK
+	pidframe->frameModificado = 0; //NECESARIO PARA CLOCK
 	pidframe->pid = pid;
-	pidframe->puntero =0; //NECESARIO PARA SABER DONDE CONTINUAR EN ALGORITMO CLOCK
-
+	pidframe->puntero = 0; //NECESARIO PARA SABER DONDE CONTINUAR EN ALGORITMO CLOCK
+	pidframe->ultimaReferencia = *localtime(&t); //SE USA EN EL LRU
 	list_add(listaDePidFrames, pidframe);
 
 	log_warning(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
 			pf->frameAsignado, pidframe->frameAsignado);
 	int frameADevolver = pf->frameAsignado;
 	return frameADevolver;
+}
+
+int algoritmoLRU(int pid) {
+	t_list * listaParaAlgoritmo = list_create();
+	listaParaAlgoritmo = busquedaListaFramesPorPid(pid);
+	return ejecutarlru(pid, listaParaAlgoritmo);
+}
+
+int ejecutarlru(int pid, t_list * listaParaAlgoritmo) {
+	time_t  t = time(NULL);
+	int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+	t_pidFrame * frameAReemplazar;
+	frameAReemplazar = list_get(listaParaAlgoritmo, posicion);
+	frameAReemplazar->frameModificado = 1;
+	frameAReemplazar->ultimaReferencia = *localtime(&t);
+
+	return frameAReemplazar->frameAsignado;
+}
+int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
+	int posicion = 0;
+	t_pidFrame * frameBusqueda;
+	t_pidFrame * proximaPos;
+	frameBusqueda = list_get(listaParaAlgoritmo, posicion);
+	if (list_size(listaParaAlgoritmo) > 1)
+		proximaPos = list_get(listaParaAlgoritmo, posicion + 1);
+	while (posicion < list_size(listaParaAlgoritmo)) {
+		if ((frameBusqueda->ultimaReferencia.tm_min
+				< proximaPos->ultimaReferencia.tm_hour)
+				|| (frameBusqueda->ultimaReferencia.tm_sec
+						< proximaPos->ultimaReferencia.tm_sec)) {
+			return posicion;
+		} else {
+			posicion++;
+			frameBusqueda = proximaPos;
+			proximaPos = list_get(listaParaAlgoritmo, posicion + 1);
+			if (proximaPos == NULL)
+				return posicion;
+		}
+
+	}
+
+	return 0;
+}
+
+int ejecutarAlgoritmo(int pid) {
+	switch(configMemoria.algoritmoReemplazo)
+	{
+	case 1: //FIFO
+		return algoritmoFIFO(pid);
+	case 2: //"LRU"
+		return algoritmoLRU(pid);
+	case 3:   //"CLOCK_MODIFICADO"
+		return algoritmoClockModificado(pid);
+	default: return -1;
+	}
 }

@@ -20,7 +20,6 @@ leer 9;
 escribir 1 Seguro?;
 leer 1;
 escribir 0 Seh;
-entrada-salida 15;
 leer 10;
 leer 46;
 leer 9;

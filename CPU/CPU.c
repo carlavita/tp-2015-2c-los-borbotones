@@ -75,11 +75,20 @@ void calcularPorcentaje(void *param){
 	printf("Calculando porcentaje de uso: %lf de la cpu: %d \n", var->porcentajeCPU,var->id);
 	double total;
 	double diferencia;
+	double diferenciaTiempo;
+	time_t tiempoAhora;
 	//aca un while con sleep de 60 seg para actualizar el porcentaje
 	while (1){
 		sleep(60);
 
-
+		tiempoAhora = obtenerTiempoActual();
+		diferenciaTiempo = diferenciaEnSegundos(var->valorf,tiempoAhora);
+		if(diferenciaTiempo > 60){
+			//si la diferencia entre el ultimo tiempo ejecutado respecto del actual es mayor a un minuto
+			//setear a cero el porcentaje porque no se usa la cpu
+			var->porcentajeCPU = 0;
+			printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
+		} else  {
 		diferencia = diferenciaEnSegundos(var->valori,var->valorf);
 		printf("la diferencia es %lf \n",diferencia);
 		if (diferencia == 0){
@@ -94,6 +103,8 @@ void calcularPorcentaje(void *param){
 	//	var->porcentajeCPU = (total* 100) / 60 ;
 		var->porcentajeCPU = (var->contadorEjecutadas*100)/60;
 		printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
+
+			}
 		}
 	}
 

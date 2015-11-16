@@ -753,7 +753,7 @@ void ejecutarIO(int socketCPU) {
 	sem_post(&semaforoIO);	// Habilita al hilo de entrada salida.
 
 	//liberarCPU(infoIO->idCPU);
-	free(infoIO);
+//	free(infoIO);
 }
 
 void eliminarCPU(int socket_cpu) {

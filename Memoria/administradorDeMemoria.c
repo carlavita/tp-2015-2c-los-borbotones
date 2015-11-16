@@ -886,7 +886,7 @@ int CantidadDeFrames(int pid) {
 
 		pfr = list_get(pf, posicion);
 		list_add(listaADestruir, pfr);
-		if (pfr != NULL)
+		if (pfr != NULL && pfr->pid == pid)
 			cantidadDeFrames++;
 		posicion++;
 	}

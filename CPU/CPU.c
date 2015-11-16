@@ -83,14 +83,16 @@ void calcularPorcentaje(void *param){
 		diferencia = diferenciaEnSegundos(var->valori,var->valorf);
 		printf("la diferencia es %lf \n",diferencia);
 		if (diferencia == 0){
+			var->porcentajeCPU = 0;
 			printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
 
 		} else {
 		//devuelve la cantidad de lineas ejecutadas cada 60 seg
 		printf("la cantidad de lineas ejecutadas son %d \n",var->contadorEjecutadas);
-		total=(60*var->contadorEjecutadas)/diferencia;
+		//total=(60*var->contadorEjecutadas)/diferencia;
 		//calcula el porcentaje de uso del último minuto de cada cpu
-		var->porcentajeCPU = (total* 100) / 60 ;
+	//	var->porcentajeCPU = (total* 100) / 60 ;
+		var->porcentajeCPU = (var->contadorEjecutadas*100)/60;
 		printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
 		}
 	}
@@ -583,6 +585,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 
 						char *inicio = iniciar(param->id,fid, atoi(substrings[1]), pid,serverSocket,serverMemoria);
 
+						//param->valorf = obtenerTiempoActual();
 						string_append(&resultado,inicio);
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de iniciar es %s \n",resultado);
@@ -598,6 +601,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 
 						char *lectura = leer(atoi(substrings[1]), pid, serverSocket,serverMemoria);
 
+						//param->valorf = obtenerTiempoActual();
 						string_append(&resultado,lectura);
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);
@@ -613,6 +617,8 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 								atoi(substrings[1]), substrings[2]);
 
 						char *escritura = escribir(atoi(substrings[1]), substrings[2], pid,serverSocket, serverMemoria);
+
+						//param->valorf = obtenerTiempoActual();
 						string_append(&resultado,escritura);
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);
@@ -630,6 +636,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 
 						char *entradaSalida = procesaIO(pid, atoi(substrings[1]), param->id,param->contadorEjecutadas, serverSocket,serverMemoria);
 
+						//param->valorf = obtenerTiempoActual();
 						string_append(&resultado,entradaSalida);
 						string_append(&resultado,SEPARADORINSTRUCCION);
 						printf("el resultado de leer es %s \n",resultado);

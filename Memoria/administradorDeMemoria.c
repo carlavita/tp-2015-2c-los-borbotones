@@ -741,7 +741,19 @@ int ServidorCPU(int PUERTO) {
 }
 
 void RealizarVolcadoMemoriaLog() {
+//Frame por frame.
+	char * frameContenido = malloc(configMemoria.tamanioMarcos + 1);
+	//el +1 es para agregarlo como cadena
+	log_info(logMemoria,"VOLCADO DE MEMORIA \n ");
+	int i = 0;
+	while (i <= configMemoria.cantidadDeMarcos){
+	memcpy(frameContenido,memoriaReservadaDeMemPpal+(i * configMemoria.tamanioMarcos), configMemoria.tamanioMarcos);
+	frameContenido[configMemoria.tamanioMarcos] = '\0';
+	log_info(logMemoria,"FRAME: %d - CONTENIDO: %s ", i, frameContenido);
+	i++;
+	}
 
+	free(frameContenido);
 }
 
 int servidorMultiplexorCPU(int PUERTO) {

@@ -482,8 +482,11 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			sleep(configMemoria.retardoMemoria);
 
 			char * contenido = calloc(1, strlen(contenidoPedidoAlSwap));
-			memcpy(memoriaReservadaDeMemPpal, contenido,
-					paginaAAsignar->marco * configMemoria.tamanioMarcos);
+			/*memcpy(memoriaReservadaDeMemPpal, contenido,
+					paginaAAsignar->marco * configMemoria.tamanioMarcos);*/
+			memcpy(memoriaReservadaDeMemPpal+(paginaAAsignar->marco * configMemoria.tamanioMarcos), contenido,
+								configMemoria.tamanioMarcos);
+
 
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
 			sleep(configMemoria.retardoMemoria);
@@ -948,8 +951,10 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		list_replace(tablaDePaginas, posicion, tp);
 		// un elemento de ese tamaño
 
-		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
-				frame + configMemoria.tamanioMarcos);
+/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
+				frame + configMemoria.tamanioMarcos);*/
+		memcpy(memoriaReservadaDeMemPpal+(frame * configMemoria.tamanioMarcos), estructEscribir->contenidoPagina,
+					configMemoria.tamanioMarcos);
 	}
 }
 

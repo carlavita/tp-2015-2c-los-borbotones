@@ -78,10 +78,10 @@ void atenderSeniales(int senhal) {
 			return;
 		break;
 	case SIGSEGV:
-		log_error(logMemoria,"POSIBLE FALLA DE MEMORIA GUARDADA");
+		log_error(logMemoria, "POSIBLE FALLA DE MEMORIA GUARDADA");
 		return;
-	/*case errno:
-		return;*/
+		/*case errno:
+		 return;*/
 	}
 }
 
@@ -335,10 +335,10 @@ int busquedaPIDEnLista(int PID, int pagina) {
 
 	}
 	if (pag->pagina == pagina && pag->pid == PID) {
-		log_info(logMemoria, "POSICION ENCONTRADA : %d \n", posicion);
+		//log_info(logMemoria, "POSICION ENCONTRADA : %d \n", posicion);
 		return posicion;
 	} else {
-		log_info(logMemoria, "Pagina no encontrada \n");
+		//log_info(logMemoria, "Pagina no encontrada \n");
 
 		return -1;
 	}
@@ -461,6 +461,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap) {
 
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
+	t_escribir * escribir = malloc(sizeof(t_escribir));
 	int posicion = busquedaPIDEnLista(pid, pagina);
 	if (posicion != -1) {
 		paginaAAsignar = list_get(tablaDePaginas, posicion);
@@ -483,22 +484,21 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 
 			char * contenido = calloc(1, strlen(contenidoPedidoAlSwap));
 			/*memcpy(memoriaReservadaDeMemPpal, contenido,
-					paginaAAsignar->marco * configMemoria.tamanioMarcos);*/
-			memcpy(memoriaReservadaDeMemPpal+(paginaAAsignar->marco * configMemoria.tamanioMarcos), contenido,
-								configMemoria.tamanioMarcos);
-
+			 paginaAAsignar->marco * configMemoria.tamanioMarcos);*/
+			memcpy(
+					memoriaReservadaDeMemPpal
+							+ (paginaAAsignar->marco
+									* configMemoria.tamanioMarcos), contenido,
+					configMemoria.tamanioMarcos);
 
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
 			sleep(configMemoria.retardoMemoria);
 		}
-		int posicion = buscarEnTablaDePaginas(pid, pagina);
-		if (posicion != -1)
-			list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
-		else
-			list_replace(tablaDePaginas, pagina, paginaAAsignar);
-		/*log_info(logMemoria, "PID    PAGINA    FRAME\n;");
-		 log_info(logMemoria, "%d        %d        %d", paginaAAsignar->pid,
-		 paginaAAsignar->pagina, paginaAAsignar->marco);*/
+		escribir->pagina = pagina;
+		escribir->pid = pid;
+		strncpy(escribir->contenidoPagina,contenidoPedidoAlSwap,strlen(contenidoPedidoAlSwap));
+		escribirContenido(escribir,paginaAAsignar->marco);
+		list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
 	}
 }
 
@@ -517,7 +517,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			buscarContenidoPagina(socketSwap, pid, pagina, socketCPU);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
-			if (resultadoBusquedaTP == 1) {
+			if (resultadoBusquedaTP >= 0) {
 				buscarContenidoPagina(socketSwap, pid, pagina, socketCPU);
 			} else {
 				if (list_size(busquedaListaFramesPorPid(pid))
@@ -531,7 +531,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			break;
 			case 0:
 			resultadoBusquedaTablaPaginas = buscarEnTablaDePaginas(pid, pagina);
-			if (resultadoBusquedaTablaPaginas == 0) {
+			if (resultadoBusquedaTablaPaginas >= 0) {
 				buscarContenidoPagina(socketSwap, pid, pagina, socketCPU);
 			} else {
 				if (list_size(busquedaListaFramesPorPid(pid))
@@ -747,13 +747,15 @@ void RealizarVolcadoMemoriaLog() {
 //Frame por frame.
 	char * frameContenido = malloc(configMemoria.tamanioMarcos + 1);
 	//el +1 es para agregarlo como cadena
-	log_info(logMemoria,"VOLCADO DE MEMORIA \n ");
+	log_info(logMemoria, "VOLCADO DE MEMORIA \n ");
 	int i = 0;
-	while (i <= configMemoria.cantidadDeMarcos){
-	memcpy(frameContenido,memoriaReservadaDeMemPpal+(i * configMemoria.tamanioMarcos), configMemoria.tamanioMarcos);
-	frameContenido[configMemoria.tamanioMarcos] = '\0';
-	log_info(logMemoria,"FRAME: %d - CONTENIDO: %s ", i, frameContenido);
-	i++;
+	while (i <= configMemoria.cantidadDeMarcos) {
+		strncpy(frameContenido,
+				memoriaReservadaDeMemPpal + (i * configMemoria.tamanioMarcos),
+				configMemoria.tamanioMarcos);
+		frameContenido[configMemoria.tamanioMarcos] = '\0';
+		log_info(logMemoria, "FRAME: %d - CONTENIDO: %s ", i, frameContenido);
+		i++;
 	}
 
 	free(frameContenido);
@@ -917,13 +919,13 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 	switch (configMemoria.tlbHabilitada) {
 	case 1:
 		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
-		if (resultadoBusquedaTLB > 0) //resultadoBusquedaTLB = frame
+		if (resultadoBusquedaTLB >= 0) //resultadoBusquedaTLB = frame
 				{
 			escribirContenido(estructuraEscribir, resultadoBusquedaTLB);
 
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
-			if (resultadoBusquedaTP == 1) {
+			if (resultadoBusquedaTP >= 0) {
 				escribirContenido(estructuraEscribir, resultadoBusquedaTP);
 			}
 			escribirContenidoSwap(estructuraEscribir, socketSwap);
@@ -931,7 +933,7 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 		break;
 	case 0:
 		resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
-		if (resultadoBusquedaTP == 0) {
+		if (resultadoBusquedaTP > 0) {
 			escribirContenido(estructuraEscribir, resultadoBusquedaTP);
 		} else {
 			escribirContenidoSwap(estructuraEscribir, socketSwap);
@@ -951,10 +953,13 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		list_replace(tablaDePaginas, posicion, tp);
 		// un elemento de ese tamaño
 
-/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
-				frame + configMemoria.tamanioMarcos);*/
-		memcpy(memoriaReservadaDeMemPpal+(frame * configMemoria.tamanioMarcos), estructEscribir->contenidoPagina,
-					configMemoria.tamanioMarcos);
+		/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
+		 frame + configMemoria.tamanioMarcos);*/
+		log_error(logMemoria,"COntenido a escribir: %s",estructEscribir->contenidoPagina);
+		memcpy(
+				memoriaReservadaDeMemPpal
+						+ (frame * configMemoria.tamanioMarcos),
+				estructEscribir->contenidoPagina, configMemoria.tamanioMarcos);
 	}
 }
 
@@ -989,6 +994,7 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		char * contenido = pedirLecturaAlSwapEscribir(socketSwap,
 				estructEscribir->pid, estructEscribir->pagina);
 		contenido = estructEscribir->contenidoPagina;
+
 
 		AsignarContenidoALaPagina(estructEscribir->pid, estructEscribir->pagina,
 				contenido);
@@ -1068,7 +1074,7 @@ int algoritmoLRU(int pid) {
 }
 
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo) {
-	time_t  t = time(NULL);
+	time_t t = time(NULL);
 	int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
 	t_pidFrame * frameAReemplazar;
 	frameAReemplazar = list_get(listaParaAlgoritmo, posicion);
@@ -1104,14 +1110,14 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
 }
 
 int ejecutarAlgoritmo(int pid) {
-	switch(configMemoria.algoritmoReemplazo)
-	{
+	switch (configMemoria.algoritmoReemplazo) {
 	case 1: //FIFO
 		return algoritmoFIFO(pid);
 	case 2: //"LRU"
 		return algoritmoLRU(pid);
 	case 3:   //"CLOCK_MODIFICADO"
 		return algoritmoClockModificado(pid);
-	default: return -1;
+	default:
+		return -1;
 	}
 }

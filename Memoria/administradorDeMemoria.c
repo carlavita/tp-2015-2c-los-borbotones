@@ -157,6 +157,7 @@ void generarTLB(int entradasTLB) {
 		t_TLB * estructTLB = malloc(sizeof(t_TLB));
 		estructTLB->pagina = -1;
 		estructTLB->pid = -1;
+		estructTLB->frame = -1;
 		//cuando vengan los procesos, ire cambiando ese pid.
 		++entrada;
 		list_add(tlb, estructTLB);
@@ -398,6 +399,8 @@ char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 	if (direccion == NULL)
 		return "";
 	else {
+		AsignarEnTlb(pid,pagina,estructContenidoPaginas->marco);
+		//TODO
 		char * contenido = malloc(strlen(direccion));
 		memcpy(contenido, &direccion, strlen(direccion));
 		return contenido;
@@ -407,7 +410,7 @@ char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 void buscarContenidoPagina(int socketSwap, int pid, int pagina, int socketCPU) {
 //ANTES DE USAR ESTA FUNCION SE VALIDA QUE EXISTA EN LA TLB, o en la TABLA DE PAGINAS, y despues se busca el contenido en la TABLA de paginas
 //porque si esta en la TLB, o en la tabla de paginas, TENGO EL CONTENIDO EN EL ADMINISTRADOR DE MEMORIA, sino debo pedirselo al swap
-
+	//todo
 	char* contenidoADevolver = buscarContenidoEnTablaDePaginas(pid, pagina);
 	int tamanio = strlen(contenidoADevolver);
 	if (strlen(contenidoADevolver) == 0) {
@@ -457,6 +460,47 @@ void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
 	list_replace(listaDePidFrames, posicion, pidAAsignar);
 }
 
+int busquedaPrimeraPosicionTLB(int PID)
+{
+	int posicion = 0;
+	t_TLB* estructTLB = list_get(tlb, posicion);
+	while (estructTLB->pid != PID) {
+		posicion++;
+		estructTLB = list_get(tlb, posicion);
+	}
+	if (estructTLB->pid == PID) {
+		return posicion;
+	} else {
+		return -1;
+	}
+}
+void FifoTLB(int pid,int pagina,int frame)
+{
+  int primeraPosicionProceso = busquedaPrimeraPosicionTLB(pid);
+  t_TLB * estructTlb = list_get(tlb,primeraPosicionProceso);
+  estructTlb->frame = frame;
+  estructTlb->pagina = pagina;
+  estructTlb->pid = pid;
+  list_replace(tlb,primeraPosicionProceso,estructTlb);
+}
+
+void AsignarEnTlb(int pid, int pagina, int frame)
+{
+  int cantidadFrames = CantidadDeFrames(pid);
+  if(cantidadFrames<configMemoria.maximoMarcosPorProceso)
+  {
+	  t_TLB * estructTlb = malloc(sizeof(t_TLB));
+	  estructTlb->frame = frame;
+	  estructTlb->pagina = pagina;
+	  estructTlb->pid = pid;
+	  list_add(tlb,estructTlb);
+  }
+  else
+  {
+	  FifoTLB(pid,pagina,frame);
+  }
+}
+
 void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap) {
 
@@ -482,6 +526,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			pthread_mutex_unlock(&BLOQUEAR);
 			sleep(configMemoria.retardoMemoria);
 
+			//TODO
 			char * contenido = calloc(1, strlen(contenidoPedidoAlSwap));
 			/*memcpy(memoriaReservadaDeMemPpal, contenido,
 			 paginaAAsignar->marco * configMemoria.tamanioMarcos);*/
@@ -492,10 +537,15 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 					configMemoria.tamanioMarcos);
 
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
+
 			sleep(configMemoria.retardoMemoria);
 		}
+
+		AsignarEnTlb(pid,pagina,paginaAAsignar->marco);
+
 		escribir->pagina = pagina;
 		escribir->pid = pid;
+		//TODO
 		strncpy(escribir->contenidoPagina,contenidoPedidoAlSwap,strlen(contenidoPedidoAlSwap));
 		escribirContenido(escribir,paginaAAsignar->marco);
 		list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
@@ -749,12 +799,13 @@ void RealizarVolcadoMemoriaLog() {
 	//el +1 es para agregarlo como cadena
 	log_info(logMemoria, "VOLCADO DE MEMORIA \n ");
 	int i = 0;
-	while (i <= configMemoria.cantidadDeMarcos) {
+	while (i < configMemoria.cantidadDeMarcos) {
 		strncpy(frameContenido,
 				memoriaReservadaDeMemPpal + (i * configMemoria.tamanioMarcos),
 				configMemoria.tamanioMarcos);
-		frameContenido[configMemoria.tamanioMarcos] = '\0';
-		log_info(logMemoria, "FRAME: %d - CONTENIDO: %s ", i, frameContenido);
+		frameContenido[configMemoria.tamanioMarcos +1 ] = '\0';
+		printf("FRAME: %d - CONTENIDO: %s \n ", i, frameContenido);
+		fflush(stdout);
 		i++;
 	}
 
@@ -946,6 +997,9 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 void escribirContenido(t_escribir * estructEscribir, int frame) {
 	int posicion = busquedaPIDEnLista(estructEscribir->pid,
 			estructEscribir->pagina);
+	//TODO
+	char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
+	strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
 	if (posicion > 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
@@ -955,11 +1009,12 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 
 		/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
 		 frame + configMemoria.tamanioMarcos);*/
-		log_error(logMemoria,"COntenido a escribir: %s",estructEscribir->contenidoPagina);
+		log_error(logMemoria,"Contenido a escribir: %s",estructEscribir->contenidoPagina);
 		memcpy(
 				memoriaReservadaDeMemPpal
 						+ (frame * configMemoria.tamanioMarcos),
-				estructEscribir->contenidoPagina, configMemoria.tamanioMarcos);
+				contenido, configMemoria.tamanioMarcos);
+
 	}
 }
 

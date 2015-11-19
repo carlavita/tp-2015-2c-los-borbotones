@@ -8,7 +8,6 @@
 #ifndef ADMINISTRADORDEMEMORIA_H_
 #define ADMINISTRADORDEMEMORIA_H_
 #define PACKAGESIZE 1024
-#include <errno.h>
 
 typedef struct {
 	int pid;
@@ -35,6 +34,7 @@ typedef struct {
 typedef struct {
 	int pid;
 	int pagina;
+	int frame;
 } t_TLB;
 
 typedef struct {
@@ -117,6 +117,8 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo);
 
 //FUNCION GENERICA para algoritmos
 int ejecutarAlgoritmo(int pid);
+
+void AsignarEnTlb(int pid, int pagina, int frame);
 
 #endif /* ADMINISTRADORDEMEMORIA_H_ */
 

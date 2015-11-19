@@ -756,7 +756,7 @@ void RealizarVolcadoMemoriaLog() {
 	int i = 0;
 	for (i= 0;i <= configMemoria.cantidadDeMarcos; i++){
 	memcpy(frameContenido,memoriaReservadaDeMemPpal+(i * configMemoria.tamanioMarcos), configMemoria.tamanioMarcos);
-	frameContenido[configMemoria.tamanioMarcos] = '\0';
+	frameContenido[configMemoria.tamanioMarcos + 1] = '\0';
 	log_info(logMemoria,"FRAME: %d - CONTENIDO: %s ", i, frameContenido);
 
 	}

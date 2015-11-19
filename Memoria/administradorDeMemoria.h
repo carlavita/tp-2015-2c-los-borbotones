@@ -8,6 +8,9 @@
 #ifndef ADMINISTRADORDEMEMORIA_H_
 #define ADMINISTRADORDEMEMORIA_H_
 #define PACKAGESIZE 1024
+#define LIBRE 0
+#define OCUPADO 1
+
 
 typedef struct {
 	int pid;
@@ -60,6 +63,11 @@ typedef struct
 	void * estructura;
 }t_estructurasDelProceso;
 
+typedef struct
+{
+	int frame;
+	int ocupado;
+}t_frames;
 
 t_config_memoria configMemoria;
 t_log * logMemoria;
@@ -75,7 +83,7 @@ char * recibidoPorLaMemoria;
 char mensaje[1024];
 t_list * estructuraAlgoritmos;
 t_list * estructurasPorProceso;
-
+t_list * frames;
 
 void leerConfiguracion();
 void crearServidor();
@@ -93,6 +101,9 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria);
 int busquedaPIDEnLista(int PID, int pagina);
 void RealizarVolcadoMemoriaLog();
+void inicializarFrames();
+int seleccionarFrameLibre();
+void liberarFrame(int idFrame);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);
@@ -104,6 +115,7 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap);
 void escribirContenidoSwap(t_escribir * estructEscribir,int socketSwap);
 void escribirContenido(t_escribir * estructEscribir,int frame);
 int buscarEnTablaDePaginas( pid, pagina);
+void agregarFrame(int frameID);
 //ALGORITMO CLOCK
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);

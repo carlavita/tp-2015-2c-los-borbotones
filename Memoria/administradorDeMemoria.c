@@ -242,7 +242,7 @@ void agregarAEstructuraGeneral(void * estructurasDelProceso, int pid) {
 	list_add(estructurasPorProceso, ep);
 }
 
-void AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
+int AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
 	time_t t = time(NULL);
 	t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
 
@@ -259,14 +259,14 @@ void AsignarFrameAlProceso(int pid, int cantidadDePaginas) {
 			pid);
 
 	if (list_size(busquedaListaFramesPorPid(pid))
-			<= configMemoria.maximoMarcosPorProceso) {
+			< configMemoria.maximoMarcosPorProceso) {
 		agregarAEstructuraGeneral(listaDePidFrames, pid);
 	}
-
+return estructuraPidFrame->frameAsignado;
 	//pthread_mutex_unlock(&mutexFrame);
 }
 
-void generarEstructuraAdministrativaPidFrame(int pid, int paginas) {
+/*void generarEstructuraAdministrativaPidFrame(int pid, int paginas) {
 	log_info(logMemoria, "INICIO ESTRUCTURA ADMINISTRATIVA, FRAMES-PID");
 	log_info(logMemoria, "Cantidad maxima de frames por proceso: %d",
 			configMemoria.maximoMarcosPorProceso);
@@ -274,7 +274,7 @@ void generarEstructuraAdministrativaPidFrame(int pid, int paginas) {
 	AsignarFrameAlProceso(pid, paginas);
 
 	log_info(logMemoria, "FIN ESTRUCTURA ADMINISTRATIVA, FRAMES-PID");
-}
+}*/
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 		t_mensajeHeader mensajeHeaderSwap, int servidor, t_log* logMemoria) {
 
@@ -367,7 +367,7 @@ int busquedaFRAMESinUsar(int PID) {
 	return posicion;
 }
 
-int buscarEnTablaDePaginas( pid, pagina) {
+int buscarEnTablaDePaginas( int pid, int pagina) {
 	t_tablaDePaginas * entrada = malloc(sizeof(t_tablaDePaginas));
 
 	log_info(logMemoria, "INICIO BUSQUEDA EN TABLA DE PAGINAS");
@@ -492,7 +492,9 @@ void FifoTLB(int pid,int pagina,int frame)
 void AsignarEnTlb(int pid, int pagina, int frame)
 {
   int cantidadFrames = CantidadDeFrames(pid);
-  if(cantidadFrames<configMemoria.maximoMarcosPorProceso)
+//  if(cantidadFrames<configMemoria.maximoMarcosPorProceso)
+  if(cantidadFrames<configMemoria.entradasTLB)
+
   {
 	  t_TLB * estructTlb = malloc(sizeof(t_TLB));
 	  estructTlb->frame = frame;
@@ -507,7 +509,7 @@ void AsignarEnTlb(int pid, int pagina, int frame)
 }
 
 void AsignarContenidoALaPagina(int pid, int pagina,
-		char * contenidoPedidoAlSwap) {
+		char * contenidoPedidoAlSwap, int marco) {
 
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
 	t_escribir * escribir = malloc(sizeof(t_escribir));
@@ -522,8 +524,8 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		paginaAAsignar->bitValidez = 1;
 		paginaAAsignar->presencia = 1;
 
-		if (CantidadDeFrames(pid) <= configMemoria.maximoMarcosPorProceso - 1) {
-			paginaAAsignar->marco = seleccionarFrameLibre();//ultimoFrameAsignado;
+		if (CantidadDeFrames(pid) < configMemoria.maximoMarcosPorProceso ) {
+			paginaAAsignar->marco = marco;//seleccionarFrameLibre();//ultimoFrameAsignado;
 		//	ultimoFrameAsignado++;
 		} else {
 			pthread_mutex_lock(&BLOQUEAR);
@@ -562,6 +564,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 	int resultadoBusquedaTLB;
 	int pid = estructuraLeerSwap.pid;
 	int pagina = estructuraLeerSwap.pagina;
+	int marco = -1;
 //	generarEstructuraAdministrativaPidFrame(pid, pagina);
 	switch (configMemoria.tlbHabilitada) {
 	case 1:
@@ -575,12 +578,13 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 				buscarContenidoPagina(socketSwap, pid, pagina, socketCPU);
 			} else {
 				if (list_size(busquedaListaFramesPorPid(pid))
-						<= configMemoria.maximoMarcosPorProceso) {
-					AsignarFrameAlProceso(pid, pagina);
+						< configMemoria.maximoMarcosPorProceso) {
+					marco = -1;
+					marco = AsignarFrameAlProceso(pid, pagina);
 				}
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
-				AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap);
+				AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap, marco);
 			}
 			break;
 			case 0:
@@ -589,12 +593,13 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 				buscarContenidoPagina(socketSwap, pid, pagina, socketCPU);
 			} else {
 				if (list_size(busquedaListaFramesPorPid(pid))
-						<= configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
-					AsignarFrameAlProceso(pid, pagina);
+						< configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
+					marco = -1;
+					marco = AsignarFrameAlProceso(pid, pagina);
 				}
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
-				AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap);
+				AsignarContenidoALaPagina(pid, pagina, contenidoPedidoAlSwap,marco);
 
 				break;
 			}
@@ -718,7 +723,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			escribir(estructuraEscribirSwap, clienteSWAP);
 
-			serializarEstructura(mensajeHeaderSwap.idmensaje,
+			serializarEstructura(mensajeHeaderSwap.idmensaje
 			NULL, 0, servidorCPU);
 			free(estructuraEscribirSwap);
 			pthread_mutex_unlock(&mutexEscribir);
@@ -1043,6 +1048,8 @@ char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
 void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 	int posicion = busquedaPIDEnLista(estructEscribir->pid,
 			estructEscribir->pagina);
+	int marco = -1;
+
 	if (posicion > 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
@@ -1053,8 +1060,13 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 				estructEscribir->pid, estructEscribir->pagina);
 		contenido = estructEscribir->contenidoPagina;
 
+		if (list_size(busquedaListaFramesPorPid(estructEscribir->pid))
+								< configMemoria.maximoMarcosPorProceso) {
+
+							marco = AsignarFrameAlProceso(estructEscribir->pid,estructEscribir->pagina);
+						}
 		AsignarContenidoALaPagina(estructEscribir->pid, estructEscribir->pagina,
-				contenido);
+				contenido,marco);
 
 	}
 }
@@ -1217,12 +1229,16 @@ int seleccionarFrameLibre() {
 	pthread_mutex_lock(&mutexFrames);
 	t_frames* libre = malloc(sizeof(t_frames));
 			libre = list_find(frames, (void*) _is_frame);
+
 	pthread_mutex_unlock(&mutexFrames);
 	if(libre != NULL){
 		libre->ocupado = OCUPADO;
+		log_info(logMemoria,"FRAME LIBRE : %d \n",libre->frame);
 		return libre->frame;
 	}	else {
+
 		return -1;
+		log_info(logMemoria,"NO HAY NINGUN FRAME LIBRE : %d \n");
 	}
 
 

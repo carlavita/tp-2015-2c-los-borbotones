@@ -92,9 +92,9 @@ void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(char * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas);
-void AsignarFrameAlProceso(int pid, int cantidadDePaginas);
+int AsignarFrameAlProceso(int pid, int cantidadDePaginas);
 //void avisarAlSwap(int clienteSwap);
-void generarEstructuraAdministrativaPidFrame(int pid, int paginas);
+//void generarEstructuraAdministrativaPidFrame(int pid, int paginas);
 void procesamientoDeMensajes(int cliente, int servidor);
 void generarEstructuraAdministrativaPIDFrame();
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
@@ -114,8 +114,10 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
 void escribir(t_escribir * estructuraEscribir, int socketSwap);
 void escribirContenidoSwap(t_escribir * estructEscribir,int socketSwap);
 void escribirContenido(t_escribir * estructEscribir,int frame);
-int buscarEnTablaDePaginas( pid, pagina);
+int buscarEnTablaDePaginas( int pid, int pagina);
 void agregarFrame(int frameID);
+void AsignarContenidoALaPagina(int pid, int pagina,
+		char * contenidoPedidoAlSwap, int marco);
 //ALGORITMO CLOCK
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);

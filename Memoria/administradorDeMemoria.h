@@ -10,6 +10,8 @@
 #define PACKAGESIZE 1024
 #define LIBRE 0
 #define OCUPADO 1
+#define NOMODIFICADO 0
+#define MODIFICADO 1
 
 
 typedef struct {
@@ -104,6 +106,11 @@ void RealizarVolcadoMemoriaLog();
 void inicializarFrames();
 int seleccionarFrameLibre();
 void liberarFrame(int idFrame);
+void leerFrame(int resultadoBusquedaTP,int pid,int pagina, int socketCPU);
+char * buscarContenidoFrame(int frame, int pid, int pagina);
+int buscarEnLaTLB( pid, pagina);
+void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
+		t_mensajeHeader mensajeHeaderSwap);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);
@@ -117,7 +124,8 @@ void escribirContenido(t_escribir * estructEscribir,int frame);
 int buscarEnTablaDePaginas( int pid, int pagina);
 void agregarFrame(int frameID);
 void AsignarContenidoALaPagina(int pid, int pagina,
-		char * contenidoPedidoAlSwap, int marco);
+		char * contenidoPedidoAlSwap, int marco, int bitModificado);
+
 //ALGORITMO CLOCK
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);

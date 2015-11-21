@@ -389,7 +389,7 @@ int buscarEnTablaDePaginas(int pid, int pagina) {
 
 		//log_info(logMemoria, "PAGINA ENCONTRADA EN TABLA DE PAGINAS");
 		if (entrada->bitValidez == 1 && entrada->presencia == 1) {
-			log_info(logMemoria, "PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = %d \n");
+			log_info(logMemoria, "PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = %d \n", entrada->marco);
 			return entrada->marco;
 		} else
 			log_info(logMemoria, "PAGINA NO PRESENTE EN TABLA DE PAGINAS \n");
@@ -500,9 +500,9 @@ void FifoTLB(int pid, int pagina, int frame) {
 }
 
 void AsignarEnTlb(int pid, int pagina, int frame) {
-	int cantidadFrames = CantidadDeFrames(pid);
+//	int cantidadFrames = CantidadDeFrames(pid);
 //  if(cantidadFrames<configMemoria.maximoMarcosPorProceso)
-	if (cantidadFrames < configMemoria.entradasTLB)
+	if (list_size(tlb) < configMemoria.entradasTLB) //La TLB es unica para todos los procesos
 
 	{
 		t_TLB * estructTlb = malloc(sizeof(t_TLB));
@@ -533,7 +533,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		paginaAAsignar->bitValidez = 1;
 		paginaAAsignar->presencia = 1;
 
-		if (CantidadDeFrames(pid) < configMemoria.maximoMarcosPorProceso) {
+		if (CantidadDeFrames(pid) <=configMemoria.maximoMarcosPorProceso) {//menor o igual porque si tenia libre ya lo asigno afuera
 			log_info(logMemoria, " no requiere algoritmo de reemplazo \n");
 			paginaAAsignar->marco = marco;//seleccionarFrameLibre();//ultimoFrameAsignado;
 			//	ultimoFrameAsignado++;
@@ -979,17 +979,20 @@ int CantidadDeFrames(int pid) {
 
 	list_add_all(pf, listaDePidFrames);
 
-	while (posicion < configMemoria.maximoMarcosPorProceso) {
+	//while (posicion < configMemoria.maximoMarcosPorProceso) {
+	while (posicion < list_size(listaDePidFrames)){
 		t_pidFrame * pfr = malloc(sizeof(t_pidFrame));
 
 		pfr = list_get(pf, posicion);
 		list_add(listaADestruir, pfr);
-		if (pfr != NULL && pfr->pid == pid)
+		//if (pfr != NULL && pfr->pid == pid)
+		if (pfr != NULL && pfr->pid == pid){
 			cantidadDeFrames++;
 		posicion++;
 	}
+	}
 	list_destroy(pf);
-	log_info("Cantidad actual de frames asignados al proceso %d  : %d",pid,cantidadDeFrames);
+	log_info("Cantidad actual de frames asignados al proceso %d  : %d \n",pid,cantidadDeFrames);
 	return cantidadDeFrames;
 }
 

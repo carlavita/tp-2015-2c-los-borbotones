@@ -465,7 +465,7 @@ void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
 	list_replace(listaDePidFrames, posicion, pidAAsignar);
 }
 
-int busquedaPrimeraPosicionTLB(int PID)
+/*int busquedaPrimeraPosicionTLB(int PID)
 {
 	int posicion = 0;
 	t_TLB* estructTLB = list_get(tlb, posicion);
@@ -478,15 +478,16 @@ int busquedaPrimeraPosicionTLB(int PID)
 	} else {
 		return -1;
 	}
-}
+}*/
 void FifoTLB(int pid,int pagina,int frame)
 {
-  int primeraPosicionProceso = busquedaPrimeraPosicionTLB(pid);
-  t_TLB * estructTlb = list_get(tlb,primeraPosicionProceso);
+  /*int primeraPosicionProceso = busquedaPrimeraPosicionTLB(pid);
+  t_TLB * estructTlb = list_get(tlb,primeraPosicionProceso);*/
+  t_TLB * estructTlb = list_remove(tlb,0);
   estructTlb->frame = frame;
   estructTlb->pagina = pagina;
   estructTlb->pid = pid;
-  list_replace(tlb,primeraPosicionProceso,estructTlb);
+  list_add(tlb,estructTlb);
 }
 
 void AsignarEnTlb(int pid, int pagina, int frame)
@@ -717,14 +718,13 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			recv(servidorCPU, estructuraEscribirSwap, sizeof(t_escribir), 0);
 
-			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
+			/*serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
 					sizeof(t_escribir), clienteSWAP);
-			recv(clienteSWAP, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			recv(clienteSWAP, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);*/
 
 			escribir(estructuraEscribirSwap, clienteSWAP);
 
-			serializarEstructura(mensajeHeaderSwap.idmensaje
-			NULL, 0, servidorCPU);
+			serializarEstructura(mensajeHeaderSwap.idmensaje,NULL, 0, servidorCPU);
 			free(estructuraEscribirSwap);
 			pthread_mutex_unlock(&mutexEscribir);
 			break;
@@ -1006,8 +1006,10 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 	int posicion = busquedaPIDEnLista(estructEscribir->pid,
 			estructEscribir->pagina);
 	//TODO
-	char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
-	strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
+	//char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
+	//strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
+	char * contenido = malloc(configMemoria.tamanioMarcos);
+	memset(&contenido, '\0', configMemoria.tamanioMarcos);
 	if (posicion > 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);

@@ -106,8 +106,9 @@ int main() {
 			malloc(
 					sizeof(configMemoria.cantidadDeMarcos
 							* configMemoria.tamanioMarcos));
-	remove("logMemoria.txt"); //Cada vez que arranca el proceso borro el archivo de log.A
-	logMemoria = log_create("logMemoria.txt", "Administrador de memoria", true,
+
+	remove("logMemoria2.txt"); //Cada vez que arranca el proceso borro el archivo de log.A
+	logMemoria = log_create("logMemoria2.txt", "Administrador de memoria", true,
 			LOG_LEVEL_INFO);
 	leerConfiguracion();
 
@@ -120,7 +121,7 @@ int main() {
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 
 	int servidorCPU = servidorMultiplexorCPU(configMemoria.puertoEscucha);
-
+	log_destroy(logMemoria);
 	exit(0);
 }
 
@@ -182,7 +183,7 @@ void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria) {
 }
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
 	int intentosFallidosDeConexionASwap = 0;
-	log_trace(logMemoria,
+	log_info(logMemoria,
 			"Generando cliente al SWAP con estos parametros definidos, IP: %s, PUERTO: %d",
 			configMemoria->ipSwap, configMemoria->puertoSwap);
 	cliente(configMemoria->ipSwap, configMemoria->puertoSwap);
@@ -746,7 +747,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			escribir(estructuraEscribirSwap, clienteSWAP);
 
-			serializarEstructura(mensajeHeaderSwap.idmensaje, NULL, 0,
+			serializarEstructura(OK, NULL, 0,
 					servidorCPU);
 			free(estructuraEscribirSwap);
 			pthread_mutex_unlock(&mutexEscribir);
@@ -889,6 +890,7 @@ int servidorMultiplexorCPU(int PUERTO) {
 				} else {
 
 					procesamientoDeMensajes(clienteSwap, i);
+
 				}
 			}
 		}
@@ -993,6 +995,8 @@ int CantidadDeFrames(int pid) {
 			cantidadDeFrames++;
 		posicion++;
 	}
+		else
+			posicion++;
 	}
 	list_destroy(pf);
 	log_info("Cantidad actual de frames asignados al proceso %d  : %d \n",pid,cantidadDeFrames);
@@ -1035,30 +1039,24 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 void escribirContenido(t_escribir * estructEscribir, int frame) {
 	int posicion = busquedaPIDEnLista(estructEscribir->pid,
 			estructEscribir->pagina);
-	//TODO
-	//char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
-	//strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
-	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
-//	memset(&contenido, '\0', configMemoria.tamanioMarcos + 1);
+
+	/*char * contenido = malloc(configMemoria.tamanioMarcos + 1);
 	memcpy(contenido,estructEscribir->contenidoPagina,configMemoria.tamanioMarcos );
-	contenido[configMemoria.tamanioMarcos] = '\0';
+	contenido[configMemoria.tamanioMarcos] = '\0';*/
 	if (posicion > 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
-//		list_replace(tablaDePaginas, posicion, tp);
-		// un elemento de ese tamaño
 
-		/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
-		 frame + configMemoria.tamanioMarcos);*/
 		log_info(logMemoria, "Contenido a escribir: %s, frame %d \n",
-				contenido, frame);
+				estructEscribir->contenidoPagina, frame);
 
-		memcpy(
-				memoriaReservadaDeMemPpal
-						+ (frame * configMemoria.tamanioMarcos), contenido,
-				configMemoria.tamanioMarcos);
+		//memcpy(direccion, contenido,configMemoria.tamanioMarcos);
+		int offset = frame * configMemoria.tamanioMarcos;
+
+		strncpy(memoriaReservadaDeMemPpal+offset, estructEscribir->contenidoPagina,configMemoria.tamanioMarcos);
 	}
+	//free(contenido);
 }
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
@@ -1152,7 +1150,7 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 	while (i < list_size(listaDePidFrames)) {
 		t_pidFrame* lp = malloc(sizeof(t_pidFrame));
 		lp = list_get(listaDePidFrames, i);
-		log_warning(logMemoria, "FRAME: %d", lp->frameAsignado);
+		log_info(logMemoria, "FRAME: %d", lp->frameAsignado);
 		i++;
 	}
 
@@ -1166,7 +1164,7 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 	pidframe->ultimaReferencia = *localtime(&t); //SE USA EN EL LRU
 	list_add(listaDePidFrames, pidframe);
 
-	log_warning(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
+	log_info(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
 			pf->frameAsignado, pidframe->frameAsignado);
 	int frameADevolver = pf->frameAsignado;
 	return frameADevolver;

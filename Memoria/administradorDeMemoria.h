@@ -87,6 +87,10 @@ t_list * estructuraAlgoritmos;
 t_list * estructurasPorProceso;
 t_list * frames;
 
+//Array que guardan los fallos y accesos para un proceso. el indice en el vector es el pid
+int fallos[100];
+int accesos[100];
+
 void leerConfiguracion();
 void crearServidor();
 void generarTLB(int entradasTLB);

@@ -78,7 +78,8 @@ void atenderSeniales(int senhal) {
 		else
 			return;
 		break;
-	case SIGSEGV:
+	case EINTR:
+		errno = 0;
 		log_error(logMemoria, "POSIBLE FALLA DE MEMORIA GUARDADA");
 		return;
 	/*case errno:
@@ -100,7 +101,7 @@ int main() {
 	signal(SIGUSR1, atenderSeniales);
 	signal(SIGUSR2, atenderSeniales);
 	signal(SIGPOLL, atenderSeniales);
-	signal(SIGSEGV, atenderSeniales);
+	signal(EINTR, atenderSeniales);
 	/*SEÑALES*/
 	memoriaReservadaDeMemPpal =
 			malloc(
@@ -400,14 +401,14 @@ char * buscarContenidoEnTablaDePaginas(int pid, int pagina) {
 			busquedaPIDEnLista(pid, pagina));
 	direccion = estructContenidoPaginas->direccion;
 	//free(estructContenidoPaginas);
-	//log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
+	log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
 	if (direccion == NULL)
 		return "";
 	else {
 		AsignarEnTlb(pid,pagina,estructContenidoPaginas->marco);
 		//TODO
-		char * contenido = malloc(strlen(direccion));
-		memcpy(contenido, &direccion, strlen(direccion));
+		char * contenido = malloc(configMemoria.tamanioMarcos + 1);
+		memcpy(contenido,memoriaReservadaDeMemPpal+(estructContenidoPaginas->marco * configMemoria.tamanioMarcos), configMemoria.tamanioMarcos);
 		return contenido;
 	}
 }
@@ -428,7 +429,7 @@ void buscarContenidoPagina(int socketSwap, int pid, int pagina, int socketCPU) {
 }
 
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
-	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;
@@ -441,7 +442,7 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 	recv(cliente, contenidoLeido, tamanioLeido, 0);
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
-	//log_info(logMemoria, "FIN PEDIDO AL SWAP");
+	log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	contenidoLeido[tamanioLeido] = '\0';
 	//TODO agregar contenido
 
@@ -1002,8 +1003,9 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 			estructEscribir->pagina);
 	//TODO
 	char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
+	estructEscribir->contenidoPagina[strlen(estructEscribir->contenidoPagina)+1]= '\0';
 	strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
-	if (posicion > 0) {
+	if (posicion >= 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
@@ -1013,7 +1015,6 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 
 		/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
 		 frame + configMemoria.tamanioMarcos);*/
-		log_error(logMemoria,"Contenido a escribir: %s",estructEscribir->contenidoPagina);
 		memcpy(
 				memoriaReservadaDeMemPpal
 						+ (frame * configMemoria.tamanioMarcos),
@@ -1022,7 +1023,7 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 }
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
-	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;

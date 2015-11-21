@@ -78,10 +78,9 @@ void atenderSeniales(int senhal) {
 		else
 			return;
 		break;
-	case EINTR:
-		errno = 0;
+	/*case SIGSEGV:
 		log_error(logMemoria, "POSIBLE FALLA DE MEMORIA GUARDADA");
-		return;
+		return;*/
 		/*case errno:
 		 return;*/
 	}
@@ -101,7 +100,7 @@ int main() {
 	signal(SIGUSR1, atenderSeniales);
 	signal(SIGUSR2, atenderSeniales);
 	signal(SIGPOLL, atenderSeniales);
-	signal(EINTR, atenderSeniales);
+//	signal(SIGSEGV, atenderSeniales);
 	/*SEÑALES*/
 	memoriaReservadaDeMemPpal =
 			malloc(
@@ -411,14 +410,14 @@ int buscarEnTablaDePaginas(int pid, int pagina) {
 			busquedaPIDEnLista(pid, pagina));
 	direccion = estructContenidoPaginas->direccion;
 	//free(estructContenidoPaginas);
-	log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
+	//log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
 	if (direccion == NULL)
 		return "";
 	else {
 		AsignarEnTlb(pid, pagina, estructContenidoPaginas->marco);
 		//TODO
-		char * contenido = malloc(configMemoria.tamanioMarcos + 1);
-		memcpy(contenido,memoriaReservadaDeMemPpal+(estructContenidoPaginas->marco * configMemoria.tamanioMarcos), configMemoria.tamanioMarcos);
+		char * contenido = malloc(strlen(direccion));
+		memcpy(contenido, &direccion, strlen(direccion));
 		return contenido;
 	}
 }*/
@@ -439,7 +438,7 @@ int buscarEnTablaDePaginas(int pid, int pagina) {
 }
 */
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
-	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;
@@ -452,7 +451,7 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 	recv(cliente, contenidoLeido, tamanioLeido, 0);
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
-	log_info(logMemoria, "FIN PEDIDO AL SWAP");
+	//log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	contenidoLeido[tamanioLeido] = '\0';
 	//TODO agregar contenido
 
@@ -535,7 +534,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		paginaAAsignar->bitValidez = 1;
 		paginaAAsignar->presencia = 1;
 
-		if (CantidadDeFrames(pid) <=configMemoria.maximoMarcosPorProceso) {//menor o igual porque si tenia libre ya lo asigno afuera
+		if (CantidadDeFrames(pid) <=configMemoria.maximoMarcosPorProceso && marco != -1) {//menor o igual porque si tenia libre ya lo asigno afuera
 			log_info(logMemoria, " no requiere algoritmo de reemplazo \n");
 			paginaAAsignar->marco = marco;//seleccionarFrameLibre();//ultimoFrameAsignado;
 			//	ultimoFrameAsignado++;
@@ -1036,7 +1035,7 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 void escribirContenido(t_escribir * estructEscribir, int frame) {
 	int posicion = busquedaPIDEnLista(estructEscribir->pid,
 			estructEscribir->pagina);
-
+	//TODO
 	//char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
 	//strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
 	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
@@ -1044,7 +1043,6 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 	memcpy(contenido,estructEscribir->contenidoPagina,configMemoria.tamanioMarcos );
 	contenido[configMemoria.tamanioMarcos] = '\0';
 	if (posicion > 0) {
-
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
@@ -1056,7 +1054,6 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		log_info(logMemoria, "Contenido a escribir: %s, frame %d \n",
 				contenido, frame);
 
-
 		memcpy(
 				memoriaReservadaDeMemPpal
 						+ (frame * configMemoria.tamanioMarcos), contenido,
@@ -1065,7 +1062,7 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 }
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
-	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;
@@ -1341,3 +1338,4 @@ char * buscarContenidoFrame(int frame, int pid, int pagina) {
 		return contenido;
 	//}
 }
+

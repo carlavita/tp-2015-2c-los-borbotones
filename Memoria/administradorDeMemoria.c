@@ -519,6 +519,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap, int marco, int bitModificado) {
 
 	t_escribir * escribir = malloc(sizeof(t_escribir));
+	memset(&escribir->contenidoPagina,0,sizeof(escribir->contenidoPagina));
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
 
 	int posicion = busquedaPIDEnLista(pid, pagina);
@@ -566,10 +567,12 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		escribir->pid = pid;
 		//TODO
 		strncpy(escribir->contenidoPagina, contenidoPedidoAlSwap,
-				strlen(contenidoPedidoAlSwap));
+				strlen(contenidoPedidoAlSwap)+1);
 		escribirContenido(escribir, paginaAAsignar->marco);
 		list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
 	}
+
+	free(escribir);
 }
 
 void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
@@ -1012,8 +1015,9 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
 			if (resultadoBusquedaTP >= 0) {
 				escribirContenido(estructuraEscribir, resultadoBusquedaTP);
-			}
+			}else{
 			escribirContenidoSwap(estructuraEscribir, socketSwap);
+			}
 		}
 		break;
 	case 0:
@@ -1034,19 +1038,22 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 	//TODO
 	//char * contenido = malloc(strlen(estructEscribir->contenidoPagina)+1);
 	//strncpy(contenido,estructEscribir->contenidoPagina,strlen(estructEscribir->contenidoPagina));
-	char * contenido = malloc(configMemoria.tamanioMarcos);
-	memset(&contenido, '\0', configMemoria.tamanioMarcos);
+	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
+//	memset(&contenido, '\0', configMemoria.tamanioMarcos + 1);
+	memcpy(contenido,estructEscribir->contenidoPagina,configMemoria.tamanioMarcos );
+	contenido[configMemoria.tamanioMarcos] = '\0';
 	if (posicion > 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
-		list_replace(tablaDePaginas, posicion, tp);
+//		list_replace(tablaDePaginas, posicion, tp);
 		// un elemento de ese tamaño
 
 		/*		memcpy(memoriaReservadaDeMemPpal, estructEscribir->contenidoPagina,
 		 frame + configMemoria.tamanioMarcos);*/
-		log_error(logMemoria, "Contenido a escribir: %s",
-				estructEscribir->contenidoPagina);
+		log_info(logMemoria, "Contenido a escribir: %s, frame %d \n",
+				contenido, frame);
+
 		memcpy(
 				memoriaReservadaDeMemPpal
 						+ (frame * configMemoria.tamanioMarcos), contenido,
@@ -1069,7 +1076,7 @@ char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
 	free(estructuraLeerSwap);
-	free(contenidoLeido);
+//	free(contenidoLeido);
 	return contenidoLeido;
 }
 
@@ -1275,8 +1282,11 @@ void leerFrame(int frame, int pid, int pagina, int socketCPU) {
 	//ANTES DE USAR ESTA FUNCION SE VALIDA QUE EXISTA EN LA TLB, o en la TABLA DE PAGINAS, y despues se busca el contenido en la TABLA de paginas
 	//porque si esta en la TLB, o en la tabla de paginas, TENGO EL CONTENIDO EN EL ADMINISTRADOR DE MEMORIA, sino debo pedirselo al swap
 	int tamanio = configMemoria.tamanioMarcos +1;
-	char* contenidoADevolver = malloc(configMemoria.tamanioMarcos);
+	//char* contenidoADevolver = malloc(configMemoria.tamanioMarcos);
+	char* contenidoADevolver = malloc(configMemoria.tamanioMarcos + 1);
 	contenidoADevolver = buscarContenidoFrame(frame,pid, pagina);
+//	contenidoADevolver[configMemoria.tamanioMarcos] = '\0';
+	//log_info(logMemoria, "CONTENIDO LECTURA EN MEMORIA: %\n", contenidoADevolver);
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
 
 	//aCTUALIZA BITS PAGINA
@@ -1300,7 +1310,7 @@ void leerFrame(int frame, int pid, int pagina, int socketCPU) {
 char * buscarContenidoFrame(int frame, int pid, int pagina) {
 	log_info(logMemoria,
 			"OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS");
-	char * direccion;
+	/*//char * direccion;
 	t_tablaDePaginas * estructContenidoPaginas = malloc(
 			sizeof(t_tablaDePaginas));
 	estructContenidoPaginas = list_get(tablaDePaginas,
@@ -1310,16 +1320,21 @@ char * buscarContenidoFrame(int frame, int pid, int pagina) {
 	//log_info(logMemoria, "CONTENIDO ENCONTRADO: %s", contenido);
 	if (direccion == NULL)
 		return "";
-	else {
-		AsignarEnTlb(pid, pagina, estructContenidoPaginas->marco);
+	else {*/
+		//AsignarEnTlb(pid, pagina, estructContenidoPaginas->marco);
 		//TODO
+
+		AsignarEnTlb(pid, pagina, frame);
+
 		//char * contenido = malloc(strlen(direccion));
 		//memcpy(contenido, &direccion, strlen(direccion));
         char * contenido = malloc(configMemoria.tamanioMarcos + 1 );
-        contenido[configMemoria.tamanioMarcos] = '\0';
-		memcpy(contenido, &direccion, configMemoria.tamanioMarcos);
 
+		//memcpy(contenido, &direccion, configMemoria.tamanioMarcos);
+        memcpy(contenido, memoriaReservadaDeMemPpal+(frame * configMemoria.tamanioMarcos), configMemoria.tamanioMarcos);
+        contenido[configMemoria.tamanioMarcos] = '\0';
+        log_info(logMemoria, "CONTENIDO ENCONTRADO: %s \n", contenido);
 
 		return contenido;
-	}
+	//}
 }

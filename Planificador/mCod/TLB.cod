@@ -5,5 +5,5 @@ leer 4;
 leer 4;
 leer 4;
 leer 4;
-escribir 5 "fallo";
+escribir 5 fallo;
 finalizar;

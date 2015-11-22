@@ -883,10 +883,9 @@ int CantidadDeFrames(int pid) {
 		else
 			posicion++;
 		}
-	}
+
 	list_destroy(pf);
-	log_info("Cantidad actual de frames asignados al proceso %d  : %d \n", pid,
-			cantidadDeFrames);
+	log_info("Cantidad actual de frames asignados al proceso %d  : %d \n", pid,	cantidadDeFrames);
 	return cantidadDeFrames;
 }
 
@@ -938,8 +937,7 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		tp->bitModificado = 1;
 
 
-		log_info(logMemoria, "Contenido a escribir: %s, frame %d \n", contenido,
-				frame);
+		//log_info(logMemoria, "Contenido a escribir: %s, frame %d \n", contenido,frame);
 
 
 		//memcpy(direccion, contenido,configMemoria.tamanioMarcos);
@@ -1068,9 +1066,11 @@ int algoritmoLRU(int pid) {
 
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo) {
 	time_t t = time(NULL);
-	int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+	//int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+	ordenarLista(listaParaAlgoritmo);
+
 	t_pidFrame * frameAReemplazar;
-	frameAReemplazar = list_get(listaParaAlgoritmo, posicion);
+	frameAReemplazar = list_get(listaParaAlgoritmo, 0);
 	frameAReemplazar->frameModificado = 1;
 	frameAReemplazar->ultimaReferencia = *localtime(&t);
 
@@ -1084,8 +1084,7 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
 	if (list_size(listaParaAlgoritmo) > 1)
 		proximaPos = list_get(listaParaAlgoritmo, posicion + 1);
 	while (posicion < list_size(listaParaAlgoritmo)) {
-		if ((frameBusqueda->ultimaReferencia.tm_min
-				< proximaPos->ultimaReferencia.tm_hour)
+		if ((frameBusqueda->ultimaReferencia.tm_min 	< proximaPos->ultimaReferencia.tm_hour)
 				|| (frameBusqueda->ultimaReferencia.tm_sec
 						< proximaPos->ultimaReferencia.tm_sec)) {
 			return posicion;
@@ -1101,6 +1100,25 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
 
 	return 0;
 }
+
+
+void * ordenarLista(t_list * listaParaAlgoritmo) {
+	bool _ordenamiento_porHorario(t_pidFrame* frameBusqueda,
+			t_pidFrame* otroFrameBusqueda) {
+		return otroFrameBusqueda->ultimaReferencia.tm_sec < frameBusqueda->ultimaReferencia.tm_sec
+				&& otroFrameBusqueda->ultimaReferencia.tm_min < frameBusqueda->ultimaReferencia.tm_min
+					&& otroFrameBusqueda->ultimaReferencia.tm_hour < frameBusqueda->ultimaReferencia.tm_hour;
+	}
+	list_sort(listaParaAlgoritmo, (void*) _ordenamiento_porHorario);
+	return NULL;
+}
+
+
+
+
+
+
+
 
 int ejecutarAlgoritmo(int pid) {
 	switch (configMemoria.algoritmoReemplazo) {

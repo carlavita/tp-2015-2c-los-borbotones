@@ -140,6 +140,7 @@ int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo);
 int algoritmoLRU(int pid);
 int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo);
+void * ordenarLista(t_list * listaParaAlgoritmo);
 
 //FUNCION GENERICA para algoritmos
 int ejecutarAlgoritmo(int pid);

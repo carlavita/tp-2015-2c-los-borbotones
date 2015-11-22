@@ -809,26 +809,62 @@ int ejecutarAlgoritmoClock(int pid, t_list * listaAReemplazar) {
 	int posicion = busquedaPosicionAlgoritmo(listaAReemplazar); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
 	t_pidFrame * frameAReemplazar;
 	frameAReemplazar = list_get(listaAReemplazar, posicion);
+	bool primeraVuelta = true;
 	while (posicion < list_size(listaAReemplazar)) {
-		switch (frameAReemplazar->frameUsado) {
+		switch (frameAReemplazar->frameUsado)
 		case 0:
-			/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
-			if (posicion + 1 == list_size(listaAReemplazar)) {
-				frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
-				frameAReemplazar->puntero = 1;
-			} else {
-				frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
-				frameAReemplazar->puntero = 1;
+			if (frameAReemplazar->frameModificado == 0)  {
+					if (primeraVuelta) {
+				/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
+				if (posicion + 1 == list_size(listaAReemplazar)) {
+					frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
+					frameAReemplazar->puntero = 1;
+				} else {
+					frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
+					frameAReemplazar->puntero = 1;
+				}
+				return frameAReemplazar->frameAsignado;
 			}
-			return frameAReemplazar->frameAsignado;
+					else {
+						if (posicion + 1 == list_size(listaAReemplazar)) {
+									posicion = 0; //INICIO EL CICLO NUEVAMENTE
+									frameAReemplazar = list_get(listaAReemplazar, posicion);
+									primeraVuelta = true;
+					}
 
+			}
+			if (frameAReemplazar->frameModificado == 1)  {
+				if (!primeraVuelta){
+							/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
+				if (posicion + 1 == list_size(listaAReemplazar)) {
+					frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
+					frameAReemplazar->puntero = 1;
+				} else {
+					frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
+					frameAReemplazar->puntero = 1;
+				}
+				return frameAReemplazar->frameAsignado;
+			}
+				else {
+						if (posicion + 1 == list_size(listaAReemplazar)) {
+									posicion = 0; //INICIO EL CICLO NUEVAMENTE
+									frameAReemplazar = list_get(listaAReemplazar, posicion);
+									primeraVuelta = false;
+									}
+		 }
+				}
 			break;
-
 		case 1:
 			frameAReemplazar->frameUsado = 0;
 			if (posicion + 1 == list_size(listaAReemplazar)) {
 				posicion = 0; //INICIO EL CICLO NUEVAMENTE
 				frameAReemplazar = list_get(listaAReemplazar, posicion);
+					if (primeraVuelta){
+							primeraVuelta = false;
+					}
+					else {
+							primeraVuelta = true;
+					}
 			} else {
 				posicion++;
 				frameAReemplazar = list_get(listaAReemplazar, posicion); //LEO SIGUIENTE POSICION

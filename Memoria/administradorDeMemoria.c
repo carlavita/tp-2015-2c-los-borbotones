@@ -971,6 +971,10 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
 
+		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		t_pidFrame * pidFrame;
+		pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
+		pidFrame->frameModificado = 1;
 
 		//log_info(logMemoria, "Contenido a escribir: %s, frame %d \n", contenido,frame);
 
@@ -982,6 +986,24 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 	}
 	//free(contenido);
 }
+
+int busquedaListaFrame(int pid,int frame) {
+		t_pidFrame * pidFrame;
+	int contador = 0;
+	pidFrame = list_get(listaDePidFrames, contador);
+	while (contador < list_size(listaDePidFrames)) {
+		if (pidFrame->pid == pid && pidFrame->frameAsignado == frame) {
+			return contador;
+		}
+		else
+		contador++;
+	}
+
+	return contador;
+}
+
+
+
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
 	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
@@ -1011,6 +1033,11 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
 		list_replace(tablaDePaginas, posicion, tp);
+
+		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		t_pidFrame * pidFrame;
+		pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
+		pidFrame->frameModificado = 1;
 
 		char * contenido = pedirLecturaAlSwapEscribir(socketSwap,
 				estructEscribir->pid, estructEscribir->pagina);

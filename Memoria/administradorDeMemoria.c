@@ -98,15 +98,14 @@ int main() {
 	signal(SIGPOLL, atenderSeniales);
 //	signal(SIGSEGV, atenderSeniales);
 	/*SEÑALES*/
-	memoriaReservadaDeMemPpal =
-			malloc(
-					sizeof(configMemoria.cantidadDeMarcos
-							* configMemoria.tamanioMarcos));
+
 
 	remove("logMemoria2.txt"); //Cada vez que arranca el proceso borro el archivo de log.A
 	logMemoria = log_create("logMemoria2.txt", "Administrador de memoria", true,
 			LOG_LEVEL_INFO);
 	leerConfiguracion();
+
+		memoriaReservadaDeMemPpal =malloc(configMemoria.cantidadDeMarcos* configMemoria.tamanioMarcos);
 
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();
@@ -831,26 +830,62 @@ int ejecutarAlgoritmoClock(int pid, t_list * listaAReemplazar) {
 	int posicion = busquedaPosicionAlgoritmo(listaAReemplazar); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
 	t_pidFrame * frameAReemplazar;
 	frameAReemplazar = list_get(listaAReemplazar, posicion);
+	bool primeraVuelta = true;
 	while (posicion < list_size(listaAReemplazar)) {
-		switch (frameAReemplazar->frameUsado) {
+		switch (frameAReemplazar->frameUsado)
 		case 0:
-			/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
-			if (posicion + 1 == list_size(listaAReemplazar)) {
-				frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
-				frameAReemplazar->puntero = 1;
-			} else {
-				frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
-				frameAReemplazar->puntero = 1;
+			if (frameAReemplazar->frameModificado == 0)  {
+					if (primeraVuelta) {
+				/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
+				if (posicion + 1 == list_size(listaAReemplazar)) {
+					frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
+					frameAReemplazar->puntero = 1;
+				} else {
+					frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
+					frameAReemplazar->puntero = 1;
+				}
+				return frameAReemplazar->frameAsignado;
 			}
-			return frameAReemplazar->frameAsignado;
+					else {
+						if (posicion + 1 == list_size(listaAReemplazar)) {
+									posicion = 0; //INICIO EL CICLO NUEVAMENTE
+									frameAReemplazar = list_get(listaAReemplazar, posicion);
+									primeraVuelta = true;
+					}
 
+			}
+			if (frameAReemplazar->frameModificado == 1)  {
+				if (!primeraVuelta){
+							/* ALMACENO LA PROXIMA POSICION QE DEBO SEGUIR EN EL ALGORITMO*/
+				if (posicion + 1 == list_size(listaAReemplazar)) {
+					frameAReemplazar = list_get(listaAReemplazar, 0); //INICIO EL CICLO NUEVAMENTE
+					frameAReemplazar->puntero = 1;
+				} else {
+					frameAReemplazar = list_get(listaAReemplazar, posicion + 1); //LEO SIGUIENTE POSICION
+					frameAReemplazar->puntero = 1;
+				}
+				return frameAReemplazar->frameAsignado;
+			}
+				else {
+						if (posicion + 1 == list_size(listaAReemplazar)) {
+									posicion = 0; //INICIO EL CICLO NUEVAMENTE
+									frameAReemplazar = list_get(listaAReemplazar, posicion);
+									primeraVuelta = false;
+									}
+		 }
+				}
 			break;
-
 		case 1:
 			frameAReemplazar->frameUsado = 0;
 			if (posicion + 1 == list_size(listaAReemplazar)) {
 				posicion = 0; //INICIO EL CICLO NUEVAMENTE
 				frameAReemplazar = list_get(listaAReemplazar, posicion);
+					if (primeraVuelta){
+							primeraVuelta = false;
+					}
+					else {
+							primeraVuelta = true;
+					}
 			} else {
 				posicion++;
 				frameAReemplazar = list_get(listaAReemplazar, posicion); //LEO SIGUIENTE POSICION
@@ -907,8 +942,9 @@ int CantidadDeFrames(int pid) {
 		}
 
 	list_destroy(pf);
-	log_info(logMemoria,"Cantidad actual de frames asignados al proceso %d  : %d \n", pid,
-			cantidadDeFrames);
+
+	log_info(logMemoria,"Cantidad actual de frames asignados al proceso %d  : %d \n", pid,	cantidadDeFrames);
+
 	return cantidadDeFrames;
 }
 
@@ -959,6 +995,11 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
 
+		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		t_pidFrame * pidFrame;
+		pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
+		pidFrame->frameModificado = 1;
+
 
 		//memcpy(direccion, contenido,configMemoria.tamanioMarcos);
 		int offset = frame * configMemoria.tamanioMarcos;
@@ -967,6 +1008,25 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 	}
 	//free(contenido);
 }
+
+int busquedaListaFrame(int pid,int frame) {
+		t_pidFrame * pidFrame;
+	int contador = 0;
+	pidFrame = list_get(listaDePidFrames, contador);
+	while (contador < list_size(listaDePidFrames)) {
+		if (pidFrame->pid == pid && pidFrame->frameAsignado == frame) {
+			return contador;
+		}
+		else
+		contador++;
+		list_get(listaDePidFrames,contador);
+	}
+
+	return contador;
+}
+
+
+
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
 	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
@@ -996,6 +1056,11 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
 		list_replace(tablaDePaginas, posicion, tp);
+
+		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		t_pidFrame * pidFrame;
+		pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
+		pidFrame->frameModificado = 1;
 
 		char * contenido = pedirLecturaAlSwapEscribir(socketSwap,
 				estructEscribir->pid, estructEscribir->pagina);
@@ -1086,9 +1151,11 @@ int algoritmoLRU(int pid) {
 
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo) {
 	time_t t = time(NULL);
-	int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+	//int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
+	ordenarLista(listaParaAlgoritmo);
+
 	t_pidFrame * frameAReemplazar;
-	frameAReemplazar = list_get(listaParaAlgoritmo, posicion);
+	frameAReemplazar = list_get(listaParaAlgoritmo, 0);
 	frameAReemplazar->frameModificado = 1;
 	frameAReemplazar->ultimaReferencia = *localtime(&t);
 
@@ -1102,8 +1169,7 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
 	if (list_size(listaParaAlgoritmo) > 1)
 		proximaPos = list_get(listaParaAlgoritmo, posicion + 1);
 	while (posicion < list_size(listaParaAlgoritmo)) {
-		if ((frameBusqueda->ultimaReferencia.tm_min
-				< proximaPos->ultimaReferencia.tm_hour)
+		if ((frameBusqueda->ultimaReferencia.tm_min 	< proximaPos->ultimaReferencia.tm_hour)
 				|| (frameBusqueda->ultimaReferencia.tm_sec
 						< proximaPos->ultimaReferencia.tm_sec)) {
 			return posicion;
@@ -1119,6 +1185,25 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
 
 	return 0;
 }
+
+
+void * ordenarLista(t_list * listaParaAlgoritmo) {
+	bool _ordenamiento_porHorario(t_pidFrame* frameBusqueda,
+			t_pidFrame* otroFrameBusqueda) {
+		return otroFrameBusqueda->ultimaReferencia.tm_sec < frameBusqueda->ultimaReferencia.tm_sec
+				&& otroFrameBusqueda->ultimaReferencia.tm_min < frameBusqueda->ultimaReferencia.tm_min
+					&& otroFrameBusqueda->ultimaReferencia.tm_hour < frameBusqueda->ultimaReferencia.tm_hour;
+	}
+	list_sort(listaParaAlgoritmo, (void*) _ordenamiento_porHorario);
+	return NULL;
+}
+
+
+
+
+
+
+
 
 int ejecutarAlgoritmo(int pid) {
 	switch (configMemoria.algoritmoReemplazo) {

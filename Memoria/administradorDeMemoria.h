@@ -134,12 +134,14 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);
 int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
+int busquedaListaFrame(int pid,int frame) ;
 
 
 //LRU
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo);
 int algoritmoLRU(int pid);
 int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo);
+void * ordenarLista(t_list * listaParaAlgoritmo);
 
 //FUNCION GENERICA para algoritmos
 int ejecutarAlgoritmo(int pid);

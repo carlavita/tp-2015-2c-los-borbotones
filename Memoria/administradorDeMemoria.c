@@ -995,10 +995,10 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
 
-		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		/*//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
 		t_pidFrame * pidFrame;
 		pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
-		pidFrame->frameModificado = 1;
+		pidFrame->frameModificado = 1;*/
 
 
 		//memcpy(direccion, contenido,configMemoria.tamanioMarcos);
@@ -1057,10 +1057,13 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		tp->bitModificado = 1;
 		list_replace(tablaDePaginas, posicion, tp);
 
+
 		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		/*
 		t_pidFrame * pidFrame;
 		pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
 		pidFrame->frameModificado = 1;
+		*/
 
 		char * contenido = pedirLecturaAlSwapEscribir(socketSwap,
 				estructEscribir->pid, estructEscribir->pagina);

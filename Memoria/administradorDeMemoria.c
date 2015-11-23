@@ -287,19 +287,41 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 	}
 }
 
-int buscarEnLaTLB( pid, pagina) {
-	log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
-	bool buscarPagina(t_TLB * buscarTLB) {
-		return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
+t_TLB * BuscarPagina(int pid, int pagina) {
+	int posicion = 0;
+	t_TLB * TLB = list_get(tlb, 0);
+	while (TLB->pid != pid && TLB->pagina != pagina) {
+		posicion++;
+		TLB = list_get(tlb, 0);
 	}
-	int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
+	return TLB;
+}
+
+int CantidadDeEntradasTLB(int pid) {
+	int cantidad = 0;
+	int posicion = 0;
+	t_TLB * etlb = list_get(tlb, posicion);
+	while (posicion < list_size(tlb)) {
+		if (etlb->pid == pid) {
+			cantidad++;
+			posicion++;
+		} else {
+			posicion++;
+		}
+		etlb = list_get(tlb, posicion);
+	}
+	return cantidad;
+}
+int buscarEnLaTLB(int pid, int pagina) {
+	log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
+
+	int cantidad = CantidadDeEntradasTLB(pid); // list_count_satisfying(tlb, (void*) buscarPagina);
 	if (cantidad > 0) {
 		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
-		entradaTLB = list_find(tlb, (void*) buscarPagina);
+		entradaTLB = BuscarPagina(pid, pagina);
 		int frame = entradaTLB->frame;
 		free(entradaTLB);
-		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
-				frame);
+		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",				frame);
 		return frame;
 	} else {
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
@@ -883,9 +905,9 @@ int CantidadDeFrames(int pid) {
 		else
 			posicion++;
 		}
-	}
+
 	list_destroy(pf);
-	log_info("Cantidad actual de frames asignados al proceso %d  : %d \n", pid,
+	log_info(logMemoria,"Cantidad actual de frames asignados al proceso %d  : %d \n", pid,
 			cantidadDeFrames);
 	return cantidadDeFrames;
 }
@@ -936,10 +958,6 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
-
-
-		log_info(logMemoria, "Contenido a escribir: %s, frame %d \n", contenido,
-				frame);
 
 
 		//memcpy(direccion, contenido,configMemoria.tamanioMarcos);

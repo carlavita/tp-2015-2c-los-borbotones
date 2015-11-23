@@ -134,6 +134,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);
 int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
+int busquedaListaFrame(int pid,int frame) ;
 
 
 //LRU

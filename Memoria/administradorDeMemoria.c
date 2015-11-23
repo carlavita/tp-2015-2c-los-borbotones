@@ -997,6 +997,7 @@ int busquedaListaFrame(int pid,int frame) {
 		}
 		else
 		contador++;
+		list_get(listaDePidFrames,contador);
 	}
 
 	return contador;

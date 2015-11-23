@@ -98,15 +98,14 @@ int main() {
 	signal(SIGPOLL, atenderSeniales);
 //	signal(SIGSEGV, atenderSeniales);
 	/*SEÑALES*/
-	memoriaReservadaDeMemPpal =
-			malloc(
-					sizeof(configMemoria.cantidadDeMarcos
-							* configMemoria.tamanioMarcos));
+
 
 	remove("logMemoria2.txt"); //Cada vez que arranca el proceso borro el archivo de log.A
 	logMemoria = log_create("logMemoria2.txt", "Administrador de memoria", true,
 			LOG_LEVEL_INFO);
 	leerConfiguracion();
+
+		memoriaReservadaDeMemPpal =malloc(configMemoria.cantidadDeMarcos* configMemoria.tamanioMarcos);
 
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();

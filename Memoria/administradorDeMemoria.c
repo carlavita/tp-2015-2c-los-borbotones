@@ -110,7 +110,7 @@ int main() {
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();
 	inicializarFrames();
-	creacionTLB(&configMemoria, logMemoria);
+	creacionTLB();
 	pthread_create(&hiloTasaTLB, NULL, (void *) &calcularTasaAciertos, NULL);
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 
@@ -163,12 +163,13 @@ void generarTLB(int entradasTLB) {
 		free(estructTLB);
 	}
 }
-void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria) {
-	if (configMemoria->tlbHabilitada == 1) {
+
+void creacionTLB() {
+	if (configMemoria.tlbHabilitada == 1) {
 		log_info(logMemoria,
 				"La TLB esta habilitada, se procede a su creación");
 		log_info(logMemoria, "Inicio creacion de la TLB");
-		generarTLB(configMemoria->entradasTLB);
+		generarTLB(configMemoria.entradasTLB);
 		log_info(logMemoria, "Finalizo existosamente la creacion de la TLB");
 	} else {
 		log_info(logMemoria, "La TLB no esta habilitada");

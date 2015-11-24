@@ -98,7 +98,7 @@ int aciertosTLB = 0;
 void leerConfiguracion();
 void crearServidor();
 void generarTLB(int entradasTLB);
-void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
+void creacionTLB();
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(char * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas);

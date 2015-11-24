@@ -89,6 +89,8 @@ void crearListas() {
 	listaDePidFrames = list_create();
 	estructurasPorProceso = list_create();
 	frames = list_create();
+
+
 }
 
 int main() {
@@ -110,7 +112,7 @@ int main() {
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();
 	inicializarFrames();
-	creacionTLB(&configMemoria, logMemoria);
+	//creacionTLB(&configMemoria, logMemoria);
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 
 	int servidorCPU = servidorMultiplexorCPU(configMemoria.puertoEscucha);
@@ -189,7 +191,7 @@ int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria) {
 			log_info(logMemoria,
 					"Luego de %d intentos de conexion fallidos,se espera 10seg para reintarConexion",
 					intentosFallidosDeConexionASwap);
-			sleep(10);
+			usleep(10);
 		}
 
 		cliente(configMemoria->ipSwap, configMemoria->puertoSwap);
@@ -311,8 +313,12 @@ t_TLB * BuscarPagina(int pid, int pagina) {
 	TLB = list_get(tlb, 0);
 	while (TLB->pid != pid && TLB->pagina != pagina) {
 		posicion++;
-		TLB = list_get(tlb, 0);
+		if(posicion == list_size(tlb))
+			break;
+		TLB = list_get(tlb, posicion);
 	}
+	if(posicion == list_size(tlb))
+			TLB = list_get(tlb,0);
 	return TLB;
 }
 
@@ -341,7 +347,7 @@ int buscarEnLaTLB(int pid, int pagina) {
 		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
 		entradaTLB = BuscarPagina(pid, pagina);
 		int frame = entradaTLB->frame;
-		free(entradaTLB);
+
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
 				frame);
 		return frame;
@@ -432,7 +438,6 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
 	//log_info(logMemoria, "FIN PEDIDO AL SWAP");
-	contenidoLeido[tamanioLeido] = '\0';
 	send(servidor, &tamanioLeido, sizeof(tamanioLeido), 0);
 	send(servidor, contenidoLeido, tamanioLeido, 0);
 
@@ -503,7 +508,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 					CantidadDeFrames(pid));
 			paginaAAsignar->marco = ejecutarAlgoritmo(pid);
 			pthread_mutex_unlock(&BLOQUEAR);
-			(configMemoria.retardoMemoria);
+			usleep(configMemoria.retardoMemoria);
 
 			//TODO
 			char * contenido = malloc(strlen(contenidoPedidoAlSwap));
@@ -517,7 +522,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
 
-			sleep(configMemoria.retardoMemoria);
+			usleep(configMemoria.retardoMemoria);
 		}
 
 		AsignarEnTlb(pid, pagina, paginaAAsignar->marco);
@@ -1319,10 +1324,9 @@ int seleccionarFrameLibre() {
 void leerFrame(int frame, int pid, int pagina, int socketCPU) {
 //ANTES DE USAR ESTA FUNCION SE VALIDA QUE EXISTA EN LA TLB, o en la TABLA DE PAGINAS, y despues se busca el contenido en la TABLA de paginas
 //porque si esta en la TLB, o en la tabla de paginas, TENGO EL CONTENIDO EN EL ADMINISTRADOR DE MEMORIA, sino debo pedirselo al swap
-	int tamanio = configMemoria.tamanioMarcos + 1;
-	char* contenidoADevolver = malloc(configMemoria.tamanioMarcos + 1);
-	contenidoADevolver = buscarContenidoFrame(frame, pid, pagina);
+	char* contenidoADevolver = buscarContenidoFrame(frame, pid, pagina);
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
+	int tamanio = configMemoria.tamanioMarcos;
 
 //aCTUALIZA BITS PAGINA
 	int posicion = busquedaPIDEnLista(pid, pagina);
@@ -1354,7 +1358,6 @@ char * buscarContenidoFrame(int frame, int pid, int pagina) {
 			memoriaReservadaDeMemPpal + (frame * configMemoria.tamanioMarcos),
 			configMemoria.tamanioMarcos);
 	contenido[configMemoria.tamanioMarcos] = '\0';
-	log_info(logMemoria, "CONTENIDO ENCONTRADO: %s \n", contenido);
 
 	return contenido;
 

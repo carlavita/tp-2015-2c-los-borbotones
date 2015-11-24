@@ -12,7 +12,7 @@
 #define OCUPADO 1
 #define NOMODIFICADO 0
 #define MODIFICADO 1
-
+#define MAXPROCESOS 100
 
 typedef struct {
 	int pid;
@@ -79,6 +79,7 @@ t_pidFrame * tablaAdministrativaProcesoFrame; //INICIALIZAR EN EL MAIN()  !!!!!!
 char * memoriaReservadaDeMemPpal;
 pthread_t * hiloSigUsr1;
 pthread_t * hiloSigUsr2;
+pthread_t * hiloTasaTLB;
 t_list * listaDePidFrames;
 t_list * tlb;
 char * recibidoPorLaMemoria;
@@ -88,13 +89,16 @@ t_list * estructurasPorProceso;
 t_list * frames;
 
 //Array que guardan los fallos y accesos para un proceso. el indice en el vector es el pid
-int fallos[100];
-int accesos[100];
+int fallos[MAXPROCESOS];
+int accesos[MAXPROCESOS];
+//Info para tasa de aciertos TLB
+int accesosTLB = 0;
+int aciertosTLB = 0;
 
 void leerConfiguracion();
 void crearServidor();
 void generarTLB(int entradasTLB);
-void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria);
+void creacionTLB();
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(char * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas);
@@ -112,9 +116,11 @@ int seleccionarFrameLibre();
 void liberarFrame(int idFrame);
 void leerFrame(int resultadoBusquedaTP,int pid,int pagina, int socketCPU);
 char * buscarContenidoFrame(int frame, int pid, int pagina);
-int buscarEnLaTLB( pid, pagina);
+int buscarEnLaTLB(int pid,int pagina);
 void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		t_mensajeHeader mensajeHeaderSwap);
+void iniciarFallosYAccesos();
+void calcularTasaAciertos(void *ptr);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);

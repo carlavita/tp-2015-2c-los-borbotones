@@ -108,15 +108,20 @@ int main() {
 
 	memoriaReservadaDeMemPpal = malloc(
 			configMemoria.cantidadDeMarcos * configMemoria.tamanioMarcos);
-
+	memset(memoriaReservadaDeMemPpal,'\0',configMemoria.cantidadDeMarcos* configMemoria.tamanioMarcos);
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();
 	inicializarFrames();
+
 	//creacionTLB(&configMemoria, logMemoria);
+
+	pthread_create(&hiloTasaTLB, NULL, (void *) &calcularTasaAciertos, NULL);
+
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 
 	int servidorCPU = servidorMultiplexorCPU(configMemoria.puertoEscucha);
 	log_destroy(logMemoria);
+	free(memoriaReservadaDeMemPpal);
 	exit(0);
 }
 
@@ -163,12 +168,13 @@ void generarTLB(int entradasTLB) {
 		free(estructTLB);
 	}
 }
-void creacionTLB(const t_config_memoria* configMemoria, t_log* logMemoria) {
-	if (configMemoria->tlbHabilitada == 1) {
+
+void creacionTLB() {
+	if (configMemoria.tlbHabilitada == 1) {
 		log_info(logMemoria,
 				"La TLB esta habilitada, se procede a su creación");
 		log_info(logMemoria, "Inicio creacion de la TLB");
-		generarTLB(configMemoria->entradasTLB);
+		generarTLB(configMemoria.entradasTLB);
 		log_info(logMemoria, "Finalizo existosamente la creacion de la TLB");
 	} else {
 		log_info(logMemoria, "La TLB no esta habilitada");
@@ -341,7 +347,7 @@ int CantidadDeEntradasTLB(int pid) {
 }
 int buscarEnLaTLB(int pid, int pagina) {
 	log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
-
+	accesosTLB++;
 	int cantidad = CantidadDeEntradasTLB(pid); // list_count_satisfying(tlb, (void*) buscarPagina);
 	if (cantidad > 0) {
 		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
@@ -350,6 +356,7 @@ int buscarEnLaTLB(int pid, int pagina) {
 
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
 				frame);
+		aciertosTLB++;
 		return frame;
 	} else {
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
@@ -520,6 +527,8 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 									* configMemoria.tamanioMarcos), contenido,
 					configMemoria.tamanioMarcos);
 
+			//paginaAAsignar->direccion = strdup(memoriaReservadaDeMemPpal);
+			//todo revisar esta asignacion-->reemplazarla por la de arriba si falla
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
 
 			usleep(configMemoria.retardoMemoria);
@@ -546,6 +555,8 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 	int pid = estructuraLeerSwap.pid;
 	int pagina = estructuraLeerSwap.pagina;
 	int marco = -1;
+	//Actualiza accesos
+	accesos[pid]++;
 	log_info(logMemoria, "PROCESO %d - LEER PAGINA %d ", pid, pagina);
 	switch (configMemoria.tlbHabilitada) {
 	case 1:
@@ -558,6 +569,8 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			if (resultadoBusquedaTP >= 1) {
 				leerFrame(resultadoBusquedaTP, pid, pagina, socketCPU);
 			} else {
+				//Actualiza Fallos
+				fallos[pid]++;
 				if (list_size(busquedaListaFramesPorPid(pid))
 						< configMemoria.maximoMarcosPorProceso) {
 					marco = -1;
@@ -575,6 +588,8 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 				leerFrame(resultadoBusquedaTablaPaginas, pid, pagina,
 						socketCPU);
 			} else {
+				//Actualiza Fallos
+				fallos[pid]++;
 				if (list_size(busquedaListaFramesPorPid(pid))
 						< configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
 					marco = -1;
@@ -707,7 +722,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 			recv(servidorCPU, finalizarCPU, sizeof(t_finalizarPID), 0);
 
 			log_info(logMemoria, "FINALIZAR PID: %d\n", finalizarCPU->pid);
-
+			log_info(logMemoria, "TOTAL ACCESOS: %d - FALLOS: %d \n", accesos[finalizarCPU->pid],fallos[finalizarCPU->pid] );
 			fflush(stdout);
 
 			serializarEstructura(FINALIZAR, (void *) finalizarCPU,
@@ -984,11 +999,13 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 	int pid = estructuraEscribir->pid;
 	int pagina = estructuraEscribir->pagina;
 	log_info(logMemoria, "ESCRIBIR PAGINA %d  - PROCESO %d \n", pagina, pid);
+	accesos[pid]++;
 	switch (configMemoria.tlbHabilitada) {
 	case 1:
 		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
 		if (resultadoBusquedaTLB >= 0) //resultadoBusquedaTLB = frame
 				{
+
 			escribirContenido(estructuraEscribir, resultadoBusquedaTLB);
 
 		} else {
@@ -996,6 +1013,8 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 			if (resultadoBusquedaTP >= 0) {
 				escribirContenido(estructuraEscribir, resultadoBusquedaTP);
 			} else {
+				//Actualiza Fallos
+				fallos[pid]++;
 				escribirContenidoSwap(estructuraEscribir, socketSwap);
 			}
 		}
@@ -1005,6 +1024,8 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 		if (resultadoBusquedaTP >= 0) {
 			escribirContenido(estructuraEscribir, resultadoBusquedaTP);
 		} else {
+			//Actualiza Fallos
+			fallos[pid]++;
 			escribirContenidoSwap(estructuraEscribir, socketSwap);
 			break;
 		}
@@ -1362,4 +1383,26 @@ char * buscarContenidoFrame(int frame, int pid, int pagina) {
 	return contenido;
 
 }
+void iniciarFallosYAccesos(){
+	 int i;
+	 for(i = 0; i < MAXPROCESOS; i++){
+		 fallos[i] = 0;
+		 accesos[i] = 0;
+	 }
 
+
+
+}
+
+void calcularTasaAciertos(void *ptr){
+	 int tasa = 0;
+	 printf("en el hilo de la tlbbbbbb\n");
+	 while(true){
+		sleep(60);
+		if(accesosTLB != 0){
+		tasa = (aciertosTLB / accesosTLB) * 100;
+		log_info(logMemoria,"Tasa aciertos TLB : %d  %\n", tasa);
+		}
+	}
+
+}

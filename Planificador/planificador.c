@@ -523,12 +523,19 @@ void handle(int newsock, fd_set *set) {
 
 void correrPath() {
 	char path[PATH_SIZE];
+
 	printf("Ingrese el PATH del mCod a correr \n");
 	scanf("%s", path);
 	printf("PATH del mCod a correr %s \n", path);
 
 	int pid = crearPcb(path);
+	while (pid == -1){
+		printf("Path Inexistente.Ingrese el PATH del mCod a correr \n");
+		scanf("%s", path);
+		printf("PATH del mCod a correr %s \n", path);
+		pid = crearPcb(path);
 
+	}
 	printf("Creado mProc %d \n", pid);
 	fflush(stdout);
 }
@@ -537,13 +544,20 @@ int crearPcb(char* path) {
 
 	t_pcb* pcb = malloc(sizeof(t_pcb));
 	t_metricas* metricas = malloc(sizeof(t_metricas));
+	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
+	if(pcb->cantidadLineas == -1){
+		return -1;
+	}
 	PID++;
 	pcb->pid = PID;
 	pcb->proxInst = 0; //Inicializa en 0 es la primer instruccion
 	pcb->status = LISTO;
 	strcpy(pcb->pathProc, path);
 
-	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
+/*	pcb->cantidadLineas = obtenerCantidadLineasPath(path);
+	if(pcb->cantidadLineas == -1){
+		return -1;
+	}*/
 	if (configPlanificador.algoritmo == FIFO) {
 		pcb->quantum = -1;
 	} else if (configPlanificador.algoritmo == RR) {
@@ -952,6 +966,9 @@ int obtenerCantidadLineasPath(char* path) {
 
 	//FILE* mCod = fopen(path, "r");
 	FILE* mCod = fopen(path_absoluto, "r");
+	if (mCod == NULL){
+		return -1;
+	}
 	int caracter, lineasPath = 0;
 
 	do {

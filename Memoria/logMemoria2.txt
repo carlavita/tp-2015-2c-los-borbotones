@@ -1,0 +1,672 @@
+[INFO] 22:41:34:180 Administrador de memoria/(5314:5314): Inicio lectura de archivo de configuración
+[INFO] 22:41:34:180 Administrador de memoria/(5314:5314): 5000
+[INFO] 22:41:34:180 Administrador de memoria/(5314:5314): Finalizo lectura de archivo de configuración
+[INFO] 22:41:34:180 Administrador de memoria/(5314:5314): Comienzo de las diferentes conexiones
+[INFO] 22:41:34:180 Administrador de memoria/(5314:5314): Inicializa frames 
+
+[INFO] 22:41:34:180 Administrador de memoria/(5314:5314): La TLB no esta habilitada
+[INFO] 22:41:34:181 Administrador de memoria/(5314:5314): La TLB no esta activada por configuración
+[INFO] 22:41:34:181 Administrador de memoria/(5314:5314): Generando cliente al SWAP con estos parametros definidos, IP: 127.0.0.1, PUERTO: 134547456
+[INFO] 22:41:34:181 Administrador de memoria/(5314:5314): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 22:41:36:505 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:36:505 Administrador de memoria/(5314:5314): Socket Aceptado
+
+[INFO] 22:41:36:505 Administrador de memoria/(5314:5314): Nueva conexion de 127.0.0.1 en el socket 6
+
+[INFO] 22:41:36:507 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:36:507 Administrador de memoria/(5314:5314): Socket Aceptado
+
+[INFO] 22:41:36:507 Administrador de memoria/(5314:5314): Nueva conexion de 127.0.0.1 en el socket 7
+
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): INICIO TABLAS DE PAGINAS
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): FIN TABLAS DE PAGINAS
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 50
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): Envio pagina al SWAP, PAGINA N°:50
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): Envio pid al SWAP, PID:1
+[INFO] 22:41:41:28 Administrador de memoria/(5314:5314): SWAP recibio la pagina de forma correcta
+[INFO] 22:41:41:29 Administrador de memoria/(5314:5314): Se recibio este codigo de error: 14
+[INFO] 22:41:41:29 Administrador de memoria/(5314:5314): Se proceso correctamente el mensaje
+[INFO] 22:41:41:29 Administrador de memoria/(5314:5314): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 0 
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): FRAME LIBRE : 0 
+
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): frame asignado: 0 al pid:1
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 1
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 1 
+
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314):  no requiere algoritmo de reemplazo 
+
+[INFO] 22:41:42:30 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:43:31 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 1 
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): FRAME LIBRE : 1 
+
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): frame asignado: 1 al pid:1
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314):  no requiere algoritmo de reemplazo 
+
+[INFO] 22:41:43:32 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:44:33 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:44:33 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:44:33 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 0  - PROCESO 1 
+
+[INFO] 22:41:44:33 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:44:33 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): INICIO TABLAS DE PAGINAS
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): FIN TABLAS DE PAGINAS
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): Proceso mProc creado, PID: 2, Cantidad de paginas asignadas: 50
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): Envio pagina al SWAP, PAGINA N°:50
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): Envio pid al SWAP, PID:2
+[INFO] 22:41:44:364 Administrador de memoria/(5314:5314): SWAP recibio la pagina de forma correcta
+[INFO] 22:41:44:365 Administrador de memoria/(5314:5314): Se recibio este codigo de error: 14
+[INFO] 22:41:44:365 Administrador de memoria/(5314:5314): Se proceso correctamente el mensaje
+[INFO] 22:41:44:365 Administrador de memoria/(5314:5314): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 22:41:45:35 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 45  - PROCESO 1 
+
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): FRAME LIBRE : 2 
+
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): frame asignado: 2 al pid:1
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:45:36 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:45:365 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 0 
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): FRAME LIBRE : 3 
+
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): frame asignado: 3 al pid:2
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 1 
+
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314):  no requiere algoritmo de reemplazo 
+
+[INFO] 22:41:45:366 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:46:37 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:46:37 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:46:38 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 0 
+[INFO] 22:41:46:38 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:46:38 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:41:46:38 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:41:46:38 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: chau 
+
+[INFO] 22:41:46:38 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 1 
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): FRAME LIBRE : 4 
+
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): frame asignado: 4 al pid:2
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 2 
+
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314):  no requiere algoritmo de reemplazo 
+
+[INFO] 22:41:46:367 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:47:39 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:47:39 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:47:39 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 45 
+[INFO] 22:41:47:40 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:47:40 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:41:47:40 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:41:47:40 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: chau 
+
+[INFO] 22:41:47:40 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:47:369 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:47:369 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:47:369 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 0  - PROCESO 2 
+
+[INFO] 22:41:47:369 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:47:369 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 3 
+
+[INFO] 22:41:48:40 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:48:40 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:48:40 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 10  - PROCESO 1 
+
+[INFO] 22:41:48:40 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:48:40 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:48:41 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:48:41 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:48:41 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:48:41 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:48:370 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:48:370 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:48:370 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 45  - PROCESO 2 
+
+[INFO] 22:41:48:370 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:48:370 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): FRAME LIBRE : 5 
+
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): frame asignado: 5 al pid:2
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 3 
+
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:48:371 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 3 
+
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 9  - PROCESO 1 
+
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:49:42 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 0 
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 3 
+
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Hola 
+
+[INFO] 22:41:49:372 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 45 
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Noooooo 
+
+[INFO] 22:41:50:410 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:41:51:411 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:51:411 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:51:411 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 10  - PROCESO 2 
+
+[INFO] 22:41:51:411 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:51:411 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): FRAME LIBRE : 6 
+
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): frame asignado: 6 al pid:2
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 4 
+
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:51:412 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 4 
+
+[INFO] 22:41:52:89 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 12  - PROCESO 1 
+
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:52:90 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:52:413 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:52:413 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:52:413 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 9  - PROCESO 2 
+
+[INFO] 22:41:52:413 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:52:413 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): FRAME LIBRE : 7 
+
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): frame asignado: 7 al pid:2
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 5 
+
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:52:414 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 5 
+
+[INFO] 22:41:55:93 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:55:93 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:55:93 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 19  - PROCESO 1 
+
+[INFO] 22:41:55:93 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:55:93 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:55:94 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:55:94 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:55:94 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:55:94 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 12  - PROCESO 2 
+
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:57:94 Administrador de memoria/(5314:5314): FRAME LIBRE : 8 
+
+[INFO] 22:41:57:95 Administrador de memoria/(5314:5314): frame asignado: 8 al pid:2
+[INFO] 22:41:57:95 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:41:57:95 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 6 
+
+[INFO] 22:41:57:95 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:57:95 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 6 
+
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 33  - PROCESO 1 
+
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:41:59:94 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 19  - PROCESO 2 
+
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): FRAME LIBRE : 9 
+
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): frame asignado: 9 al pid:2
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:42:01:94 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 7 
+
+[INFO] 22:42:01:95 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:42:01:95 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 7 
+
+[INFO] 22:42:05:94 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 46  - PROCESO 1 
+
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:42:05:95 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 1  : 3 
+
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 46 
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:06:96 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:07:95 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:07:95 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:07:95 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 33  - PROCESO 2 
+
+[INFO] 22:42:07:95 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:07:95 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:42:07:96 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:42:07:96 Administrador de memoria/(5314:5314): frame asignado: -1 al pid:2
+[INFO] 22:42:07:96 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:42:07:96 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 8 
+
+[INFO] 22:42:07:96 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:42:07:96 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 8 
+
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 9 
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: LoVemosEl2 
+
+[INFO] 22:42:07:97 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:08:99 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:08:99 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:08:99 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 1  - PROCESO 1 
+
+[INFO] 22:42:08:99 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:08:99 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 1 
+
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 1 
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 1 
+
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Seguro? 
+
+[INFO] 22:42:09:100 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:10:101 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:10:101 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:10:101 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 0  - PROCESO 1 
+
+[INFO] 22:42:10:101 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:10:101 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:12:98 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 46  - PROCESO 2 
+
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): Contenido: 
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): frame asignado: -1 al pid:2
+[INFO] 22:42:12:99 Administrador de memoria/(5314:5314): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 22:42:12:100 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 9 
+
+[INFO] 22:42:12:100 Administrador de memoria/(5314:5314): ejecuta algoritmo de reemplazo 
+
+[INFO] 22:42:12:100 Administrador de memoria/(5314:5314): Cantidad actual de frames asignados al proceso 2  : 9 
+
+[INFO] 22:42:13:100 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:13:100 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:13:100 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 46 
+[INFO] 22:42:13:100 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:13:101 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:13:101 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:13:101 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:13:101 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 9 
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:14:102 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:15:103 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:15:103 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:15:103 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 1  - PROCESO 2 
+
+[INFO] 22:42:15:103 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:15:103 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 4 
+
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 1 
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 4 
+
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Seguro? 
+
+[INFO] 22:42:16:105 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:17:105 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:17:106 Administrador de memoria/(5314:5314): Solicitud de escritura recbidia
+[INFO] 22:42:17:106 Administrador de memoria/(5314:5314): ESCRIBIR PAGINA 0  - PROCESO 2 
+
+[INFO] 22:42:17:106 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:17:106 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 3 
+
+[INFO] 22:42:27:98 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 10 
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:27:99 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:28:99 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:28:99 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:28:100 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 46 
+[INFO] 22:42:28:100 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:28:100 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:28:100 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:28:100 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:28:100 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 9 
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:29:100 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 1 
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 1 
+
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Seguro? 
+
+[INFO] 22:42:30:102 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 0 
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:31:103 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 12 
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:32:104 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:32:105 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): PROCESO 1 - LEER PAGINA 33 
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:33:106 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:34:107 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:34:107 Administrador de memoria/(5314:5314): FINALIZAR!
+[INFO] 22:42:34:107 Administrador de memoria/(5314:5314): FINALIZAR PID: 1
+
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 10 
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:42:99 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 46 
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:43:100 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 9 
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:44:101 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 1 
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 4 
+
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Seguro? 
+
+[INFO] 22:42:45:103 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 0 
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 3 
+
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Seh 
+
+[INFO] 22:42:46:104 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:47:105 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:47:105 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:47:105 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 12 
+[INFO] 22:42:47:105 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:47:105 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:47:105 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:47:106 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:47:106 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): Solicitud de lectura recibida
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): PROCESO 2 - LEER PAGINA 33 
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS
+[INFO] 22:42:48:107 Administrador de memoria/(5314:5314): CONTENIDO ENCONTRADO: Aprobas? 
+
+[INFO] 22:42:48:108 Administrador de memoria/(5314:5314): Finalizo comando LEER
+[INFO] 22:42:49:108 Administrador de memoria/(5314:5314): Select Activado
+
+[INFO] 22:42:49:108 Administrador de memoria/(5314:5314): FINALIZAR!
+[INFO] 22:42:49:108 Administrador de memoria/(5314:5314): FINALIZAR PID: 2
+

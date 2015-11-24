@@ -293,7 +293,7 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 
 	}
 }
-/*
+
  int buscarEnLaTLB( pid, pagina) {
  log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
  bool buscarPagina(t_TLB * buscarTLB) {
@@ -312,16 +312,14 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
  log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
  return -1;
  }
- }*/
-t_TLB * BuscarPagina(int pid, int pagina) {
+ }
+/*t_TLB * BuscarPagina(int pid, int pagina) {
 	int posicion = 0;
 	t_TLB * TLB = malloc(sizeof(t_TLB));
 	TLB = list_get(tlb, 0);
-	while (TLB->pid != pid && TLB->pagina != pagina) {
-		posicion++;
-		if(posicion == list_size(tlb))
-			break;
+	while (posicion < list_size(tlb) && TLB->pid != pid && TLB->pagina != pagina) {
 		TLB = list_get(tlb, posicion);
+		posicion++;
 	}
 	if(posicion == list_size(tlb))
 			TLB = list_get(tlb,0);
@@ -362,7 +360,7 @@ int buscarEnLaTLB(int pid, int pagina) {
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
 		return -1;
 	}
-}
+}*/
 
 int busquedaPIDEnLista(int PID, int pagina) {
 	int posicion = 0;
@@ -466,6 +464,7 @@ void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
 
 void FifoTLB(int pid, int pagina, int frame) {
 	t_TLB * estructTlb = malloc(sizeof(t_TLB));
+
 	estructTlb = list_remove(tlb, 0);
 	estructTlb->frame = frame;
 	estructTlb->pagina = pagina;
@@ -475,7 +474,7 @@ void FifoTLB(int pid, int pagina, int frame) {
 
 void AsignarEnTlb(int pid, int pagina, int frame) {
 	if (list_size(tlb) < configMemoria.entradasTLB) //La TLB es unica para todos los procesos
-			{
+	{
 		t_TLB * estructTlb = malloc(sizeof(t_TLB));
 		estructTlb->frame = frame;
 		estructTlb->pagina = pagina;
@@ -848,11 +847,13 @@ int servidorMultiplexorCPU(int PUERTO) {
 				} else {
 
 					procesamientoDeMensajes(clienteSwap, i);
-
+					goto i;
 				}
 			}
 		}
+
 	}
+
 	close(i);
 
 	exit(0);		//el descriptor del cliente seleccionado
@@ -1172,7 +1173,6 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
 	while (i < list_size(listaDePidFrames)) {
 		t_pidFrame* lp = malloc(sizeof(t_pidFrame));
 		lp = list_get(listaDePidFrames, i);
-		log_info(logMemoria, "FRAME: %d", lp->frameAsignado);
 		i++;
 	}
 

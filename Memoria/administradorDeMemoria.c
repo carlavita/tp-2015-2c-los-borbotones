@@ -519,6 +519,8 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 									* configMemoria.tamanioMarcos), contenido,
 					configMemoria.tamanioMarcos);
 
+			//paginaAAsignar->direccion = strdup(memoriaReservadaDeMemPpal);
+			//todo revisar esta asignacion-->reemplazarla por la de arriba si falla
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
 
 			sleep(configMemoria.retardoMemoria);

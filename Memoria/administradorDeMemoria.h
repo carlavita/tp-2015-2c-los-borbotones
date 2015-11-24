@@ -116,7 +116,7 @@ int seleccionarFrameLibre();
 void liberarFrame(int idFrame);
 void leerFrame(int resultadoBusquedaTP,int pid,int pagina, int socketCPU);
 char * buscarContenidoFrame(int frame, int pid, int pagina);
-int buscarEnLaTLB( pid, pagina);
+int buscarEnLaTLB(int pid,int pagina);
 void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		t_mensajeHeader mensajeHeaderSwap);
 void iniciarFallosYAccesos();

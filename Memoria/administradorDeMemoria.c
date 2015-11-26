@@ -39,35 +39,53 @@ pthread_mutex_t mutexFrame;
 pthread_mutex_t mutexSenhal;
 pthread_mutex_t mutexTLB;
 pthread_mutex_t mutexFrames;
+pthread_mutex_t senialUsr2;
+pthread_mutex_t senialUsr1;
+pthread_mutex_t mutexsenial;
 /********************/
 
 int ultimoFrameAsignado;
 
-void * inicioHiloSigUsr1() {
-	pthread_mutex_lock(&mutexTLB);
-	list_destroy(tlb);
-	list_create(tlb);
-	pthread_mutex_unlock(&mutexTLB);
-	return NULL;
-}
-void * inicioHiloSigUsr2() {
-	list_destroy(tablaDePaginas);
-	list_create(tablaDePaginas);
+void inicioHiloSigUsr1() {
+	log_info(logMemoria,"HILO SIGUSR1");
+	int i = 1;
+	while (i == 1)
+	{
+		pthread_mutex_lock(&senialUsr1);
+		log_info(logMemoria,"FLUSH de TLB");
+		list_destroy(tlb);
+		tlb = list_create();
+		pthread_mutex_unlock(&mutexsenial);
+	}
 
-	return NULL;
 }
 
-void atenderSeniales(int senhal) {
+struct sigaction estructuraSignal;
+
+void inicioHiloSigUsr2() {
+	log_info(logMemoria,"HILO SIGUSR2");
+	int i = 1;
+	while (i == 1)
+	{
+		pthread_mutex_lock(&senialUsr2);
+		log_info(logMemoria,"FLUSH de la tabla de paginas");
+			list_destroy(tablaDePaginas);
+			tablaDePaginas = list_create(tablaDePaginas);
+		pthread_mutex_unlock(&mutexsenial);
+}
+}
+
+void atenderSeniales(int senial) {
 
 	pid_t pidProcesoClonado;
-	switch (senhal) {
+	switch (senial) {
 	case SIGUSR1:
-		pthread_create(hiloSigUsr1, NULL, inicioHiloSigUsr1, NULL);
-
+		pthread_mutex_unlock(&senialUsr1);
+		pthread_mutex_lock(&mutexsenial);
 		break;
 	case SIGUSR2:
-		pthread_create(hiloSigUsr2, NULL, inicioHiloSigUsr2, NULL);
-
+		pthread_mutex_unlock(&senialUsr2);
+		pthread_mutex_lock(&mutexsenial);
 		break;
 	case SIGPOLL:
 		pidProcesoClonado = fork();
@@ -76,10 +94,18 @@ void atenderSeniales(int senhal) {
 		else
 			return;
 		break;
-	case EINTR:
-		errno = 0;
-		break;
 	}
+}
+
+void initSeniales() {
+	//sigemptyset(&estructuraSignal.sa_mask);
+	estructuraSignal.sa_handler = atenderSeniales;
+	estructuraSignal.sa_flags = SA_RESTART;
+	sigfillset(&estructuraSignal.sa_mask);
+
+	sigaction(SIGUSR1, &estructuraSignal, NULL);
+	sigaction(SIGUSR2, &estructuraSignal, NULL);
+	sigaction(SIGPOLL, &estructuraSignal, NULL);
 }
 
 void crearListas() {
@@ -90,16 +116,17 @@ void crearListas() {
 	estructurasPorProceso = list_create();
 	frames = list_create();
 
-
 }
 
 int main() {
+	/*DEJAR ESTOS SEMAFOROS ACA!!!!!!!! NO BORRAR!!!!!!!!*/
+	pthread_mutex_lock(&senialUsr1);
+	pthread_mutex_lock(&senialUsr2);
+	/*DEJAR ESTOS SEMAFOROS ACA!!!!!!!! NO BORRAR!!!!!!!!*/
+
+
 	/*SEÑALES*/
-	signal(SIGUSR1, atenderSeniales);
-	signal(SIGUSR2, atenderSeniales);
-	signal(SIGPOLL, atenderSeniales);
-//	signal(SIGSEGV, atenderSeniales);
-	/*SEÑALES*/
+	initSeniales();
 
 	remove("logMemoria2.txt"); //Cada vez que arranca el proceso borro el archivo de log.A
 	logMemoria = log_create("logMemoria2.txt", "Administrador de memoria", true,
@@ -108,7 +135,8 @@ int main() {
 
 	memoriaReservadaDeMemPpal = malloc(
 			configMemoria.cantidadDeMarcos * configMemoria.tamanioMarcos);
-	memset(memoriaReservadaDeMemPpal,'\0',configMemoria.cantidadDeMarcos* configMemoria.tamanioMarcos);
+	memset(memoriaReservadaDeMemPpal, '\0',
+			configMemoria.cantidadDeMarcos * configMemoria.tamanioMarcos);
 	log_info(logMemoria, "Comienzo de las diferentes conexiones");
 	crearListas();
 	inicializarFrames();
@@ -116,6 +144,8 @@ int main() {
 	//creacionTLB(&configMemoria, logMemoria);
 
 	pthread_create(&hiloTasaTLB, NULL, (void *) &calcularTasaAciertos, NULL);
+	pthread_create(&hiloSigUsr1, NULL, (void*) inicioHiloSigUsr1, NULL);
+	pthread_create(&hiloSigUsr2, NULL, (void*) inicioHiloSigUsr2, NULL);
 
 	clienteSwap = ConexionMemoriaSwap(&configMemoria, logMemoria);
 
@@ -294,79 +324,81 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 	}
 }
 
- int buscarEnLaTLB( pid, pagina) {
- log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
- bool buscarPagina(t_TLB * buscarTLB) {
- return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
- }
- int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
- if (cantidad > 0) {
- t_TLB * entradaTLB = malloc(sizeof(t_TLB));
- entradaTLB = list_find(tlb, (void*) buscarPagina);
- int frame = entradaTLB->frame;
- free(entradaTLB);
- log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
- frame);
- return frame;
- } else {
- log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
- return -1;
- }
- }
-/*t_TLB * BuscarPagina(int pid, int pagina) {
-	int posicion = 0;
-	t_TLB * TLB = malloc(sizeof(t_TLB));
-	TLB = list_get(tlb, 0);
-	while (posicion < list_size(tlb) && TLB->pid != pid && TLB->pagina != pagina) {
-		TLB = list_get(tlb, posicion);
-		posicion++;
-	}
-	if(posicion == list_size(tlb))
-			TLB = list_get(tlb,0);
-	return TLB;
-}
-
-int CantidadDeEntradasTLB(int pid) {
-	int cantidad = 0;
-	int posicion = 0;
-	t_TLB * etlb = malloc(sizeof(t_TLB));
-	etlb = list_get(tlb, posicion);
-	while (posicion < list_size(tlb)) {
-		if (etlb->pid == pid) {
-			cantidad++;
-			posicion++;
-		} else {
-			posicion++;
-		}
-		etlb = list_get(tlb, posicion);
-	}
-	free(etlb);
-	return cantidad;
-}
-int buscarEnLaTLB(int pid, int pagina) {
+int buscarEnLaTLB( pid, pagina) {
 	log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
-	accesosTLB++;
-	int cantidad = CantidadDeEntradasTLB(pid); // list_count_satisfying(tlb, (void*) buscarPagina);
+	bool buscarPagina(t_TLB * buscarTLB) {
+		return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
+	}
+	int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
 	if (cantidad > 0) {
 		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
-		entradaTLB = BuscarPagina(pid, pagina);
+		entradaTLB = list_find(tlb, (void*) buscarPagina);
 		int frame = entradaTLB->frame;
-
+		free(entradaTLB);
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
 				frame);
-		aciertosTLB++;
 		return frame;
 	} else {
 		log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
 		return -1;
 	}
-}*/
+}
+/*t_TLB * BuscarPagina(int pid, int pagina) {
+ int posicion = 0;
+ t_TLB * TLB = malloc(sizeof(t_TLB));
+ TLB = list_get(tlb, 0);
+ while (posicion < list_size(tlb) && TLB->pid != pid && TLB->pagina != pagina) {
+ TLB = list_get(tlb, posicion);
+ posicion++;
+ }
+ if(posicion == list_size(tlb))
+ TLB = list_get(tlb,0);
+ return TLB;
+ }
+
+ int CantidadDeEntradasTLB(int pid) {
+ int cantidad = 0;
+ int posicion = 0;
+ t_TLB * etlb = malloc(sizeof(t_TLB));
+ etlb = list_get(tlb, posicion);
+ while (posicion < list_size(tlb)) {
+ if (etlb->pid == pid) {
+ cantidad++;
+ posicion++;
+ } else {
+ posicion++;
+ }
+ etlb = list_get(tlb, posicion);
+ }
+ free(etlb);
+ return cantidad;
+ }
+ int buscarEnLaTLB(int pid, int pagina) {
+ log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
+ accesosTLB++;
+ int cantidad = CantidadDeEntradasTLB(pid); // list_count_satisfying(tlb, (void*) buscarPagina);
+ if (cantidad > 0) {
+ t_TLB * entradaTLB = malloc(sizeof(t_TLB));
+ entradaTLB = BuscarPagina(pid, pagina);
+ int frame = entradaTLB->frame;
+
+ log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
+ frame);
+ aciertosTLB++;
+ return frame;
+ } else {
+ log_info(logMemoria, "PAGINA NO ENCONTRADA EN LA TLB\n");
+ return -1;
+ }
+ }*/
 
 int busquedaPIDEnLista(int PID, int pagina) {
 	int posicion = 0;
+	if(list_size(tablaDePaginas)== 0)
+		return -1;
+
 	t_tablaDePaginas* pag = list_get(tablaDePaginas, posicion);
 	while ((pag->pagina != pagina || pag->pid != PID)) {
-
 		posicion++;
 		if (posicion == list_size(tablaDePaginas))
 			break;
@@ -474,7 +506,7 @@ void FifoTLB(int pid, int pagina, int frame) {
 
 void AsignarEnTlb(int pid, int pagina, int frame) {
 	if (list_size(tlb) < configMemoria.entradasTLB) //La TLB es unica para todos los procesos
-	{
+			{
 		t_TLB * estructTlb = malloc(sizeof(t_TLB));
 		estructTlb->frame = frame;
 		estructTlb->pagina = pagina;
@@ -721,7 +753,8 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 			recv(servidorCPU, finalizarCPU, sizeof(t_finalizarPID), 0);
 
 			log_info(logMemoria, "FINALIZAR PID: %d\n", finalizarCPU->pid);
-			log_info(logMemoria, "TOTAL ACCESOS: %d - FALLOS: %d \n", accesos[finalizarCPU->pid],fallos[finalizarCPU->pid] );
+			log_info(logMemoria, "TOTAL ACCESOS: %d - FALLOS: %d \n",
+					accesos[finalizarCPU->pid], fallos[finalizarCPU->pid]);
 			fflush(stdout);
 
 			serializarEstructura(FINALIZAR, (void *) finalizarCPU,
@@ -802,7 +835,8 @@ void RealizarVolcadoMemoriaLog() {
 
 	free(frameContenido);
 }
-
+sigset_t senialAEnMascarar;
+sigset_t senialOriginal;
 int servidorMultiplexorCPU(int PUERTO) {
 	fd_set master;
 	fd_set read_fds;
@@ -815,11 +849,18 @@ int servidorMultiplexorCPU(int PUERTO) {
 
 	int socketservidor = Servidor(PUERTO);
 
+	sigemptyset(&senialAEnMascarar);
+	sigaddset(&senialAEnMascarar, SIGUSR1);
+	sigaddset(&senialAEnMascarar, SIGUSR2);
+	sigaddset(&senialAEnMascarar, SIGPOLL);
+
+	sigprocmask(SIG_BLOCK, &senialAEnMascarar, &senialOriginal);
 	FD_SET(socketservidor, &master);
 	fdmax = socketservidor;
+
 	for (;;) {
 		read_fds = master;
-		if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) {
+		if (pselect(fdmax + 1, &read_fds, NULL, NULL, NULL, NULL) == -1) {
 			perror("Error en el Select");
 		}
 		log_info(logMemoria, "Select Activado\n");
@@ -847,16 +888,14 @@ int servidorMultiplexorCPU(int PUERTO) {
 				} else {
 
 					procesamientoDeMensajes(clienteSwap, i);
-					goto i;
+
 				}
 			}
 		}
 
 	}
 
-	close(i);
-
-	exit(0);		//el descriptor del cliente seleccionado
+//	exit(0);		//el descriptor del cliente seleccionado
 }
 /*FUNCIONES DE ALGORITMO FIFO!*/
 
@@ -1383,25 +1422,23 @@ char * buscarContenidoFrame(int frame, int pid, int pagina) {
 	return contenido;
 
 }
-void iniciarFallosYAccesos(){
-	 int i;
-	 for(i = 0; i < MAXPROCESOS; i++){
-		 fallos[i] = 0;
-		 accesos[i] = 0;
-	 }
-
-
+void iniciarFallosYAccesos() {
+	int i;
+	for (i = 0; i < MAXPROCESOS; i++) {
+		fallos[i] = 0;
+		accesos[i] = 0;
+	}
 
 }
 
-void calcularTasaAciertos(void *ptr){
-	 int tasa = 0;
-	 printf("en el hilo de la tlbbbbbb\n");
-	 while(true){
+void calcularTasaAciertos(void *ptr) {
+	int tasa = 0;
+	printf("en el hilo de la tlbbbbbb\n");
+	while (true) {
 		sleep(60);
-		if(accesosTLB != 0){
-		tasa = (aciertosTLB / accesosTLB) * 100;
-		log_info(logMemoria,"Tasa aciertos TLB : %d  %\n", tasa);
+		if (accesosTLB != 0) {
+			tasa = (aciertosTLB / accesosTLB) * 100;
+			log_info(logMemoria, "Tasa aciertos TLB : %d  %\n", tasa);
 		}
 	}
 

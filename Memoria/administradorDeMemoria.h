@@ -114,8 +114,10 @@ void RealizarVolcadoMemoriaLog();
 void inicializarFrames();
 int seleccionarFrameLibre();
 void liberarFrame(int idFrame);
-void leerFrame(int resultadoBusquedaTP,int pid,int pagina, int socketCPU);
-char * buscarContenidoFrame(int frame, int pid, int pagina);
+//void leerFrame(int resultadoBusquedaTP,int pid,int pagina, int socketCPU);
+void leerFrame(int frame, int pid, int pagina, int socketCPU,int tlbPresente);
+//char * buscarContenidoFrame(int frame, int pid, int pagina);
+char * buscarContenidoFrame(int frame, int pid, int pagina, int tlbPresente);
 int buscarEnLaTLB(int pid,int pagina);
 void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		t_mensajeHeader mensajeHeaderSwap);

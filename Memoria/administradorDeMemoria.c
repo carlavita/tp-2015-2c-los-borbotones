@@ -455,6 +455,8 @@ void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
 }
 
 void FifoTLB(int pid, int pagina, int frame) {
+
+
 	t_TLB * estructTlb = malloc(sizeof(t_TLB));
 
 	estructTlb = list_remove(tlb, 0);
@@ -462,9 +464,17 @@ void FifoTLB(int pid, int pagina, int frame) {
 	estructTlb->pagina = pagina;
 	estructTlb->pid = pid;
 	list_add(tlb, estructTlb);
+
 }
 
 void AsignarEnTlb(int pid, int pagina, int frame) {
+
+	bool buscarPagina(t_TLB * buscarTLB) {
+		return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
+	}
+	int cantidad = -1;
+	cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
+	if (cantidad <= 0){
 	if (list_size(tlb) < configMemoria.entradasTLB) //La TLB es unica para todos los procesos
 			{
 		t_TLB * estructTlb = malloc(sizeof(t_TLB));
@@ -474,6 +484,7 @@ void AsignarEnTlb(int pid, int pagina, int frame) {
 		list_add(tlb, estructTlb);
 	} else {
 		FifoTLB(pid, pagina, frame);
+	}
 	}
 }
 
@@ -557,11 +568,11 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
 		if (resultadoBusquedaTLB >= 0) //CASO VERDADERO
 				{
-			leerFrame(resultadoBusquedaTLB, pid, pagina, socketCPU);
+			leerFrame(resultadoBusquedaTLB, pid, pagina, socketCPU, 1);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTP >= 1) {
-				leerFrame(resultadoBusquedaTP, pid, pagina, socketCPU);
+				leerFrame(resultadoBusquedaTP, pid, pagina, socketCPU,0);
 			} else {
 				//Actualiza Fallos
 				fallos[pid]++;
@@ -580,7 +591,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			resultadoBusquedaTablaPaginas = buscarEnTablaDePaginas(pid, pagina);
 			if (resultadoBusquedaTablaPaginas >= 0) {
 				leerFrame(resultadoBusquedaTablaPaginas, pid, pagina,
-						socketCPU);
+						socketCPU,0);
 			} else {
 				//Actualiza Fallos
 				fallos[pid]++;
@@ -1320,7 +1331,7 @@ void verificarPaginaAReemplazar(int frame) {
 			estructuraEscribirSwap->pid = pag->pid;
 			estructuraEscribirSwap->pagina = pag->pagina;
 			memcpy(estructuraEscribirSwap->contenidoPagina,
-					buscarContenidoFrame(frame, pag->pid, pag->pagina),
+					buscarContenidoFrame(frame, pag->pid, pag->pagina,0),
 					configMemoria.tamanioMarcos);
 			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
 					sizeof(t_escribir), clienteSwap);
@@ -1329,7 +1340,7 @@ void verificarPaginaAReemplazar(int frame) {
 		}
 	}
 //Actualiza TLB todo
-//	borrarEnLaTLB(pag->pid, pag->pagina);
+	borrarEnLaTLB(pag->pid, pag->pagina);
 	free(estructuraEscribirSwap);
 }
 void inicializarFrames() {
@@ -1396,10 +1407,10 @@ int seleccionarFrameLibre() {
 	}
 
 }
-void leerFrame(int frame, int pid, int pagina, int socketCPU) {
+void leerFrame(int frame, int pid, int pagina, int socketCPU,int tlbPresente) {
 //ANTES DE USAR ESTA FUNCION SE VALIDA QUE EXISTA EN LA TLB, o en la TABLA DE PAGINAS, y despues se busca el contenido en la TABLA de paginas
 //porque si esta en la TLB, o en la tabla de paginas, TENGO EL CONTENIDO EN EL ADMINISTRADOR DE MEMORIA, sino debo pedirselo al swap
-	char* contenidoADevolver = buscarContenidoFrame(frame, pid, pagina);
+	char* contenidoADevolver = buscarContenidoFrame(frame, pid, pagina, tlbPresente);
 	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
 	int tamanio = configMemoria.tamanioMarcos;
 
@@ -1411,7 +1422,7 @@ void leerFrame(int frame, int pid, int pagina, int socketCPU) {
 		paginaAAsignar->marco = frame;
 		paginaAAsignar->pagina = pagina;
 		//paginaAAsignar->bitModificado = 1;
-		paginaAAsignar->bitModificado = NOMODIFICADO; //ver que no lo llame el ecrribit todo
+		//paginaAAsignar->bitModificado = NOMODIFICADO; //ver que no lo llame el ecrribit todo
 		paginaAAsignar->bitUso = 1;
 		paginaAAsignar->bitValidez = 1;
 		paginaAAsignar->presencia = 1;
@@ -1420,13 +1431,14 @@ void leerFrame(int frame, int pid, int pagina, int socketCPU) {
 	send(socketCPU, contenidoADevolver, tamanio, 0);
 
 }
-char * buscarContenidoFrame(int frame, int pid, int pagina) {
+char * buscarContenidoFrame(int frame, int pid, int pagina, int tlbPresente) {
 //	log_info(logMemoria,
 	//		"OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS");
 
 //TODO
+	if(tlbPresente == 0) {//Si es 0 no esta presente en la tlb
 	AsignarEnTlb(pid, pagina, frame);
-
+	}
 	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
 
 	memcpy(contenido,

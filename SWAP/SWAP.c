@@ -36,18 +36,16 @@ int main() {
 	inicializarListas();
 
 	inicializarDisco();
-/*
-	 //PRUEBAS SWAP CON COMPACTACION
-	 iniciar(1,10);
+
+	//PRUEBAS SWAP CON COMPACTACION
+	 /*iniciar(1,10);
 	 iniciar(2,10);
 	 iniciar(3,10);
-	 finalizar(3);
-	 finalizar(1);
-	 iniciar(4,10);
-
-*/
-
-
+	 escribir(1,0,"HOLA!");
+	 char * f = leer(1,0);
+	 printf(" %s",f);
+	 fflush(stdout);
+	 */
 	int servidor = servidorMultiplexor(configuracionSWAP.PuertoEscucha);
 	//for (;;) {
 	int recibir = 1;
@@ -142,7 +140,7 @@ int finalizar(int PID) {
 	int bytesUsadosPorPID = ((ultimaPagina + 1 - primerPagina)
 			* configuracionSWAP.TamanioPagina);
 
-	char * contenido = string_repeat('\0', bytesUsadosPorPID);
+	char * contenido = string_repeat(' ', bytesUsadosPorPID);
 
 	//ACA VA LA ELIMINACION DEL CONTENIDO DEL SWAP DE ESAS PAGINAS
 	fseek(archivoDisco, primerPagina * configuracionSWAP.TamanioPagina,
@@ -228,6 +226,7 @@ int escribir(int PID, int nroPagina, char* contenidoPagina) {
 
 	fseek(archivoDisco, primerBytePagina, SEEK_SET);
 	fputs(contenidoPagina, archivoDisco);
+	fflush(archivoDisco);
 	//fputs(contenido, archivoDisco);
 
 	procesoObtenido->cantidadEscrituras = procesoObtenido->cantidadEscrituras
@@ -265,7 +264,7 @@ void * compactacion() {
 				fgets(contenido, tamanioProceso, archivoDisco); //LEER CONTENIDO UBICADO EN LA PAGINA
 
 				fseek(archivoDisco, primerBytePID, SEEK_SET);
-				char * contenidoNuevo = string_repeat('\0', tamanioProceso);
+				char * contenidoNuevo = string_repeat(' ', tamanioProceso);
 				fputs(contenidoNuevo, archivoDisco);
 
 				fseek(archivoDisco,
@@ -362,7 +361,7 @@ void inicializarDisco() {
 	int tamanioDisco = configuracionSWAP.CantidadPaginas
 			* configuracionSWAP.TamanioPagina;
 	char* contenido;
-	contenido = string_repeat('\0', tamanioDisco);
+	contenido = string_repeat(' ', tamanioDisco);
 
 	fputs(contenido, archivoDisco);
 
@@ -511,7 +510,7 @@ int escucharMensajes(int servidor) {
 		contenido = leer(estructuraMemoriaLeer.pid,
 				estructuraMemoriaLeer.pagina);
 		int tamanio = configuracionSWAP.TamanioPagina + 1;
-		contenido[configuracionSWAP.TamanioPagina] = '\0';
+		contenido[configuracionSWAP.TamanioPagina] = ' ';
 		send(servidor, &tamanio, sizeof(int), 0);
 
 		send(servidor, contenido, tamanio, 0);

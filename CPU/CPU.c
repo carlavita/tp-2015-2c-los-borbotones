@@ -78,6 +78,7 @@ void calcularPorcentaje(void *param){
 	double diferenciaTiempo;
 	time_t tiempoAhora;*/
 	//aca un while con sleep de 60 seg para actualizar el porcentaje
+	t_porcentaje * porcentaje = malloc (sizeof(t_porcentaje));
 	while (1){
 		var->contadorEjecutadas = 0;
 		sleep(60);
@@ -105,9 +106,16 @@ void calcularPorcentaje(void *param){
 	//	var->porcentajeCPU = (total* 100) / 60 ;
 		var->porcentajeCPU = (var->contadorEjecutadas*100)/(60/configuracionCPU.Retardo);
 		printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
+		porcentaje->cpu = var->id;
+		porcentaje->porcentajeCPU = var->porcentajeCPU;
+
+		serializarEstructura(PORCENTAJECPU, (void * ) porcentaje, sizeof(t_porcentaje),var->serverSocket );
+
 
 			/*}*/
 		}
+
+	free(porcentaje);
 	}
 
 /*}*/
@@ -196,6 +204,7 @@ void Conexion_con_planificador(t_envio *param) {
 
 	int serverSocket = socket(serverInfo->ai_family, serverInfo->ai_socktype,
 			serverInfo->ai_protocol);
+	param->serverSocket = serverSocket;
 	printf("socket %d \n", serverSocket);
 	connect(serverSocket, serverInfo->ai_addr, serverInfo->ai_addrlen);
 	freeaddrinfo(serverInfo);	// No lo necesitamos mas
@@ -261,7 +270,7 @@ void Conexion_con_planificador(t_envio *param) {
 				break;
 			case COMANDOCPU:
 
-				printf("recibido el comando cpu de planificador \n");
+			/*	printf("recibido el comando cpu de planificador \n");
 
 				t_cpu cpu;
 				recv(serverSocket, &cpu, sizeof(t_cpu), 0);
@@ -270,7 +279,7 @@ void Conexion_con_planificador(t_envio *param) {
 				//todo enviar a planificador el valor del porcentaje de uso de cpu
 				double porcentaje;
 				porcentaje = param->porcentajeCPU;
-				send(serverSocket,&porcentaje, sizeof(double), 0);
+				send(serverSocket,&porcentaje, sizeof(double), 0);*/
 
 				break;
 			default:

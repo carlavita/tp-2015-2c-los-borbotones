@@ -53,7 +53,7 @@ typedef struct __attribute__((packed))
 	time_t valori;
 	time_t valorf;
 	int contadorEjecutadas;
-
+	int serverSocket;
 }t_envio;
 
 typedef struct

@@ -73,15 +73,17 @@ void calcularPorcentaje(void *param){
 	var = (t_envio*) param;
 
 	printf("Calculando porcentaje de uso: %lf de la cpu: %d \n", var->porcentajeCPU,var->id);
-	double total;
+	/*double total;
 	double diferencia;
 	double diferenciaTiempo;
-	time_t tiempoAhora;
+	time_t tiempoAhora;*/
 	//aca un while con sleep de 60 seg para actualizar el porcentaje
 	while (1){
+		var->contadorEjecutadas = 0;
 		sleep(60);
 
-		tiempoAhora = obtenerTiempoActual();
+		 var->porcentajeCPU = 0;
+		 /*tiempoAhora = obtenerTiempoActual();
 		diferenciaTiempo = diferenciaEnSegundos(var->valorf,tiempoAhora);
 		if(diferenciaTiempo > 60){
 			//si la diferencia entre el ultimo tiempo ejecutado respecto del actual es mayor a un minuto
@@ -95,20 +97,20 @@ void calcularPorcentaje(void *param){
 			var->porcentajeCPU = 0;
 			printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
 
-		} else {
+		} else {*/
 		//devuelve la cantidad de lineas ejecutadas cada 60 seg
 		printf("la cantidad de lineas ejecutadas son %d \n",var->contadorEjecutadas);
 		//total=(60*var->contadorEjecutadas)/diferencia;
 		//calcula el porcentaje de uso del último minuto de cada cpu
 	//	var->porcentajeCPU = (total* 100) / 60 ;
-		var->porcentajeCPU = (var->contadorEjecutadas*100)/60;
+		var->porcentajeCPU = (var->contadorEjecutadas*100)/(60/configuracionCPU.Retardo);
 		printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
 
-			}
+			/*}*/
 		}
 	}
 
-}
+/*}*/
 
 void LeerArchivoConfiguracion() {
 
@@ -379,6 +381,7 @@ char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serve
 
 	mensajeEscribir->pid = mProcID;
 	mensajeEscribir->pagina = pagina;
+
 	strcpy(mensajeEscribir->contenidoPagina, texto);
 
 	int status = serializarEstructura(ESCRIBIR, (void *) mensajeEscribir,
@@ -546,7 +549,8 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 	char *resultado = string_new();//instrucciones concatenadas con / a devolver al planificador con los resultados
 	int i = 0;
 
-	param->contadorEjecutadas = 0;
+	//param->contadorEjecutadas = 0;
+	int contadorEjecutadasLocal = 0;
 	int seguir = 1;
 	char *path_absoluto = string_new();
 	log_info(logCPU, "Inicia parseo desde linea incial: %d", lineaInicial);
@@ -567,9 +571,10 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 			// chequeo de quantum
 
 				if (quantum > 0  // es RR
-						&& quantum == param->contadorEjecutadas) {
-
-					finalizarQuantum(param->id, pid, param->contadorEjecutadas, serverSocket);
+						//&& quantum == param->contadorEjecutadas) {
+					    && quantum == contadorEjecutadasLocal) {
+					//finalizarQuantum(param->id, pid, param->contadorEjecutadas, serverSocket);
+					finalizarQuantum(param->id, pid, contadorEjecutadasLocal, serverSocket);
 					//envio a planificador las lineas ejecutadas hasta el quantum
 					int tamanio;
 					tamanio = strlen(resultado)+1;//por el fin de cadena
@@ -608,6 +613,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 					}
 					if (esLeer(substrings[0])) {
 						param->contadorEjecutadas++;
+						contadorEjecutadasLocal++;
 						printf("comando leer, parametro %d \n",atoi(substrings[1]));
 
 						char *lectura = leer(atoi(substrings[1]), pid, serverSocket,serverMemoria);
@@ -624,9 +630,10 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 					}
 					if (esEscribir(substrings[0])) {
 						param->contadorEjecutadas++;
+						contadorEjecutadasLocal++;
 						printf("comando Escribir, parametros %d  %s \n",
 								atoi(substrings[1]), substrings[2]);
-
+						//substrings[2][strlen(substrings[2])] = '\0';
 						char *escritura = escribir(atoi(substrings[1]), substrings[2], pid,serverSocket, serverMemoria);
 
 						//param->valorf = obtenerTiempoActual();
@@ -642,10 +649,12 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 					}
 					if (esIO(substrings[0])) {
 						param->contadorEjecutadas++;
+						contadorEjecutadasLocal++;
 						printf("comando entrada salida, parametro %d \n",atoi(substrings[1]));
 
 
-						char *entradaSalida = procesaIO(pid, atoi(substrings[1]), param->id,param->contadorEjecutadas, serverSocket,serverMemoria);
+						//char *entradaSalida = procesaIO(pid, atoi(substrings[1]), param->id,param->contadorEjecutadas, serverSocket,serverMemoria);
+						char *entradaSalida = procesaIO(pid, atoi(substrings[1]), param->id,contadorEjecutadasLocal, serverSocket,serverMemoria);
 
 						//param->valorf = obtenerTiempoActual();
 						string_append(&resultado,entradaSalida);
@@ -666,9 +675,11 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 					}
 					if (esFinalizar(substrings[0])) {
 						param->contadorEjecutadas++;
+						contadorEjecutadasLocal++;
 						printf("comando Finalizar no tiene parametros \n");
 
-						char *fin = finalizar(param->id, pid, param->contadorEjecutadas, serverSocket,serverMemoria);
+						//char *fin = finalizar(param->id, pid, param->contadorEjecutadas, serverSocket,serverMemoria);
+						char *fin = finalizar(param->id, pid, contadorEjecutadasLocal, serverSocket,serverMemoria);
 
 						string_append(&resultado,fin);
 						string_append(&resultado,SEPARADORINSTRUCCION);
@@ -680,7 +691,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 						send(serverSocket,resultado, tamanioFin, 0);
 
 						param->valorf = obtenerTiempoActual();
-						printf("el valor final es: %d",(int)param->valorf);
+		//				printf("el valor final es: %d",(int)param->valorf);
 
 						free(substrings[0]);
 						free(substrings);

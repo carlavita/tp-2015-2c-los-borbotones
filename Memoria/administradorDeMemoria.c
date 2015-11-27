@@ -193,7 +193,7 @@ void generarTLB(int entradasTLB) {
 		estructTLB->frame = -1;
 		++entrada;
 		list_add(tlb, estructTLB);
-		free(estructTLB);
+		//free(estructTLB);
 	}
 }
 
@@ -334,15 +334,12 @@ void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,
 
 int buscarEnLaTLB( pid, pagina) {
 	log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
-	bool buscarPagina(t_TLB * buscarTLB) {
-		return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
-	}
-	int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
-	if (cantidad > 0) {
+	int posicion = busquedaPIDEnListaTLB( pid, pagina);
+	if (posicion >= 0) {
 		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
-		entradaTLB = list_find(tlb, (void*) buscarPagina);
+		entradaTLB = list_get(tlb, posicion);
 		int frame = entradaTLB->frame;
-		free(entradaTLB);
+		//free(entradaTLB);
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
 				frame);
 		return frame;
@@ -363,6 +360,30 @@ int busquedaPIDEnLista(int PID, int pagina) {
 		if (posicion == list_size(tablaDePaginas))
 			break;
 		pag = list_get(tablaDePaginas, posicion);
+
+	}
+
+	//TODO- REVISAR: VALE LA PENA ESTA VALIDACION?? EN LA DE PAGINAS VA A ESTAR SIEMPRE, POR AHORA LO COMENTO
+	if (pag->pagina == pagina && pag->pid == PID) {
+		return posicion;
+	} else {
+		log_info(logMemoria, "Pagina no encontrada \n");
+
+		return -1;
+	}
+}
+int busquedaPIDEnListaTLB(int PID, int pagina) {
+	int posicion = 0;
+	if (list_size(tlb) == 0)
+		return -1;
+	t_TLB* pag = list_get(tlb, posicion);
+	while ((pag->pagina != pagina || pag->pid != PID)) {
+
+		posicion++;
+		if (posicion == list_size(tlb))
+			return -1;
+			break;
+		pag = list_get(tlb, posicion);
 
 	}
 
@@ -451,7 +472,7 @@ void ActualizarFrame(t_tablaDePaginas* paginaAAsignar, int pid) {
 
 	pidAAsignar->frameUsado = 1;
 	pidAAsignar->ultimaReferencia = *localtime(&t);
-	list_replace(listaDePidFrames, posicion, pidAAsignar);
+	//list_replace(listaDePidFrames, posicion, pidAAsignar);
 }
 
 void FifoTLB(int pid, int pagina, int frame) {
@@ -473,8 +494,10 @@ void AsignarEnTlb(int pid, int pagina, int frame) {
 		return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
 	}
 	int cantidad = -1;
-	cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
-	if (cantidad <= 0){
+	//cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
+	//if (cantidad <= 0){
+	int posicion = busquedaPIDEnListaTLB(pid,pagina);
+	if(posicion < 0){
 	if (list_size(tlb) < configMemoria.entradasTLB) //La TLB es unica para todos los procesos
 			{
 		t_TLB * estructTlb = malloc(sizeof(t_TLB));
@@ -544,7 +567,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		strncpy(escribir->contenidoPagina, contenidoPedidoAlSwap,
 				strlen(contenidoPedidoAlSwap) + 1);
 		escribirContenido(escribir, paginaAAsignar->marco);
-		list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
+		//list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
 	}
 
 	free(escribir);
@@ -1119,6 +1142,8 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;
+		tp->presencia = 1;
+		tp->bitUso = 1;
 		//	list_replace(tablaDePaginas, posicion, tp);
 
 		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1

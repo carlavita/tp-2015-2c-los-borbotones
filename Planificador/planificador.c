@@ -952,7 +952,7 @@ void finalizarPid() {
 	}
 	int ultimaInst;
 	ultimaInst = pcbProc->cantidadLineas;
-	pcbProc->proxInst = ultimaInst;
+	pcbProc->proxInst = ultimaInst - 1;
 
 	pthread_mutex_unlock(&mutexListas);
 

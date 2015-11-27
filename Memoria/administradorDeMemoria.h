@@ -121,6 +121,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 		t_mensajeHeader mensajeHeaderSwap);
 void iniciarFallosYAccesos();
 void calcularTasaAciertos(void *ptr);
+void borrarEnLaTLB(int pid, int pagina);
 /*ALGORITMO FIFO*/
 int algoritmoFIFO(int pid);
 int llamar(int pid);
@@ -135,7 +136,7 @@ int buscarEnTablaDePaginas( int pid, int pagina);
 void agregarFrame(int frameID);
 void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap, int marco, int bitModificado);
-
+void verificarPaginaAReemplazar(frame);
 //ALGORITMO CLOCK
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);

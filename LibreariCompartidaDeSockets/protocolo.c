@@ -44,7 +44,7 @@ int serializarEstructura(int id,  void *estructura, int size, int socketDestino)
 	t_mensajeHeader header;
 	header.idmensaje = id;
 	header.size = size;
-	char *paquete = malloc(8 + size);
+	char *paquete = malloc(sizeof(char)*(8 + size));
     memcpy (paquete, &header, sizeof(t_mensajeHeader));
 
     // si tiene una estructura ademas del header, la apendea

@@ -345,6 +345,7 @@ void servidorCPU(void *ptr) {
 
 void handle(int newsock, fd_set *set) {
 	t_finalizarPID rtaP;
+	t_porcentaje porcentaje;
 	double tiempoFin;
 	//t_saludoCPU saludoCPU;
 
@@ -437,6 +438,12 @@ void handle(int newsock, fd_set *set) {
 			char* contenidoIO = malloc(tamanioRec);
 			recv(newsock, contenidoIO, tamanioRec, 0);
 			printf(" el contenido recibido es: %s \n", contenidoIO);
+			break;
+
+		case PORCENTAJECPU:
+
+			recv(newsock, &(porcentaje), sizeof(t_porcentaje), 0);
+			actualizaPorcentajeCPU(porcentaje.cpu,porcentaje.porcentajeCPU);
 			break;
 		case FINDEQUANTUM:
 
@@ -914,11 +921,11 @@ void ejecutarCPU() {
 	while (cpu != NULL) {
 
 		//todo mutear porque entra en el recv del handle y no sigue en esta funcion
-		int status = serializarEstructura(COMANDOCPU, (void *) cpu, sizeof(t_cpu),
+	/*	int status = serializarEstructura(COMANDOCPU, (void *) cpu, sizeof(t_cpu),
 						cpu->socket);
 		double porcentaje;
 		recv(cpu->socket, &porcentaje, sizeof(double), 0);
-		cpu->porcentajeUso = porcentaje;
+		cpu->porcentajeUso = porcentaje;*/
 		printf("La CPU con id: %d tiene como porcentaje de uso:%lf  \n", cpu->id, cpu->porcentajeUso);
 
 		indexLista++;
@@ -1071,3 +1078,15 @@ void imprimirMetricas(t_metricas *metricas) {
 			metricas->tiempoEspera);
 	pthread_mutex_unlock(&mutexLog);
 }
+void actualizaPorcentajeCPU(int idcpu, double porcentaje) {
+	// Busca por pid, las que tienen -1 son las libres
+	int _is_pcb(t_cpu *p) {
+		return p->id == idcpu;
+	}
+	pthread_mutex_lock(&mutexListaCpu);
+	t_cpu* cpu = list_find(listaCPU, (void*) _is_pcb);
+	cpu->porcentajeUso = porcentaje;
+	pthread_mutex_unlock(&mutexListaCpu);
+
+}
+

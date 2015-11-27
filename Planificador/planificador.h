@@ -276,3 +276,4 @@ void *procesarEntradasSalidas(void *info_proc);
  */
 void imprimirMetricas(t_metricas *metricas);
 //int serializarEstructura(int id,  void *estructura, int size, int socketDestino);
+void actualizaPorcentajeCPU(int idcpu, double porcentaje);

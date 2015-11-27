@@ -36,6 +36,7 @@
 
 #define RESULTADOLECTURA 16
 #define COMANDOCPU 17
+#define PORCENTAJECPU 18
 //estados de linea de mCod
 
 
@@ -103,7 +104,7 @@ typedef struct __attribute__((packed))
 {
 	int pid;
 	int pagina;
-	char contenidoPagina[256];
+	char contenidoPagina[256];// TODO: QUE CARAJO??
 } t_escribir;
 
 typedef struct __attribute__((packed))
@@ -111,6 +112,12 @@ typedef struct __attribute__((packed))
 	int tamanio;
 	char * contenido;
 }t_contenido;
+
+typedef struct __attribute__((packed))
+{
+	int cpu;
+	double porcentajeCPU;
+}t_porcentaje;
 
 // Funciones
 void sendACK(int socket);

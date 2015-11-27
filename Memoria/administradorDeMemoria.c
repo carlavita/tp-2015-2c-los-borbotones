@@ -1104,7 +1104,7 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 			estructEscribir->pagina);
 	int marco = -1;
 
-	if (posicion > 0) {
+	if (posicion >= 0) {
 		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
 		tp = list_get(tablaDePaginas, posicion);
 		tp->bitModificado = 1;

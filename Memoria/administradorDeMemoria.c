@@ -193,7 +193,7 @@ void generarTLB(int entradasTLB) {
 		estructTLB->frame = -1;
 		++entrada;
 		list_add(tlb, estructTLB);
-		//free(estructTLB);
+		free(estructTLB);
 	}
 }
 
@@ -339,7 +339,7 @@ int buscarEnLaTLB( pid, pagina) {
 		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
 		entradaTLB = list_get(tlb, posicion);
 		int frame = entradaTLB->frame;
-		//free(entradaTLB);
+		free(entradaTLB);
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
 				frame);
 		return frame;
@@ -442,7 +442,7 @@ int buscarEnTablaDePaginas(int pid, int pagina) {
 }
 
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
-	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;
@@ -455,7 +455,7 @@ char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor) {
 	recv(cliente, contenidoLeido, tamanioLeido, 0);
 
 	log_info(logMemoria, "Contenido: %s", contenidoLeido);
-	//log_info(logMemoria, "FIN PEDIDO AL SWAP");
+	log_info(logMemoria, "FIN PEDIDO AL SWAP");
 	send(servidor, &tamanioLeido, sizeof(tamanioLeido), 0);
 	send(servidor, contenidoLeido, tamanioLeido, 0);
 
@@ -751,8 +751,8 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			log_info(logMemoria, "FINALIZAR PID: %d\n", finalizarCPU->pid);
 			log_info(logMemoria, "TOTAL ACCESOS: %d - FALLOS: %d \n",
-					accesos[finalizarCPU->pid], fallos[finalizarCPU->pid]);
-			fflush(stdout);
+				accesos[finalizarCPU->pid], fallos[finalizarCPU->pid]);
+			//fflush(stdout);
 
 			serializarEstructura(FINALIZAR, (void *) finalizarCPU,
 					sizeof(t_finalizarPID), clienteSWAP);
@@ -769,6 +769,7 @@ void procesamientoDeMensajes(int clienteSWAP, int servidorCPU) {
 
 			//TODO BORRAR TODAS LAS ESTRUCTURAS ADMINISTRATIVAS PARA ESE mProc.
 			BorrarEstructuras(finalizarCPU->pid);
+			free(finalizarCPU);
 			pthread_mutex_unlock(&mutexFinalizar);
 			break;
 		}
@@ -1095,7 +1096,6 @@ void escribirContenido(t_escribir * estructEscribir, int frame) {
 		strncpy(memoriaReservadaDeMemPpal + offset,
 				estructEscribir->contenidoPagina, configMemoria.tamanioMarcos);
 	}
-	//free(contenido);
 }
 
 int busquedaListaFrame(int pid, int frame) {
@@ -1116,7 +1116,7 @@ int busquedaListaFrame(int pid, int frame) {
 }
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
-	//log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
 	int tamanioLeido;
 	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
 	estructuraLeerSwap->pid = pid;

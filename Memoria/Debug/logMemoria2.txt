@@ -1,0 +1,760 @@
+[INFO] 11:38:35:881 Administrador de memoria/(3504:3504): Inicio lectura de archivo de configuraci처n
+[INFO] 11:38:35:882 Administrador de memoria/(3504:3504): 5000
+[INFO] 11:38:35:882 Administrador de memoria/(3504:3504): Finalizo lectura de archivo de configuraci처n
+[INFO] 11:38:35:882 Administrador de memoria/(3504:3504): Comienzo de las diferentes conexiones
+[INFO] 11:38:35:882 Administrador de memoria/(3504:3504): Inicializa frames 
+
+[INFO] 11:38:35:882 Administrador de memoria/(3504:3504): Generando cliente al SWAP con estos parametros definidos, IP: 127.0.0.1, PUERTO: 143026176
+[INFO] 11:38:35:888 Administrador de memoria/(3504:3504): La memoria se conecto satisfactoriamente al SWAP
+[INFO] 11:38:35:888 Administrador de memoria/(3504:3507): HILO SIGUSR2
+[INFO] 11:38:35:888 Administrador de memoria/(3504:3506): HILO SIGUSR1
+[INFO] 11:38:54:359 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:38:54:359 Administrador de memoria/(3504:3504): Socket Aceptado
+
+[INFO] 11:38:54:359 Administrador de memoria/(3504:3504): Nueva conexion de 127.0.0.1 en el socket 6
+
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 1, Cantidad de paginas asignadas: 50
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:1
+[INFO] 11:39:01:426 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:01:482 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 14
+[INFO] 11:39:01:482 Administrador de memoria/(3504:3504): Se proceso correctamente el mensaje
+[INFO] 11:39:01:482 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): PROCESO 1 - LEER PAGINA 0 
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): FRAME LIBRE : 0 
+
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): frame asignado: 0 al pid:1
+[INFO] 11:39:02:483 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 1
+[INFO] 11:39:02:549 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:02:549 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 1 
+
+[INFO] 11:39:02:549 Administrador de memoria/(3504:3504):  no requiere algoritmo de reemplazo 
+
+[INFO] 11:39:02:549 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): PROCESO 1 - LEER PAGINA 1 
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): FRAME LIBRE : 1 
+
+[INFO] 11:39:03:549 Administrador de memoria/(3504:3504): frame asignado: 1 al pid:1
+[INFO] 11:39:03:558 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:03:558 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:03:558 Administrador de memoria/(3504:3504):  no requiere algoritmo de reemplazo 
+
+[INFO] 11:39:03:558 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 2, Cantidad de paginas asignadas: 50
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:04:560 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:2
+[INFO] 11:39:04:561 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:04:566 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 14
+[INFO] 11:39:04:566 Administrador de memoria/(3504:3504): Se proceso correctamente el mensaje
+[INFO] 11:39:04:566 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): PROCESO 2 - LEER PAGINA 0 
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): FRAME LIBRE : 2 
+
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): frame asignado: 2 al pid:2
+[INFO] 11:39:05:567 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:05:573 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:05:573 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 1 
+
+[INFO] 11:39:05:574 Administrador de memoria/(3504:3504):  no requiere algoritmo de reemplazo 
+
+[INFO] 11:39:05:574 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): PROCESO 2 - LEER PAGINA 1 
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): FRAME LIBRE : 3 
+
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): frame asignado: 3 al pid:2
+[INFO] 11:39:06:575 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:06:580 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:06:581 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 2 
+
+[INFO] 11:39:06:581 Administrador de memoria/(3504:3504):  no requiere algoritmo de reemplazo 
+
+[INFO] 11:39:06:581 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:07:621 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:07:621 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:07:621 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 0  - PROCESO 1 
+
+[INFO] 11:39:07:622 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:07:622 Administrador de memoria/(3504:3504): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 11:39:08:622 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:08:622 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:08:623 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 45  - PROCESO 1 
+
+[INFO] 11:39:08:623 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:08:623 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:08:626 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:08:626 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:08:626 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:08:626 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:09:628 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:09:628 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:09:629 Administrador de memoria/(3504:3504): PROCESO 1 - LEER PAGINA 0 
+[INFO] 11:39:09:629 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:09:629 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:09:632 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:09:632 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:09:632 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:09:632 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:09:633 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:10:672 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:10:672 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:10:672 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 0  - PROCESO 2 
+
+[INFO] 11:39:10:672 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:10:672 Administrador de memoria/(3504:3504): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 2 
+
+[INFO] 11:39:11:673 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:11:673 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:11:673 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 45  - PROCESO 2 
+
+[INFO] 11:39:11:673 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:11:674 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:11:677 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:11:677 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:11:677 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:11:677 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 3 
+
+[INFO] 11:39:11:677 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:11:677 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 3 
+
+[INFO] 11:39:12:692 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:12:692 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:12:692 Administrador de memoria/(3504:3504): PROCESO 2 - LEER PAGINA 0 
+[INFO] 11:39:12:692 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:12:692 Administrador de memoria/(3504:3504): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 2 
+
+[INFO] 11:39:12:692 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:13:732 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:13:732 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:13:732 Administrador de memoria/(3504:3504): PROCESO 1 - LEER PAGINA 45 
+[INFO] 11:39:13:732 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:13:732 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:13:744 Administrador de memoria/(3504:3504): Contenido: Pdl톥썓
+[INFO] 11:39:13:745 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:13:745 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:13:745 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:13:745 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:14:746 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:14:746 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:14:746 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 10  - PROCESO 1 
+
+[INFO] 11:39:14:746 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:14:746 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:14:750 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:14:751 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:14:751 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:14:751 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:15:758 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:15:758 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:15:758 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 9  - PROCESO 1 
+
+[INFO] 11:39:15:758 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:15:758 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:15:762 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:15:762 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:15:762 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:15:762 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 3, Cantidad de paginas asignadas: 50
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:3
+[INFO] 11:39:16:808 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:16:811 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 14
+[INFO] 11:39:16:811 Administrador de memoria/(3504:3504): Se proceso correctamente el mensaje
+[INFO] 11:39:16:811 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:17:812 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:17:813 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:17:813 Administrador de memoria/(3504:3504): PROCESO 3 - LEER PAGINA 0 
+[INFO] 11:39:17:813 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:17:813 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:17:813 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:17:813 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:17:817 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:17:817 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 1 
+
+[INFO] 11:39:17:817 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:17:818 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 1 
+
+[INFO] 11:39:17:823 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): PROCESO 3 - LEER PAGINA 1 
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:18:819 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:18:823 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:18:823 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 2 
+
+[INFO] 11:39:18:823 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:18:823 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 2 
+
+[INFO] 11:39:18:828 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): PROCESO 2 - LEER PAGINA 45 
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:19:864 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:19:869 Administrador de memoria/(3504:3504): Contenido: Pdl톥썓
+[INFO] 11:39:19:869 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 4 
+
+[INFO] 11:39:19:869 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:19:869 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 4 
+
+[INFO] 11:39:19:870 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:20:870 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:20:870 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:20:870 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 10  - PROCESO 2 
+
+[INFO] 11:39:20:870 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:20:871 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:20:874 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:20:874 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:20:874 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:20:874 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 5 
+
+[INFO] 11:39:20:874 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:20:874 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 5 
+
+[INFO] 11:39:21:880 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:21:880 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:21:880 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 9  - PROCESO 2 
+
+[INFO] 11:39:21:880 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:21:880 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:21:886 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:21:886 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:21:886 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:21:886 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 6 
+
+[INFO] 11:39:21:886 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:21:886 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 6 
+
+[INFO] 11:39:22:929 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:22:929 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:22:929 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 0  - PROCESO 3 
+
+[INFO] 11:39:22:929 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:22:929 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:22:935 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:22:935 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:22:935 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:22:935 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 3 
+
+[INFO] 11:39:22:935 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:22:935 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 3 
+
+[INFO] 11:39:23:941 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:23:941 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:23:941 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 45  - PROCESO 3 
+
+[INFO] 11:39:23:941 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:23:941 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:23:945 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:23:945 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:23:945 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:23:945 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 4 
+
+[INFO] 11:39:23:945 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:23:946 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 4 
+
+[INFO] 11:39:24:969 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:24:969 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:24:970 Administrador de memoria/(3504:3504): PROCESO 3 - LEER PAGINA 0 
+[INFO] 11:39:24:970 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:24:970 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:24:970 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:24:970 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:24:973 Administrador de memoria/(3504:3504): Contenido: Hola
+[INFO] 11:39:24:973 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 5 
+
+[INFO] 11:39:24:974 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:24:974 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 5 
+
+[INFO] 11:39:24:974 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:25:976 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:25:976 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:25:976 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 12  - PROCESO 1 
+
+[INFO] 11:39:25:976 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:25:976 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:25:980 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:25:980 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:25:980 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:25:980 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 4, Cantidad de paginas asignadas: 50
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:4
+[INFO] 11:39:26:987 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:26:995 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 14
+[INFO] 11:39:26:995 Administrador de memoria/(3504:3504): Se proceso correctamente el mensaje
+[INFO] 11:39:26:995 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): PROCESO 4 - LEER PAGINA 0 
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:27:996 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:27:2 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:27:2 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 1 
+
+[INFO] 11:39:27:2 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:27:2 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 1 
+
+[INFO] 11:39:28:33 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): PROCESO 4 - LEER PAGINA 1 
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:29:3 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:29:8 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:29:8 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 2 
+
+[INFO] 11:39:29:8 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:29:8 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 2 
+
+[INFO] 11:39:29:13 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): PROCESO 3 - LEER PAGINA 45 
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:30:49 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:30:55 Administrador de memoria/(3504:3504): Contenido: Hola
+[INFO] 11:39:30:55 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 6 
+
+[INFO] 11:39:30:55 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:30:55 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 6 
+
+[INFO] 11:39:30:56 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:31:56 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:31:56 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:31:56 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 10  - PROCESO 3 
+
+[INFO] 11:39:31:56 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:31:56 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:31:59 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:31:59 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:31:59 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:31:60 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 7 
+
+[INFO] 11:39:31:60 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:31:60 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 7 
+
+[INFO] 11:39:32:66 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:32:66 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:32:66 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 9  - PROCESO 3 
+
+[INFO] 11:39:32:66 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:32:66 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:32:70 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:32:70 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:32:71 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:32:71 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 8 
+
+[INFO] 11:39:32:71 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:32:71 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 8 
+
+[INFO] 11:39:33:116 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:33:116 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:33:116 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 12  - PROCESO 2 
+
+[INFO] 11:39:33:116 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:33:116 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:33:121 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:33:121 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:33:121 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:33:122 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 7 
+
+[INFO] 11:39:33:122 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:33:122 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 7 
+
+[INFO] 11:39:34:133 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:34:133 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:34:133 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 19  - PROCESO 1 
+
+[INFO] 11:39:34:133 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:34:133 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:34:137 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:34:137 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:34:137 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:34:137 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:35:143 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:35:143 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:35:143 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 0  - PROCESO 4 
+
+[INFO] 11:39:35:143 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:35:143 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:35:149 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:35:149 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:35:149 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:35:149 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 3 
+
+[INFO] 11:39:35:149 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:35:149 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 3 
+
+[INFO] 11:39:36:155 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:36:155 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:36:155 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 45  - PROCESO 4 
+
+[INFO] 11:39:36:155 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:36:155 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:36:160 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:36:160 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:36:160 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:36:160 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 4 
+
+[INFO] 11:39:36:160 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:36:160 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 4 
+
+[INFO] 11:39:37:167 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:37:167 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:37:167 Administrador de memoria/(3504:3504): PROCESO 4 - LEER PAGINA 0 
+[INFO] 11:39:37:167 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:37:168 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:37:168 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:37:168 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:37:173 Administrador de memoria/(3504:3504): Contenido: Hola
+[INFO] 11:39:37:173 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 5 
+
+[INFO] 11:39:37:173 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:37:173 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 5 
+
+[INFO] 11:39:37:174 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 5, Cantidad de paginas asignadas: 50
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:5
+[INFO] 11:39:38:213 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:38:215 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 15
+[INFO] 11:39:38:215 Administrador de memoria/(3504:3504): Proceso 5 rechazado por falta de espacio en SWAP
+
+[INFO] 11:39:38:215 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 6, Cantidad de paginas asignadas: 50
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:6
+[INFO] 11:39:38:217 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:38:219 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 15
+[INFO] 11:39:38:219 Administrador de memoria/(3504:3504): Proceso 6 rechazado por falta de espacio en SWAP
+
+[INFO] 11:39:38:219 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:38:256 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:38:256 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:38:256 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 19  - PROCESO 2 
+
+[INFO] 11:39:38:256 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:38:256 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:38:262 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:38:262 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:38:262 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:38:262 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 8 
+
+[INFO] 11:39:38:262 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:38:262 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 8 
+
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): INICIO TABLAS DE PAGINAS
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): FIN TABLAS DE PAGINAS
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): Proceso mProc creado, PID: 7, Cantidad de paginas asignadas: 50
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): Inicio del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): Envio pagina al SWAP, PAGINA N째:50
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): Envio pid al SWAP, PID:7
+[INFO] 11:39:39:280 Administrador de memoria/(3504:3504): SWAP recibio la pagina de forma correcta
+[INFO] 11:39:39:283 Administrador de memoria/(3504:3504): Se recibio este codigo de error: 15
+[INFO] 11:39:39:283 Administrador de memoria/(3504:3504): Proceso 7 rechazado por falta de espacio en SWAP
+
+[INFO] 11:39:39:283 Administrador de memoria/(3504:3504): Fin del aviso al proceso SWAp del comando INICIAR
+[INFO] 11:39:39:321 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:39:321 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:39:321 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 33  - PROCESO 1 
+
+[INFO] 11:39:39:321 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:39:321 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:39:329 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:39:329 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:39:329 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:39:329 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): PROCESO 4 - LEER PAGINA 45 
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:40:340 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:40:345 Administrador de memoria/(3504:3504): Contenido: Hola
+[INFO] 11:39:40:345 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 6 
+
+[INFO] 11:39:40:345 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:40:345 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 6 
+
+[INFO] 11:39:40:354 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:41:347 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:41:347 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:41:347 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 10  - PROCESO 4 
+
+[INFO] 11:39:41:347 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:41:347 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:41:351 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:41:351 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:41:351 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:41:351 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 7 
+
+[INFO] 11:39:41:351 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:41:351 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 7 
+
+[INFO] 11:39:42:360 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:42:361 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:42:361 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 9  - PROCESO 4 
+
+[INFO] 11:39:42:361 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:42:361 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:42:365 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:42:365 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:4
+[INFO] 11:39:42:365 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 4
+[INFO] 11:39:42:365 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 8 
+
+[INFO] 11:39:42:365 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:42:365 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 4  : 8 
+
+[INFO] 11:39:43:372 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:43:372 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:43:372 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 12  - PROCESO 3 
+
+[INFO] 11:39:43:372 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:43:372 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:43:378 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:43:378 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:3
+[INFO] 11:39:43:378 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 3
+[INFO] 11:39:43:378 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 9 
+
+[INFO] 11:39:43:378 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:43:378 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 3  : 9 
+
+[INFO] 11:39:44:385 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:44:385 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:44:385 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 33  - PROCESO 2 
+
+[INFO] 11:39:44:385 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:44:385 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:44:390 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:44:390 Administrador de memoria/(3504:3504): frame asignado: -1 al pid:2
+[INFO] 11:39:44:390 Administrador de memoria/(3504:3504): AGREGANDO ESTRUCTURAS AL PID: 2
+[INFO] 11:39:44:390 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 9 
+
+[INFO] 11:39:44:390 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:44:390 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 2  : 9 
+
+[INFO] 11:39:46:218 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:46:218 Administrador de memoria/(3504:3504): Solicitud de escritura recbidia
+[INFO] 11:39:46:218 Administrador de memoria/(3504:3504): ESCRIBIR PAGINA 46  - PROCESO 1 
+
+[INFO] 11:39:46:218 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:46:218 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:46:223 Administrador de memoria/(3504:3504): Contenido: 
+[INFO] 11:39:46:223 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:46:223 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:46:223 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:47:229 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:47:229 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:47:229 Administrador de memoria/(3504:3504): PROCESO 1 - LEER PAGINA 46 
+[INFO] 11:39:47:229 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:47:229 Administrador de memoria/(3504:3504): PAGINA PRESENTE EN TABLA DE PAGINAS - FRAME = 0 
+
+[INFO] 11:39:47:229 Administrador de memoria/(3504:3504): Finalizo comando LEER
+[INFO] 11:39:48:230 Administrador de memoria/(3504:3504): Select Activado
+
+[INFO] 11:39:48:230 Administrador de memoria/(3504:3504): Solicitud de lectura recibida
+[INFO] 11:39:48:230 Administrador de memoria/(3504:3504): PROCESO 1 - LEER PAGINA 9 
+[INFO] 11:39:48:230 Administrador de memoria/(3504:3504): INICIO BUSQUEDA EN TABLA DE PAGINAS
+[INFO] 11:39:48:230 Administrador de memoria/(3504:3504): PAGINA NO PRESENTE EN TABLA DE PAGINAS 
+
+[INFO] 11:39:48:234 Administrador de memoria/(3504:3504): Contenido: Noooooo
+[INFO] 11:39:48:234 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:48:234 Administrador de memoria/(3504:3504): ejecuta algoritmo de reemplazo 
+
+[INFO] 11:39:48:234 Administrador de memoria/(3504:3504): Cantidad actual de frames asignados al proceso 1  : 2 
+
+[INFO] 11:39:48:235 Administrador de memoria/(3504:3504): Finalizo comando LEER

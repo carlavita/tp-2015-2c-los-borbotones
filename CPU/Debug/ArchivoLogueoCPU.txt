@@ -1,0 +1,80 @@
+[INFO] 18:04:40:274 CPU/(2700:2700): Inicio Proceso CPU
+[INFO] 18:04:40:274 CPU/(2700:2700): Leyendo Archivo de Configuracion
+[INFO] 18:04:40:274 CPU/(2700:2700): 4000
+[INFO] 18:04:40:275 CPU/(2700:2700): Archivo de Configuracion Leido correctamente
+[INFO] 18:04:40:275 CPU/(2700:2700): Se inicializaron los semaforos 
+
+[INFO] 18:04:40:277 CPU/(2700:2701): Conectando a memoria
+
+[INFO] 18:04:40:278 CPU/(2700:2701): Conectando a planificador
+[INFO] 18:04:40:278 CPU/(2700:2701): se recibe el msj de saludo de planificador:
+[INFO] 18:04:40:278 CPU/(2700:2701): PATH MCOD: /home/utnso/tp-2015-2c-los-borbotones/Planificador/mCod/
+[INFO] 18:04:45:411 CPU/(2700:2701): se recibe el msj de ejecucion de un proceso:
+[INFO] 18:04:45:411 CPU/(2700:2701): ejecutando el proceso con id:1
+[INFO] 18:04:45:411 CPU/(2700:2701): Inicia parseo desde linea incial: 0
+[INFO] 18:04:45:413 CPU/(2700:2701): El proceso 1 inició su ejecucion correctamente
+
+[INFO] 18:04:46:414 CPU/(2700:2701): mProc 1 - Pagina 2 escrita:dos 
+
+[INFO] 18:04:47:415 CPU/(2700:2701): mProc 1 - Pagina 2 a leer, envio a memoria 
+
+[INFO] 18:04:47:416 CPU/(2700:2701): El contenido es: dos 
+
+[INFO] 18:04:48:417 CPU/(2700:2701): mProc 1 - Pagina 3 escrita:tres 
+
+[INFO] 18:04:49:418 CPU/(2700:2701): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 18:04:49:419 CPU/(2700:2701): se recibe el msj de ejecucion de un proceso:
+[INFO] 18:04:49:419 CPU/(2700:2701): ejecutando el proceso con id:1
+[INFO] 18:04:49:419 CPU/(2700:2701): Inicia parseo desde linea incial: 3
+[INFO] 18:04:49:419 CPU/(2700:2701): mProc 1 - Pagina 3 escrita:tres 
+
+[INFO] 18:04:50:420 CPU/(2700:2701): mProc 1 - Pagina 2 a leer, envio a memoria 
+
+[INFO] 18:04:50:421 CPU/(2700:2701): El contenido es: dos 
+
+[INFO] 18:04:51:423 CPU/(2700:2701): mProc 1 - Pagina 1 escrita:uno 
+
+[INFO] 18:04:52:424 CPU/(2700:2701): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 18:04:52:463 CPU/(2700:2701): se recibe el msj de ejecucion de un proceso:
+[INFO] 18:04:52:463 CPU/(2700:2701): ejecutando el proceso con id:1
+[INFO] 18:04:52:463 CPU/(2700:2701): Inicia parseo desde linea incial: 6
+[INFO] 18:04:52:463 CPU/(2700:2701): mProc 1 - Pagina 1 a leer, envio a memoria 
+
+[INFO] 18:04:52:464 CPU/(2700:2701): El contenido es: uno 
+
+[INFO] 18:04:53:467 CPU/(2700:2701): mProc 1 - Pagina 5 escrita:cinco 
+
+[INFO] 18:04:54:467 CPU/(2700:2701): mProc 1 - Pagina 2 a leer, envio a memoria 
+
+[INFO] 18:04:54:468 CPU/(2700:2701): El contenido es: cinco 
+
+[INFO] 18:04:55:469 CPU/(2700:2701): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 18:04:55:506 CPU/(2700:2701): se recibe el msj de ejecucion de un proceso:
+[INFO] 18:04:55:506 CPU/(2700:2701): ejecutando el proceso con id:1
+[INFO] 18:04:55:506 CPU/(2700:2701): Inicia parseo desde linea incial: 9
+[INFO] 18:04:55:510 CPU/(2700:2701): mProc 1 - Pagina 4 escrita:cuatro 
+
+[INFO] 18:04:56:511 CPU/(2700:2701): mProc 1 - Pagina 5 a leer, envio a memoria 
+
+[INFO] 18:04:56:511 CPU/(2700:2701): El contenido es: cuatro 
+
+[INFO] 18:04:57:512 CPU/(2700:2701): mProc 1 - Pagina 3 a leer, envio a memoria 
+
+[INFO] 18:04:57:512 CPU/(2700:2701): El contenido es: tres 
+
+[INFO] 18:04:58:513 CPU/(2700:2701): mProc 1 - fin de quantum , CPU id: 1
+
+[INFO] 18:04:58:550 CPU/(2700:2701): se recibe el msj de ejecucion de un proceso:
+[INFO] 18:04:58:550 CPU/(2700:2701): ejecutando el proceso con id:1
+[INFO] 18:04:58:551 CPU/(2700:2701): Inicia parseo desde linea incial: 12
+[INFO] 18:04:58:554 CPU/(2700:2701): mProc 1 - Pagina 2 escrita:dos 
+
+[INFO] 18:04:59:554 CPU/(2700:2701): mProc 1 - Pagina 5 a leer, envio a memoria 
+
+[INFO] 18:04:59:555 CPU/(2700:2701): El contenido es: dos 
+
+[INFO] 18:05:00:556 CPU/(2700:2701): mProc 1 - Pagina 2 a leer, envio a memoria 
+

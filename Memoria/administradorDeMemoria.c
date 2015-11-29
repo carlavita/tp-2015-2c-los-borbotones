@@ -1155,12 +1155,12 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		tp->bitUso = 1;
 		//	list_replace(tablaDePaginas, posicion, tp);
 
-		if (list_size(listaDePidFrames) > 0) {
+		/*if (list_size(listaDePidFrames) > 0) {
 			time_t t = time(NULL);
 			int ppf = busquedaPIDFrame(tp->pid);
 			t_pidFrame * pf = list_get(listaDePidFrames, ppf);
 			pf->ultimaReferencia = *localtime(&t);
-		}
+		}*/
 		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
 
 		/* t_pidFrame * pidFrame;

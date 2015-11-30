@@ -1156,13 +1156,12 @@ void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
 		//	list_replace(tablaDePaginas, posicion, tp);
 
 		/*if (list_size(listaDePidFrames) > 0) {
-			time_t t = time(NULL);
-			int ppf = busquedaPIDFrame(tp->pid);
-			t_pidFrame * pf = list_get(listaDePidFrames, ppf);
-			pf->ultimaReferencia = *localtime(&t);
-		}*/
+		 time_t t = time(NULL);
+		 int ppf = busquedaPIDFrame(tp->pid);
+		 t_pidFrame * pf = list_get(listaDePidFrames, ppf);
+		 pf->ultimaReferencia = *localtime(&t);
+		 }*/
 		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
-
 		/* t_pidFrame * pidFrame;
 		 pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
 		 if (pidFrame != -1){
@@ -1309,29 +1308,14 @@ int busquedaPosicionAlgoritmoLRU(t_list * listaParaAlgoritmo) {
 }
 
 void * ordenarLista(t_list * listaParaAlgoritmo) {
-
-	t_list * listaOrdenada = list_create();
-	int i = 0;
-	while (i < list_size(listaParaAlgoritmo)) {
-		t_pidFrame * frameBusqueda = list_get(listaParaAlgoritmo, i);
-		t_pidFrame * otroFrameBusqueda;
-		if (i == list_size(listaParaAlgoritmo) - 1) {
-			list_add(listaOrdenada, frameBusqueda);
-			break;
-		} else
-			otroFrameBusqueda = list_get(listaParaAlgoritmo, i + 1);
-		if (otroFrameBusqueda->ultimaReferencia.tm_min
-				< frameBusqueda->ultimaReferencia.tm_min
-				|| otroFrameBusqueda->ultimaReferencia.tm_sec
-						< frameBusqueda->ultimaReferencia.tm_sec)
-			list_add(listaOrdenada, otroFrameBusqueda);
-		else
-			list_add(listaOrdenada, frameBusqueda);
-		i++;
+	bool _ordenamiento_porHorario(t_pidFrame* frameBusqueda,
+			t_pidFrame* otroFrameBusqueda) {
+		return !(otroFrameBusqueda->ultimaReferencia.tm_sec
+				> frameBusqueda->ultimaReferencia.tm_sec
+				&& otroFrameBusqueda->ultimaReferencia.tm_min
+						> frameBusqueda->ultimaReferencia.tm_min);
 	}
-	list_destroy(listaParaAlgoritmo);
-	listaParaAlgoritmo = list_create();
-	list_add(listaParaAlgoritmo, listaOrdenada);
+	list_sort(listaParaAlgoritmo, (void*) _ordenamiento_porHorario);
 	return NULL;
 }
 

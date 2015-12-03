@@ -20,7 +20,7 @@ typedef struct {
 	int frameUsado;
 	int frameModificado;
 	int puntero;
-	struct tm ultimaReferencia; //Tomo el horario para el clock
+	time_t ultimaReferencia; //Tomo el horario para el clock
 } t_pidFrame;
 
 typedef struct {

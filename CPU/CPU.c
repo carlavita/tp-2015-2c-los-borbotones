@@ -104,7 +104,10 @@ void calcularPorcentaje(void *param){
 		//total=(60*var->contadorEjecutadas)/diferencia;
 		//calcula el porcentaje de uso del último minuto de cada cpu
 	//	var->porcentajeCPU = (total* 100) / 60 ;
+		if(configuracionCPU.Retardo != 0)
 		var->porcentajeCPU = (var->contadorEjecutadas*100)/(60/configuracionCPU.Retardo);
+		else
+			var->porcentajeCPU = (var->contadorEjecutadas*100)/60;
 		printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
 		porcentaje->cpu = var->id;
 		porcentaje->porcentajeCPU = var->porcentajeCPU;

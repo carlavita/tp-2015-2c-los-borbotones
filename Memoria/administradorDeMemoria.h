@@ -89,8 +89,9 @@ t_list * estructurasPorProceso;
 t_list * frames;
 
 //Array que guardan los fallos y accesos para un proceso. el indice en el vector es el pid
-int fallos[MAXPROCESOS];
-int accesos[MAXPROCESOS];
+int fallos[MAXPROCESOS];//Fallos: el indice es el pid
+int accesos[MAXPROCESOS];//Accesos: el indice es el pid
+int punteros[MAXPROCESOS];//Punteros para el clock: el indice es el pid
 //Info para tasa de aciertos TLB
 int accesosTLB = 0;
 int aciertosTLB = 0;
@@ -139,13 +140,17 @@ int buscarEnTablaDePaginas( int pid, int pagina);
 void agregarFrame(int frameID);
 void AsignarContenidoALaPagina(int pid, int pagina,
 		char * contenidoPedidoAlSwap, int marco, int bitModificado);
-void verificarPaginaAReemplazar(frame);
+void verificarPaginaAReemplazar(int frame);
+void actualizarFrameUsado(int pid, int frame);
+void imprimirBit(int pid);
 //ALGORITMO CLOCK
 int ejecutarAlgoritmoClock (int pid, t_list * listaARemplazar);
 int algoritmoClockModificado (int pid);
 int busquedaPosicionAlgoritmo (t_list * listaBusqueda);
 int busquedaListaFrame(int pid,int frame) ;
-
+int ejecutarClockModificado(t_list * listaAUtilizar, int pid);
+int busquedaPosicionContinuarClock(t_list * listaBusqueda);
+void setearPuntero(int pid);
 
 //LRU
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo);

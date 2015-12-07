@@ -476,9 +476,9 @@ void handle(int newsock, fd_set *set) {
 			} else {
 
 				pcbProc->proxInst = pcbProc->proxInst
-						+ finQuantum.instrucciones;
+						+ finQuantum.instrucciones + 1;
 				log_info(logger, " actualiza prox instrucción: %d\n",
-						pcbProc->proxInst);
+						pcbProc->proxInst );
 			}
 			list_add(LISTOS, pcbProc);
 			removerEnListaPorPid(EJECUTANDO, finQuantum.pid);
@@ -759,7 +759,7 @@ void ejecutarIO(int socketCPU) {
 				"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
 	} else {
 
-		pcb->proxInst = pcb->proxInst + infoIO->instrucciones;
+		pcb->proxInst = pcb->proxInst + infoIO->instrucciones + 1;
 		log_info(logger, " actualiza prox instrucción: %d\n", pcb->proxInst);
 	}
 	pcb->status = BLOQUEADO;

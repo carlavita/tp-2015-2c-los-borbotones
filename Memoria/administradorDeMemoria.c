@@ -290,9 +290,12 @@ void agregarAEstructuraGeneral(void * estructurasDelProceso, int pid) {
 
 int AsignarFrameAlProceso(int pid, int cantidadDePaginas, int bit) {
 	//time_t t = time(NULL);
+int frameLibre = seleccionarFrameLibre();
+if (frameLibre != -1) {
 	t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
 
-	estructuraPidFrame->frameAsignado = seleccionarFrameLibre();
+	//estructuraPidFrame->frameAsignado = seleccionarFrameLibre();
+	estructuraPidFrame->frameAsignado = frameLibre;
 	estructuraPidFrame->pid = pid;
 	//estructuraPidFrame->frameUsado =0; //0 SIN USAR, 1 USADO.
 	//estructuraPidFrame->frameModificado = bit; //0 NECESARIO PARA ALGORITMO CLOCK TODO REVISAR: LO ACTUALIZA?cual usa?
@@ -308,6 +311,12 @@ int AsignarFrameAlProceso(int pid, int cantidadDePaginas, int bit) {
 		agregarAEstructuraGeneral(listaDePidFrames, pid);
 	}
 	return estructuraPidFrame->frameAsignado;
+}
+
+else{
+	return frameLibre;
+}
+
 }
 
 void enviarIniciarSwap(int cliente, t_iniciarPID *estructuraCPU,

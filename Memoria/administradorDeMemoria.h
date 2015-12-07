@@ -103,7 +103,7 @@ void creacionTLB();
 int ConexionMemoriaSwap(t_config_memoria* configMemoria, t_log* logMemoria);
 void generarTablaDePaginas(char * memoriaReservadaDeMemPpal, int pid,
 		int cantidadDePaginas);
-int AsignarFrameAlProceso(int pid, int cantidadDePaginas);
+int AsignarFrameAlProceso(int pid, int cantidadDePaginas, int bit);
 //void avisarAlSwap(int clienteSwap);
 //void generarEstructuraAdministrativaPidFrame(int pid, int paginas);
 void procesamientoDeMensajes(int cliente, int servidor);
@@ -135,7 +135,7 @@ int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid);
 char * pedirContenidoAlSwap(int cliente, int pid, int pagina, int servidor);
 void escribir(t_escribir * estructuraEscribir, int socketSwap);
 void escribirContenidoSwap(t_escribir * estructEscribir,int socketSwap);
-void escribirContenido(t_escribir * estructEscribir,int frame);
+void escribirContenido(t_escribir * estructEscribir,int frame, int bit);
 int buscarEnTablaDePaginas( int pid, int pagina);
 void agregarFrame(int frameID);
 void AsignarContenidoALaPagina(int pid, int pagina,

@@ -78,8 +78,10 @@ int iniciar(int idProceso, int cantidadPaginas) {
 	case -1: /*ESPACIO PARA ASIGNAR PERO NO CONTIGUO -> EJECUTAR COMPACTACION*/
 		log_info(logSWAP, "Iniciando Compactacion");
 		compactacion();
-		iniciar(idProceso,cantidadPaginas);
+		int status = iniciar(idProceso,cantidadPaginas);
+
 		log_info(logSWAP, "Compactacion finalizada");
+		return status;
 		break;
 	case -2: /* NO HAY ESPACIO PARA ASIGNAR PAGINAS DEVOLVER ERROR */
 		log_info(logSWAP,

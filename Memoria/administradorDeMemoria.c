@@ -408,10 +408,10 @@ int buscarEnLaTLB( pid, pagina) {
 	log_info(logMemoria, "INICIO BUSQUEDA DE PAGINA EN TLB");
 	int posicion = busquedaPIDEnListaTLB(pid, pagina);
 	if (posicion >= 0) {
-		t_TLB * entradaTLB = malloc(sizeof(t_TLB));
+		t_TLB * entradaTLB;// = malloc(sizeof(t_TLB));
 		entradaTLB = list_get(tlb, posicion);
 		int frame = entradaTLB->frame;
-		free(entradaTLB);
+		//free(entradaTLB);
 		accesosTLB++;
 		aciertosTLB++;
 		log_info(logMemoria, "PAGINA ENCONTRADA EN LA TLB - FRAME = %d\n",
@@ -455,9 +455,10 @@ int busquedaPIDEnListaTLB(int PID, int pagina) {
 	while ((pag->pagina != pagina || pag->pid != PID)) {
 
 		posicion++;
-		if (posicion == list_size(tlb))
+		if (posicion == list_size(tlb)){
 			return -1;
 		break;
+		}
 		pag = list_get(tlb, posicion);
 
 	}
@@ -1807,13 +1808,14 @@ void iniciarFallosYAccesos() {
 }
 
 void calcularTasaAciertos(void *ptr) {
-	int tasa = 0;
+	double tasa = 0;
 	printf("en el hilo de la tlbbbbbb\n");
 	while (true) {
 		sleep(60);
 		if (accesosTLB != 0) {
-			tasa = (aciertosTLB / accesosTLB) * 100;
-			log_info(logMemoria, "Tasa aciertos TLB : %d  %\n", tasa);
+			tasa = aciertosTLB *100 / accesosTLB;
+			log_info(logMemoria, "Aciertos TLB : %d- Accesos : %d  %\n", aciertosTLB, accesosTLB);
+			log_info(logMemoria, "Tasa aciertos TLB : %f  %\n", tasa);
 		}
 	}
 
@@ -1834,10 +1836,11 @@ void borrarEnLaTLB(int pid, int pagina) {
 		while ((entradaTLB->pagina != pagina || entradaTLB->pid != pid)) {
 
 			posicion++;
-			if (posicion == list_size(tablaDePaginas))
+			if (posicion == list_size(tlb)){
 				posicion = -1; // llego al finak de la lista y no encuentra
 			break;
-			entradaTLB = list_get(tablaDePaginas, posicion);
+			}
+			entradaTLB = list_get(tlb, posicion);
 
 		}
 		if (posicion != -1) {

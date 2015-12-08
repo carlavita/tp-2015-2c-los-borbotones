@@ -608,7 +608,7 @@ void parsermCod(t_envio *param, char *path, int pid, int lineaInicial, int serve
 					char** substrings = string_split(string, " ");
 
 					if (esIniciar(substrings[0])) {
-						param->contadorEjecutadas++;
+						//param->contadorEjecutadas++;
 						printf("comando iniciar, parametro %d \n",atoi(substrings[1]));
 
 						char *inicio = iniciar(param->id,fid, atoi(substrings[1]), pid,serverSocket,serverMemoria);

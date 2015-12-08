@@ -42,6 +42,7 @@ pthread_mutex_t mutexFrames;
 pthread_mutex_t senialUsr2;
 pthread_mutex_t senialUsr1;
 pthread_mutex_t mutexsenial;
+pthread_mutex_t MEMORIAPPAL;
 /********************/
 
 int ultimoFrameAsignado;
@@ -77,6 +78,49 @@ void inicioHiloSigUsr1() {
 }
 
 struct sigaction estructuraSignal;
+int buscarPaginaEnTP(int frame) {
+	int posicion = 0;
+	t_tablaDePaginas * tp = list_get(tablaDePaginas, posicion);
+	while (posicion < list_size(tablaDePaginas)) {
+		tp = list_get(tablaDePaginas, posicion);
+		if (tp->marco == frame) {
+			return tp->pagina;
+		} else {
+			posicion++;
+		}
+	}
+	return -1;
+}
+void borrarMemoria() {
+	t_escribir * escribir = malloc(sizeof(t_escribir));
+	int posicion = 0;
+	t_frames * frame = list_get(frames, posicion);
+	char * contenido = malloc(configMemoria.tamanioMarcos);
+	while (posicion < list_size(frames)) {
+		frame = list_get(frames, posicion);
+		int pagina = buscarPaginaEnTP(frame->frame);
+		t_pidFrame * pid = list_get(listaDePidFrames,
+				busquedaPIDFramePorFrame(frame->frame));
+
+		if (frame->ocupado == OCUPADO) {
+			pthread_mutex_lock(&MEMORIAPPAL);
+			memcpy(contenido,
+					memoriaReservadaDeMemPpal
+							+ (frame->frame * configMemoria.tamanioMarcos),
+					configMemoria.tamanioMarcos);
+			contenido[configMemoria.tamanioMarcos] = '\0';
+			pthread_mutex_unlock(&MEMORIAPPAL);
+			escribir->pid = pid->pid;
+			escribir->pagina = pagina;
+			strncpy(escribir->contenidoPagina, contenido, strlen(contenido));
+
+			serializarEstructura(ESCRIBIR, escribir, sizeof(escribir),
+					clienteSwap);
+
+		}
+		posicion++;
+	}
+}
 
 void inicioHiloSigUsr2() {
 	log_info(logMemoria, "HILO SIGUSR2");
@@ -84,6 +128,8 @@ void inicioHiloSigUsr2() {
 	while (i == 1) {
 		pthread_mutex_lock(&senialUsr2);
 		log_info(logMemoria, "FLUSH de la tabla de paginas");
+		borrarMemoria();
+
 		list_destroy(tablaDePaginas);
 		tablaDePaginas = list_create(tablaDePaginas);
 		pthread_mutex_unlock(&mutexsenial);
@@ -290,32 +336,32 @@ void agregarAEstructuraGeneral(void * estructurasDelProceso, int pid) {
 
 int AsignarFrameAlProceso(int pid, int cantidadDePaginas, int bit) {
 	//time_t t = time(NULL);
-int frameLibre = seleccionarFrameLibre();
-if (frameLibre != -1) {
-	t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
+	int frameLibre = seleccionarFrameLibre();
+	if (frameLibre != -1) {
+		t_pidFrame * estructuraPidFrame = malloc(sizeof(t_pidFrame));
 
-	//estructuraPidFrame->frameAsignado = seleccionarFrameLibre();
-	estructuraPidFrame->frameAsignado = frameLibre;
-	estructuraPidFrame->pid = pid;
-	//estructuraPidFrame->frameUsado =0; //0 SIN USAR, 1 USADO.
-	//estructuraPidFrame->frameModificado = bit; //0 NECESARIO PARA ALGORITMO CLOCK TODO REVISAR: LO ACTUALIZA?cual usa?
-	//estructuraPidFrame->puntero = 0; //NECESARIO PARA SABER DONDE CONTINUAR EN EL ALGORITMO CLOCK
-	//estructuraPidFrame->ultimaReferencia = t;
-	list_add(listaDePidFrames, estructuraPidFrame);
+		//estructuraPidFrame->frameAsignado = seleccionarFrameLibre();
+		estructuraPidFrame->frameAsignado = frameLibre;
+		estructuraPidFrame->pid = pid;
+		//estructuraPidFrame->frameUsado =0; //0 SIN USAR, 1 USADO.
+		//estructuraPidFrame->frameModificado = bit; //0 NECESARIO PARA ALGORITMO CLOCK TODO REVISAR: LO ACTUALIZA?cual usa?
+		//estructuraPidFrame->puntero = 0; //NECESARIO PARA SABER DONDE CONTINUAR EN EL ALGORITMO CLOCK
+		//estructuraPidFrame->ultimaReferencia = t;
+		list_add(listaDePidFrames, estructuraPidFrame);
 
-	log_info(logMemoria, "frame asignado: %d al pid:%d",
-			estructuraPidFrame->frameAsignado, pid);
+		log_info(logMemoria, "frame asignado: %d al pid:%d",
+				estructuraPidFrame->frameAsignado, pid);
 
-	if (list_size(busquedaListaFramesPorPid(pid))
-			< configMemoria.maximoMarcosPorProceso) {
-		agregarAEstructuraGeneral(listaDePidFrames, pid);
+		if (list_size(busquedaListaFramesPorPid(pid))
+				< configMemoria.maximoMarcosPorProceso) {
+			agregarAEstructuraGeneral(listaDePidFrames, pid);
+		}
+		return estructuraPidFrame->frameAsignado;
 	}
-	return estructuraPidFrame->frameAsignado;
-}
 
-else{
-	return frameLibre;
-}
+	else {
+		return frameLibre;
+	}
 
 }
 
@@ -554,7 +600,6 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		paginaAAsignar->pagina = pagina;
 		paginaAAsignar->bitModificado = bitModificado;
 
-
 		paginaAAsignar->bitUso = 1;
 		paginaAAsignar->bitValidez = 1;
 		paginaAAsignar->presencia = 1;
@@ -568,11 +613,10 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			log_info(logMemoria, "ejecuta algoritmo de reemplazo \n");
 			log_info("Cantidad actual de frames asignados al proceso %d  : %d",
 					CantidadDeFrames(pid));
-			ejecucionAlgoritmo = 1 ;
+			ejecucionAlgoritmo = 1;
 			paginaAAsignar->marco = ejecutarAlgoritmo(pid);
 			imprimirBit(pid);
 			pthread_mutex_unlock(&BLOQUEAR);
-
 
 			usleep(configMemoria.retardoMemoria);
 
@@ -580,11 +624,13 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			char * contenido = malloc(strlen(contenidoPedidoAlSwap));
 			strncpy(contenido, contenidoPedidoAlSwap,
 					strlen(contenidoPedidoAlSwap));
+			pthread_mutex_lock(&MEMORIAPPAL);
 			memcpy(
 					memoriaReservadaDeMemPpal
 							+ (paginaAAsignar->marco
 									* configMemoria.tamanioMarcos), contenido,
 					configMemoria.tamanioMarcos);
+			pthread_mutex_unlock(&MEMORIAPPAL);
 
 			//paginaAAsignar->direccion = strdup(memoriaReservadaDeMemPpal);
 			//todo revisar esta asignacion//>reemplazarla por la de arriba si falla
@@ -593,36 +639,32 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			usleep(configMemoria.retardoMemoria);
 		}
 		time_t t = time(NULL);
-					int ppf = busquedaPIDFramePorFrame(paginaAAsignar->marco);
-					if (ppf != -1) {
-						t_pidFrame * pf = list_get(listaDePidFrames, ppf);
-						pf->ultimaReferencia = t;
-						pf->frameModificado = bitModificado;
+		int ppf = busquedaPIDFramePorFrame(paginaAAsignar->marco);
+		if (ppf != -1) {
+			t_pidFrame * pf = list_get(listaDePidFrames, ppf);
+			pf->ultimaReferencia = t;
+			pf->frameModificado = bitModificado;
 
-						if (ejecucionAlgoritmo == 1)
-						{
-							pf->puntero = 1;
-						}
-						else
-						{
-							//pf->frameModificado = bitModificado;
-													pf->puntero = 0 ;
-						}
+			if (ejecucionAlgoritmo == 1) {
+				pf->puntero = 1;
+			} else {
+				//pf->frameModificado = bitModificado;
+				pf->puntero = 0;
+			}
 
+			pf->frameUsado = 1;
+		} else if (list_size(busquedaListaFramesPorPid(pid))
+				< configMemoria.maximoMarcosPorProceso) {
+			t_pidFrame *pf = malloc(sizeof(t_pidFrame));
+			pf->frameAsignado = paginaAAsignar->marco;
+			pf->pid = pid;
+			pf->puntero = 0;
+			pf->ultimaReferencia = t;
+			pf->frameModificado = bitModificado;
+			pf->frameUsado = 1;
+			list_add(listaDePidFrames, pf);
 
-						pf->frameUsado=1;
-					} else if (list_size(busquedaListaFramesPorPid(pid))
-							< configMemoria.maximoMarcosPorProceso) {
-						t_pidFrame *pf = malloc(sizeof(t_pidFrame));
-						pf->frameAsignado = paginaAAsignar->marco;
-						pf->pid = pid;
-						pf->puntero = 0;
-						pf->ultimaReferencia = t;
-						pf->frameModificado = bitModificado;
-						pf->frameUsado = 1;
-						list_add(listaDePidFrames, pf);
-
-					}
+		}
 
 		AsignarEnTlb(pid, pagina, paginaAAsignar->marco);
 
@@ -631,7 +673,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 		//TODO
 		strncpy(escribir->contenidoPagina, contenidoPedidoAlSwap,
 				strlen(contenidoPedidoAlSwap) + 1);
-		escribirContenido(escribir, paginaAAsignar->marco,4);
+		escribirContenido(escribir, paginaAAsignar->marco, 4);
 		//list_replace(tablaDePaginas, posicion, paginaAAsignar); //TODO hay que buscar la pagina del proceso, para reemplazar esa posicion y no cualquiera
 	}
 
@@ -666,7 +708,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 				if (list_size(busquedaListaFramesPorPid(pid))
 						< configMemoria.maximoMarcosPorProceso) {
 					marco = -1;
-					marco = AsignarFrameAlProceso(pid, pagina,0);
+					marco = AsignarFrameAlProceso(pid, pagina, 0);
 				}
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
@@ -685,7 +727,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 				if (list_size(busquedaListaFramesPorPid(pid))
 						< configMemoria.maximoMarcosPorProceso) { //TODO funcion para que cuent
 					marco = -1;
-					marco = AsignarFrameAlProceso(pid, pagina,0);
+					marco = AsignarFrameAlProceso(pid, pagina, 0);
 				}
 				char * contenidoPedidoAlSwap = pedirContenidoAlSwap(socketSwap,
 						pid, pagina, socketCPU);
@@ -734,7 +776,7 @@ t_list * busquedaListaFramesPorPid(int pid) {
 	pidFrame = list_get(listaDePidFrames, contador);
 	while (contador < list_size(listaDePidFrames)) {
 		if (pidFrame->pid == pid) {
-		//	log_info(logMemoria,"FRAME:%d,MODIFICADO: %d, USO: %d \n",pidFrame->frameAsignado, pidFrame->frameModificado,pidFrame->frameUsado);
+			//	log_info(logMemoria,"FRAME:%d,MODIFICADO: %d, USO: %d \n",pidFrame->frameAsignado, pidFrame->frameModificado,pidFrame->frameUsado);
 			list_add(listaFramesPid, pidFrame);
 		}
 		contador++;
@@ -750,8 +792,10 @@ void imprimirBit(int pid) {
 	pidFrame = list_get(listaDePidFrames, contador);
 	while (contador < list_size(listaDePidFrames)) {
 		if (pidFrame->pid == pid) {
-			log_info(logMemoria,"FRAME:%d,MODIFICADO: %d, USO: %d , PUNTERO %d\n",
-				pidFrame->frameAsignado, pidFrame->frameModificado,pidFrame->frameUsado, pidFrame->puntero);
+			log_info(logMemoria,
+					"FRAME:%d,MODIFICADO: %d, USO: %d , PUNTERO %d\n",
+					pidFrame->frameAsignado, pidFrame->frameModificado,
+					pidFrame->frameUsado, pidFrame->puntero);
 			//list_add(listaFramesPid, pidFrame);
 		}
 		contador++;
@@ -904,9 +948,11 @@ void RealizarVolcadoMemoriaLog() {
 	int i = 0;
 
 	for (i = 0; i <= configMemoria.cantidadDeMarcos; i++) {
+		pthread_mutex_lock(&MEMORIAPPAL);
 		memcpy(frameContenido,
 				memoriaReservadaDeMemPpal + (i * configMemoria.tamanioMarcos),
 				configMemoria.tamanioMarcos);
+		pthread_mutex_unlock(&MEMORIAPPAL);
 		frameContenido[configMemoria.tamanioMarcos + 1] = '\0';
 		log_info(logMemoria, "FRAME: %d - CONTENIDO: %s ", i, frameContenido);
 
@@ -988,7 +1034,7 @@ int algoritmoClockModificado(int pid) {
 	listaParaAlgoritmo = busquedaListaFramesPorPid(pid);
 	imprimirBit(pid);
 	//return ejecutarAlgoritmoClock(pid, listaParaAlgoritmo);
-	return ejecutarClockModificado(listaParaAlgoritmo,pid);
+	return ejecutarClockModificado(listaParaAlgoritmo, pid);
 
 }
 
@@ -1020,504 +1066,484 @@ int ejecutarClockModificado(t_list * listaAUtilizar, int pid) {
 		if (frameAlgoritmo->frameUsado == 0) { //CONTROLA QUE EMPIECE CON FRAME USADO EN 0 PARA HACER TODO LO SIGUIENTE:
 			if (primeraVuelta >= 1) { //se busca por condicion (0,0)
 				if (frameAlgoritmo->frameModificado == 0) {
-				return frameAlgoritmo->frameAsignado; //ENCONTRO LA VICTIMA, LA DEVUELVO
+					return frameAlgoritmo->frameAsignado; //ENCONTRO LA VICTIMA, LA DEVUELVO
 
-			}
-			if (frameAlgoritmo->frameModificado == 1) {
-				//BUSCO LA SIGUIENTE POSIBLE VICTIMA
-				if (posicion + 1 == list_size(listaAUtilizar)) //LLEGUE AL FINAL DE LA LISTA, VUELVO AL COMIENZO
-						{
-					posicion = 0;
-					frameAlgoritmo = list_get(listaAUtilizar, posicion);
-					if (posicion == posicionFinal) //consulto si ya di una vuelta completa
+				}
+				if (frameAlgoritmo->frameModificado == 1) {
+					//BUSCO LA SIGUIENTE POSIBLE VICTIMA
+					if (posicion + 1 == list_size(listaAUtilizar)) //LLEGUE AL FINAL DE LA LISTA, VUELVO AL COMIENZO
 							{
-							if (primeraVuelta == 1)
-									{
+						posicion = 0;
+						frameAlgoritmo = list_get(listaAUtilizar, posicion);
+						if (posicion == posicionFinal) //consulto si ya di una vuelta completa
+								{
+							if (primeraVuelta == 1) {
 								primeraVuelta = 0;
-									}
-							else {
+							} else {
 								primeraVuelta++;
 							}
 
+						}
 
+					} else {
+						posicion++;
+						frameAlgoritmo = list_get(listaAUtilizar, posicion);
+						if (posicion == posicionFinal) //consulto si ya di una vuelta completa
+								{
+							if (primeraVuelta == 1) {
+								primeraVuelta = 0;
+							} else {
+								primeraVuelta++;
+							}
+						}
 					}
 
-				} else {
-					posicion++;
-					frameAlgoritmo = list_get(listaAUtilizar, posicion);
-					if (posicion == posicionFinal) //consulto si ya di una vuelta completa
+				}
+
+			}
+			if (primeraVuelta == 0) { //se busca condicion (0,1)
+				if (frameAlgoritmo->frameModificado == 1) {
+					return frameAlgoritmo->frameAsignado; //ENCONTRO LA VICTIMA, LA DEVUELVO
+
+				}
+				if (frameAlgoritmo->frameModificado == 0) {
+					//BUSCO LA SIGUIENTE POSIBLE VICTIMA
+					if (posicion + 1 == list_size(listaAUtilizar)) //LLEGUE AL FINAL DE LA LISTA, VUELVO AL COMIENZO
 							{
-						if (primeraVuelta == 1)
-															{
-														primeraVuelta = 0;
-															}
-													else {
-														primeraVuelta++;
-													}
+						posicion = 0;
+						frameAlgoritmo = list_get(listaAUtilizar, posicion);
+						if (posicion == posicionFinal) //consulto si ya di una vuelta completa
+								{
+							primeraVuelta = 1;
+						}
+
+					} else {
+						posicion++;
+						frameAlgoritmo = list_get(listaAUtilizar, posicion);
+						if (posicion == posicionFinal) //consulto si ya di una vuelta completa
+								{
+							primeraVuelta = 1;
+						}
 					}
+
 				}
 
 			}
 
 		}
-		if (primeraVuelta == 0) { //se busca condicion (0,1)
-			if(frameAlgoritmo->frameModificado == 1)
-			{
-			return frameAlgoritmo -> frameAsignado; //ENCONTRO LA VICTIMA, LA DEVUELVO
 
-		}
-		if (frameAlgoritmo->frameModificado == 0) {
-			//BUSCO LA SIGUIENTE POSIBLE VICTIMA
+		if (frameAlgoritmo->frameUsado == 1) {
+			if (primeraVuelta < 1) {
+				frameAlgoritmo->frameUsado = 0;
+				actualizarFrameUsado(frameAlgoritmo->pid,
+						frameAlgoritmo->frameAsignado);
+			}
+
 			if (posicion + 1 == list_size(listaAUtilizar)) //LLEGUE AL FINAL DE LA LISTA, VUELVO AL COMIENZO
 					{
 				posicion = 0;
+
 				frameAlgoritmo = list_get(listaAUtilizar, posicion);
 				if (posicion == posicionFinal) //consulto si ya di una vuelta completa
 						{
-					primeraVuelta = 1;
-				}
+					if (primeraVuelta > 0) { //ME FIJO QUE SITUACION ESTÁ Y CUAL DEBE SEGUIR
 
+						primeraVuelta = 0;
+					} else {
+						primeraVuelta = 1;
+					}
+
+				}
 			} else {
 				posicion++;
 				frameAlgoritmo = list_get(listaAUtilizar, posicion);
 				if (posicion == posicionFinal) //consulto si ya di una vuelta completa
 						{
-					primeraVuelta = 1;
-				}
-			}
-
-		}
-
-	}
-
-}
-
-if (frameAlgoritmo->frameUsado == 1) {
-	if (primeraVuelta < 1) {
-		frameAlgoritmo->frameUsado = 0;
-			actualizarFrameUsado(frameAlgoritmo->pid, frameAlgoritmo->frameAsignado);
-	}
-
-
-	if (posicion + 1 == list_size(listaAUtilizar)) //LLEGUE AL FINAL DE LA LISTA, VUELVO AL COMIENZO
-			{
-		posicion = 0;
-
-		frameAlgoritmo = list_get(listaAUtilizar, posicion);
-		if (posicion == posicionFinal) //consulto si ya di una vuelta completa
-				{
-			if (primeraVuelta > 0) { //ME FIJO QUE SITUACION ESTÁ Y CUAL DEBE SEGUIR
-
+					if (primeraVuelta > 0) {
 						primeraVuelta = 0;
+					} else {
+						primeraVuelta = 1;
 					}
-				 else {
-				primeraVuelta = 1;
-			}
-
 				}
-	} else {
-		posicion++;
-		frameAlgoritmo = list_get(listaAUtilizar, posicion);
-		if (posicion == posicionFinal) //consulto si ya di una vuelta completa
-				{
-			if (primeraVuelta > 0) {
-						primeraVuelta = 0;
-							}
-			else{
-							primeraVuelta = 1;
-						}
+			}
 		}
+
 	}
-}
+
+	return frameAlgoritmo->frameAsignado;
 
 }
 
-return frameAlgoritmo->frameAsignado;
-
-}
-
-void actualizarFrameUsado(int pid, int frame){
+void actualizarFrameUsado(int pid, int frame) {
 	int posicion = 0;
 	t_pidFrame * frameBusqueda;
 	frameBusqueda = list_get(listaDePidFrames, posicion);
 
-	while (posicion < list_size(listaDePidFrames)){
+	while (posicion < list_size(listaDePidFrames)) {
 
-		if(posicion + 1 == list_size(listaDePidFrames))
-		{
+		if (posicion + 1 == list_size(listaDePidFrames)) {
 			break;
 		}
-		if (frameBusqueda->frameAsignado == frame && frameBusqueda->pid == pid)
-		{
+		if (frameBusqueda->frameAsignado == frame
+				&& frameBusqueda->pid == pid) {
 
 			frameBusqueda->frameUsado = 0;
 			break;
-		}
-		else
-		{
+		} else {
 			posicion++;
-			frameBusqueda = list_get(listaDePidFrames,posicion);
+			frameBusqueda = list_get(listaDePidFrames, posicion);
 		}
 
 	}
 
-
-
 }
-
 
 int busquedaPosicionContinuarClock(t_list *listaBusqueda) {
-int posicion = 0;
-t_pidFrame * frameBusqueda;
-frameBusqueda = list_get(listaBusqueda, posicion);
-while (posicion < list_size(listaBusqueda)) {
-if (posicion + 1 == list_size(listaBusqueda)) {
-	return -1;
-}
-if (frameBusqueda->puntero == 1) {
-
-	return posicion;
-
-} else {
-	posicion++;
+	int posicion = 0;
+	t_pidFrame * frameBusqueda;
 	frameBusqueda = list_get(listaBusqueda, posicion);
-}
+	while (posicion < list_size(listaBusqueda)) {
+		if (posicion + 1 == list_size(listaBusqueda)) {
+			return -1;
+		}
+		if (frameBusqueda->puntero == 1) {
 
-}
+			return posicion;
 
-return -1;
+		} else {
+			posicion++;
+			frameBusqueda = list_get(listaBusqueda, posicion);
+		}
+
+	}
+
+	return -1;
 }
 
 void setearPuntero(int pid) {
-int posicion = 0;
-t_pidFrame * frameBusqueda;
-frameBusqueda = list_get(listaDePidFrames, posicion);
+	int posicion = 0;
+	t_pidFrame * frameBusqueda;
+	frameBusqueda = list_get(listaDePidFrames, posicion);
 
-while (posicion < list_size(listaDePidFrames)){
+	while (posicion < list_size(listaDePidFrames)) {
 
-	if(posicion + 1 == list_size(listaDePidFrames))
-	{
-		break;
+		if (posicion + 1 == list_size(listaDePidFrames)) {
+			break;
+		}
+		if (frameBusqueda->puntero == 1 && frameBusqueda->pid == pid) {
+
+			frameBusqueda->puntero = 0;
+			posicion++;
+			frameBusqueda = list_get(listaDePidFrames, posicion);
+
+		} else {
+			posicion++;
+			frameBusqueda = list_get(listaDePidFrames, posicion);
+		}
+
 	}
-	if (frameBusqueda->puntero == 1 && frameBusqueda->pid == pid)
-	{
-
-		frameBusqueda-> puntero = 0;
-		posicion++;
-		frameBusqueda = list_get(listaDePidFrames,posicion);
-
-	}
-	else
-	{
-		posicion++;
-		frameBusqueda = list_get(listaDePidFrames,posicion);
-	}
-
 }
-}
-
 
 int CantidadDeFrames(int pid) {
-int cantidadDeFrames = 0;
-int posicion = 0;
-t_list * pf = list_create();
-t_list * listaADestruir = list_create();
+	int cantidadDeFrames = 0;
+	int posicion = 0;
+	t_list * pf = list_create();
+	t_list * listaADestruir = list_create();
 
-list_add_all(pf, listaDePidFrames);
+	list_add_all(pf, listaDePidFrames);
 
-while (posicion < list_size(listaDePidFrames)) {
-	t_pidFrame * pfr = malloc(sizeof(t_pidFrame));
+	while (posicion < list_size(listaDePidFrames)) {
+		t_pidFrame * pfr = malloc(sizeof(t_pidFrame));
 
-	pfr = list_get(pf, posicion);
-	list_add(listaADestruir, pfr);
-	if (pfr != NULL && pfr->pid == pid) {
-		cantidadDeFrames++;
-		posicion++;
-	} else
-		posicion++;
-}
+		pfr = list_get(pf, posicion);
+		list_add(listaADestruir, pfr);
+		if (pfr != NULL && pfr->pid == pid) {
+			cantidadDeFrames++;
+			posicion++;
+		} else
+			posicion++;
+	}
 
-list_destroy(pf);
+	list_destroy(pf);
 
-log_info(logMemoria,
-		"Cantidad actual de frames asignados al proceso %d  : %d \n", pid,
-		cantidadDeFrames);
+	log_info(logMemoria,
+			"Cantidad actual de frames asignados al proceso %d  : %d \n", pid,
+			cantidadDeFrames);
 
-return cantidadDeFrames;
+	return cantidadDeFrames;
 }
 
 void escribir(t_escribir * estructuraEscribir, int socketSwap) {
-int resultadoBusquedaTLB, resultadoBusquedaTP;
-int pid = estructuraEscribir->pid;
-int pagina = estructuraEscribir->pagina;
-log_info(logMemoria, "ESCRIBIR PAGINA %d  - PROCESO %d \n", pagina, pid);
-accesos[pid]++;
-switch (configMemoria.tlbHabilitada) {
-case 1:
-	resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
-	if (resultadoBusquedaTLB >= 0) //resultadoBusquedaTLB = frame
-			{
+	int resultadoBusquedaTLB, resultadoBusquedaTP;
+	int pid = estructuraEscribir->pid;
+	int pagina = estructuraEscribir->pagina;
+	log_info(logMemoria, "ESCRIBIR PAGINA %d  - PROCESO %d \n", pagina, pid);
+	accesos[pid]++;
+	switch (configMemoria.tlbHabilitada) {
+	case 1:
+		resultadoBusquedaTLB = buscarEnLaTLB(pid, pagina);
+		if (resultadoBusquedaTLB >= 0) //resultadoBusquedaTLB = frame
+				{
 
-		escribirContenido(estructuraEscribir, resultadoBusquedaTLB,1);
+			escribirContenido(estructuraEscribir, resultadoBusquedaTLB, 1);
 
-	} else {
-		int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
+		} else {
+			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
+			if (resultadoBusquedaTP >= 0) {
+				escribirContenido(estructuraEscribir, resultadoBusquedaTP, 1);
+			} else {
+				//Actualiza Fallos
+				fallos[pid]++;
+				escribirContenidoSwap(estructuraEscribir, socketSwap);
+			}
+		}
+		break;
+	case 0:
+		resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
 		if (resultadoBusquedaTP >= 0) {
-			escribirContenido(estructuraEscribir, resultadoBusquedaTP,1);
+			escribirContenido(estructuraEscribir, resultadoBusquedaTP, 1);
 		} else {
 			//Actualiza Fallos
 			fallos[pid]++;
 			escribirContenidoSwap(estructuraEscribir, socketSwap);
+			break;
 		}
-	}
-	break;
-case 0:
-	resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
-	if (resultadoBusquedaTP >= 0) {
-		escribirContenido(estructuraEscribir, resultadoBusquedaTP,1);
-	} else {
-		//Actualiza Fallos
-		fallos[pid]++;
-		escribirContenidoSwap(estructuraEscribir, socketSwap);
-		break;
-	}
 
-}
+	}
 }
 
 void escribirContenido(t_escribir * estructEscribir, int frame, int bit) {
-int posicion = busquedaPIDEnLista(estructEscribir->pid,
-		estructEscribir->pagina);
+	int posicion = busquedaPIDEnLista(estructEscribir->pid,
+			estructEscribir->pagina);
 
-/*char * contenido = malloc(configMemoria.tamanioMarcos + 1);
- memcpy(contenido,estructEscribir->contenidoPagina,configMemoria.tamanioMarcos );
- contenido[configMemoria.tamanioMarcos] = '\0';*/
+	/*char * contenido = malloc(configMemoria.tamanioMarcos + 1);
+	 memcpy(contenido,estructEscribir->contenidoPagina,configMemoria.tamanioMarcos );
+	 contenido[configMemoria.tamanioMarcos] = '\0';*/
 
-if (posicion > 0) {
-	t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
-	tp = list_get(tablaDePaginas, posicion);
-	if (bit <= 1)  {
-		tp->bitModificado = bit;
+	if (posicion > 0) {
+		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
+		tp = list_get(tablaDePaginas, posicion);
+		if (bit <= 1) {
+			tp->bitModificado = bit;
+		}
+
+		if (bit <= 1) {
+			time_t t = time(NULL);
+			int ppf = busquedaPIDFramePorFrame(tp->marco);
+			if (ppf != -1) {
+				t_pidFrame * pf = list_get(listaDePidFrames, ppf);
+				pf->ultimaReferencia = t;
+				pf->frameAsignado = frame;
+				pf->frameModificado = 1;
+				pf->frameUsado = 1;
+
+			} else if (list_size(
+					busquedaListaFramesPorPid(estructEscribir->pid))
+					< configMemoria.maximoMarcosPorProceso) {
+				t_pidFrame *pf = malloc(sizeof(t_pidFrame));
+				pf->frameAsignado = frame;
+				pf->pid = estructEscribir->pid;
+				pf->puntero = 0;
+				pf->ultimaReferencia = t;
+				pf->frameModificado = bit;
+				pf->frameUsado = 1;
+				list_add(listaDePidFrames, pf);
+			}
+		}
+
+		//list_replace(tablaDePaginas, posicion, (void *)tp);
+		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		/* t_pidFrame * pidFrame;
+		 pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
+		 if (pidFrame != -1){
+		 pidFrame->frameModificado = 1;
+		 }*/
+		//memcpy(direccion, contenido,configMemoria.tamanioMarcos);
+		int offset = frame * configMemoria.tamanioMarcos;
+
+		strncpy(memoriaReservadaDeMemPpal + offset,
+				estructEscribir->contenidoPagina, configMemoria.tamanioMarcos);
 	}
-
-
-if (bit <= 1)  {
-	time_t t = time(NULL);
-	int ppf = busquedaPIDFramePorFrame(tp->marco);
-	if (ppf != -1) {
-		t_pidFrame * pf = list_get(listaDePidFrames, ppf);
-		pf->ultimaReferencia = t;
-		pf->frameAsignado = frame;
-		pf->frameModificado = 1;
-		pf->frameUsado = 1;
-
-	} else if (list_size(busquedaListaFramesPorPid(estructEscribir->pid))
-			< configMemoria.maximoMarcosPorProceso) {
-		t_pidFrame *pf = malloc(sizeof(t_pidFrame));
-		pf->frameAsignado = frame;
-		pf->pid = estructEscribir->pid;
-		pf->puntero = 0;
-		pf->ultimaReferencia = t;
-		pf->frameModificado = bit;
-		pf->frameUsado = 1;
-		list_add(listaDePidFrames, pf);
-	}
-}
-
-	//list_replace(tablaDePaginas, posicion, (void *)tp);
-	//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
-	/* t_pidFrame * pidFrame;
-	 pidFrame = list_get(listaDePidFrames,busquedaListaFrame(tp->pid,tp->marco));
-	 if (pidFrame != -1){
-	 pidFrame->frameModificado = 1;
-	 }*/
-	//memcpy(direccion, contenido,configMemoria.tamanioMarcos);
-	int offset = frame * configMemoria.tamanioMarcos;
-
-	strncpy(memoriaReservadaDeMemPpal + offset,
-			estructEscribir->contenidoPagina, configMemoria.tamanioMarcos);
-}
 }
 
 int busquedaListaFrame(int pid, int frame) {
-t_pidFrame * pidFrame;
-int contador = 0;
-int posicion = -1;
-pidFrame = list_get(listaDePidFrames, contador);
-while (contador < list_size(listaDePidFrames)) {
-	if (pidFrame->pid == pid && pidFrame->frameAsignado == frame) {
-		posicion = contador;
-		return posicion;
-	} else
-		contador++;
-	list_get(listaDePidFrames, contador);
-}
+	t_pidFrame * pidFrame;
+	int contador = 0;
+	int posicion = -1;
+	pidFrame = list_get(listaDePidFrames, contador);
+	while (contador < list_size(listaDePidFrames)) {
+		if (pidFrame->pid == pid && pidFrame->frameAsignado == frame) {
+			posicion = contador;
+			return posicion;
+		} else
+			contador++;
+		list_get(listaDePidFrames, contador);
+	}
 
-return posicion;
+	return posicion;
 }
 
 char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
-log_info(logMemoria, "INICIO PEDIDO AL SWAP");
-int tamanioLeido;
-t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
-estructuraLeerSwap->pid = pid;
-estructuraLeerSwap->pagina = pagina;
-serializarEstructura(LEER, estructuraLeerSwap, sizeof(t_leer), cliente);
-recv(cliente, &tamanioLeido, sizeof(int), 0);
+	log_info(logMemoria, "INICIO PEDIDO AL SWAP");
+	int tamanioLeido;
+	t_leer * estructuraLeerSwap = malloc(sizeof(t_leer));
+	estructuraLeerSwap->pid = pid;
+	estructuraLeerSwap->pagina = pagina;
+	serializarEstructura(LEER, estructuraLeerSwap, sizeof(t_leer), cliente);
+	recv(cliente, &tamanioLeido, sizeof(int), 0);
 
-char* contenidoLeido = malloc(tamanioLeido);
+	char* contenidoLeido = malloc(tamanioLeido);
 
-recv(cliente, contenidoLeido, tamanioLeido, 0);
+	recv(cliente, contenidoLeido, tamanioLeido, 0);
 
-log_info(logMemoria, "Contenido: %s", contenidoLeido);
-free(estructuraLeerSwap);
-return contenidoLeido;
+	log_info(logMemoria, "Contenido: %s", contenidoLeido);
+	free(estructuraLeerSwap);
+	return contenidoLeido;
 }
 
 void escribirContenidoSwap(t_escribir * estructEscribir, int socketSwap) {
-int posicion = busquedaPIDEnLista(estructEscribir->pid,
-		estructEscribir->pagina);
-int marco = -1;
+	int posicion = busquedaPIDEnLista(estructEscribir->pid,
+			estructEscribir->pagina);
+	int marco = -1;
 
-if (posicion >= 0) {
-	t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
-	tp = list_get(tablaDePaginas, posicion);
-	tp->bitModificado = 1;
-	tp->presencia = 1;
-	tp->bitUso = 1;
-	//	list_replace(tablaDePaginas, posicion, tp);
+	if (posicion >= 0) {
+		t_tablaDePaginas * tp = malloc(sizeof(t_tablaDePaginas));
+		tp = list_get(tablaDePaginas, posicion);
+		tp->bitModificado = 1;
+		tp->presencia = 1;
+		tp->bitUso = 1;
+		//	list_replace(tablaDePaginas, posicion, tp);
 
-	//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
-	/*	 t_pidFrame * pidFrame;
-	 pidFrame = list_get(listaDePidFrames,busquedaPIDFrame(tp->pid,tp->marco));
-	 if (tp->marco != -1){
+		//TODO BUSCAR EL FRAME PARA ESE PID Y METERLE EL MODIFICADO EN 1
+		/*	 t_pidFrame * pidFrame;
+		 pidFrame = list_get(listaDePidFrames,busquedaPIDFrame(tp->pid,tp->marco));
+		 if (tp->marco != -1){
 
-	 pidFrame->frameModificado = 1;
-	 pidFrame->frameAsignado = tp->marco;
-	 pidFrame->ultimaReferencia = t;
-	 }*/
+		 pidFrame->frameModificado = 1;
+		 pidFrame->frameAsignado = tp->marco;
+		 pidFrame->ultimaReferencia = t;
+		 }*/
 
-	char * contenido = pedirLecturaAlSwapEscribir(socketSwap,
-			estructEscribir->pid, estructEscribir->pagina);
-	contenido = estructEscribir->contenidoPagina;
+		char * contenido = pedirLecturaAlSwapEscribir(socketSwap,
+				estructEscribir->pid, estructEscribir->pagina);
+		contenido = estructEscribir->contenidoPagina;
 
-	if (list_size(busquedaListaFramesPorPid(estructEscribir->pid))
-	//	<= configMemoria.maximoMarcosPorProceso) {
-			< configMemoria.maximoMarcosPorProceso) {
-		marco = AsignarFrameAlProceso(estructEscribir->pid,
-				estructEscribir->pagina,1);
+		if (list_size(busquedaListaFramesPorPid(estructEscribir->pid))
+		//	<= configMemoria.maximoMarcosPorProceso) {
+				< configMemoria.maximoMarcosPorProceso) {
+			marco = AsignarFrameAlProceso(estructEscribir->pid,
+					estructEscribir->pagina, 1);
+		}
+		AsignarContenidoALaPagina(estructEscribir->pid, estructEscribir->pagina,
+				contenido, marco, 1);
+
 	}
-	AsignarContenidoALaPagina(estructEscribir->pid, estructEscribir->pagina,
-			contenido, marco, 1);
-
-
-}
 }
 
 int llamar(int pid) {
-int i;
-int cantidadDeFramesDelPid = CantidadDeFrames(pid);
+	int i;
+	int cantidadDeFramesDelPid = CantidadDeFrames(pid);
 
-for (i = 0; i < cantidadDeFramesDelPid; i++) {
-	if (i > 5) {
-		return ultimoFrameAsignado;
+	for (i = 0; i < cantidadDeFramesDelPid; i++) {
+		if (i > 5) {
+			return ultimoFrameAsignado;
+		}
+		return colaParaReemplazo(i, cantidadDeFramesDelPid, pid);	//i:frame
 	}
-	return colaParaReemplazo(i, cantidadDeFramesDelPid, pid);	//i:frame
-}
-return ultimoFrameAsignado;
+	return ultimoFrameAsignado;
 }
 
 int busquedaPIDFrame(int PID) {
-int posicion = 0;
-t_pidFrame * pidFrame = list_get(listaDePidFrames, posicion);
+	int posicion = 0;
+	t_pidFrame * pidFrame = list_get(listaDePidFrames, posicion);
 
-while (pidFrame->pid != PID) {
-	posicion++;
-	pidFrame = list_get(listaDePidFrames, posicion);
-}
-if (pidFrame->pid == PID) {
-	return posicion;
-} else {
-	return -1;
-}
+	while (pidFrame->pid != PID) {
+		posicion++;
+		pidFrame = list_get(listaDePidFrames, posicion);
+	}
+	if (pidFrame->pid == PID) {
+		return posicion;
+	} else {
+		return -1;
+	}
 }
 
 int ObtenerPrimerFrame(int pid) {
 
-return busquedaPIDFrame(pid);
+	return busquedaPIDFrame(pid);
 
 }
 
 int colaParaReemplazo(int frameAReemplazar, int cantidadDeFrames, int pid) {
-int posicion;
-time_t t = time(NULL);
-t_pidFrame * pf = malloc(sizeof(t_pidFrame));
-t_pidFrame * pidframe = malloc(sizeof(t_pidFrame));
-posicion = ObtenerPrimerFrame(pid);
-int i = 0;
+	int posicion;
+	time_t t = time(NULL);
+	t_pidFrame * pf = malloc(sizeof(t_pidFrame));
+	t_pidFrame * pidframe = malloc(sizeof(t_pidFrame));
+	posicion = ObtenerPrimerFrame(pid);
+	int i = 0;
 
-while (i < list_size(listaDePidFrames)) {
-	t_pidFrame* lp = malloc(sizeof(t_pidFrame));
-	lp = list_get(listaDePidFrames, i);
-	i++;
-}
+	while (i < list_size(listaDePidFrames)) {
+		t_pidFrame* lp = malloc(sizeof(t_pidFrame));
+		lp = list_get(listaDePidFrames, i);
+		i++;
+	}
 
-pf = list_remove(listaDePidFrames, posicion);
+	pf = list_remove(listaDePidFrames, posicion);
 
-pidframe->frameAsignado = pf->frameAsignado;
-pidframe->frameUsado = 1;
-pidframe->frameModificado = 0; //NECESARIO PARA CLOCK
-pidframe->pid = pid;
-pidframe->puntero = 0; //NECESARIO PARA SABER DONDE CONTINUAR EN ALGORITMO CLOCK
-pidframe->ultimaReferencia = t; //SE USA EN EL LRU
-list_add(listaDePidFrames, pidframe);
+	pidframe->frameAsignado = pf->frameAsignado;
+	pidframe->frameUsado = 1;
+	pidframe->frameModificado = 0; //NECESARIO PARA CLOCK
+	pidframe->pid = pid;
+	pidframe->puntero = 0; //NECESARIO PARA SABER DONDE CONTINUAR EN ALGORITMO CLOCK
+	pidframe->ultimaReferencia = t; //SE USA EN EL LRU
+	list_add(listaDePidFrames, pidframe);
 
-log_info(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d", pf->frameAsignado,
-		pidframe->frameAsignado);
-int frameADevolver = pf->frameAsignado;
-return frameADevolver;
+	log_info(logMemoria, "Frame asignado: %d, FRAME GRABADO: %d",
+			pf->frameAsignado, pidframe->frameAsignado);
+	int frameADevolver = pf->frameAsignado;
+	return frameADevolver;
 }
 
 int algoritmoLRU(int pid) {
-t_list * listaParaAlgoritmo = list_create();
-pthread_mutex_lock(&mutexFrame);
-listaParaAlgoritmo = busquedaListaFramesPorPid(pid);
-pthread_mutex_unlock(&mutexFrame);
-int frame = ejecutarlru(pid, listaParaAlgoritmo);
+	t_list * listaParaAlgoritmo = list_create();
+	pthread_mutex_lock(&mutexFrame);
+	listaParaAlgoritmo = busquedaListaFramesPorPid(pid);
+	pthread_mutex_unlock(&mutexFrame);
+	int frame = ejecutarlru(pid, listaParaAlgoritmo);
 //list_destroy(listaParaAlgoritmo);
-return frame;
+	return frame;
 }
 
 int ejecutarlru(int pid, t_list * listaParaAlgoritmo) {
 //time_t t = time(NULL);
 //int posicion = busquedaPosicionAlgoritmoLRU(listaParaAlgoritmo); //BUSCO DESDE DONDE CONTINUAR CON EL ALGORITMO
-ordenarLista(listaParaAlgoritmo);
-int i = 0;
-printf("ORDENAMIENTO \n");
-while (i < list_size(listaParaAlgoritmo)) {
-	t_pidFrame * pf = list_get(listaParaAlgoritmo, i);
+	ordenarLista(listaParaAlgoritmo);
+	int i = 0;
+	printf("ORDENAMIENTO \n");
+	while (i < list_size(listaParaAlgoritmo)) {
+		t_pidFrame * pf = list_get(listaParaAlgoritmo, i);
 
-	printf("Poscion: %d, FRAME: %d \n", i, pf->frameAsignado);
-	fflush(stdout);
-	i++;
-}
+		printf("Poscion: %d, FRAME: %d \n", i, pf->frameAsignado);
+		fflush(stdout);
+		i++;
+	}
 
-sleep(2);
+	sleep(2);
 
-t_pidFrame * frameAReemplazar = malloc(sizeof(t_pidFrame));
-if (list_size(listaParaAlgoritmo) > 0) {
-	time_t t = time(NULL);
-	frameAReemplazar = list_remove(listaParaAlgoritmo, 0);
+	t_pidFrame * frameAReemplazar = malloc(sizeof(t_pidFrame));
+	if (list_size(listaParaAlgoritmo) > 0) {
+		time_t t = time(NULL);
+		frameAReemplazar = list_remove(listaParaAlgoritmo, 0);
 
-	frameAReemplazar->frameModificado = 1;
-	frameAReemplazar->ultimaReferencia = t;
+		frameAReemplazar->frameModificado = 1;
+		frameAReemplazar->ultimaReferencia = t;
 
-	return frameAReemplazar->frameAsignado;
-} else {
+		return frameAReemplazar->frameAsignado;
+	} else {
 
-	return 0;
+		return 0;
 
-}
+	}
 }
 
 //void * ordenarLista(t_list * listaParaAlgoritmo) {
@@ -1549,205 +1575,207 @@ if (list_size(listaParaAlgoritmo) > 0) {
 
 //}
 void * ordenarLista(t_list * listaParaAlgoritmo) {
-bool _ordenamiento_porHorario(t_pidFrame* frameBusqueda,
-		t_pidFrame* otroFrameBusqueda) {
-	return frameBusqueda->ultimaReferencia < otroFrameBusqueda->ultimaReferencia;
-}
-list_sort(listaParaAlgoritmo, (void*) _ordenamiento_porHorario);
-return NULL;
+	bool _ordenamiento_porHorario(t_pidFrame* frameBusqueda,
+			t_pidFrame* otroFrameBusqueda) {
+		return frameBusqueda->ultimaReferencia
+				< otroFrameBusqueda->ultimaReferencia;
+	}
+	list_sort(listaParaAlgoritmo, (void*) _ordenamiento_porHorario);
+	return NULL;
 }
 int ejecutarAlgoritmo(int pid) {
 
-int frame;
-switch (configMemoria.algoritmoReemplazo) {
-case 1: //FIFO
-	//return algoritmoFIFO(pid);
-	frame = algoritmoFIFO(pid);
-	break;
-case 2: //"LRU"
-	//return algoritmoLRU(pid);
-	frame = algoritmoLRU(pid);
-	break;
-case 3:   //"CLOCK_MODIFICADO"
-	//return algoritmoClockModificado(pid);
+	int frame;
+	switch (configMemoria.algoritmoReemplazo) {
+	case 1: //FIFO
+		//return algoritmoFIFO(pid);
+		frame = algoritmoFIFO(pid);
+		break;
+	case 2: //"LRU"
+		//return algoritmoLRU(pid);
+		frame = algoritmoLRU(pid);
+		break;
+	case 3:   //"CLOCK_MODIFICADO"
+		//return algoritmoClockModificado(pid);
 
-	frame = algoritmoClockModificado(pid);
-	break;
-default:
-	return -1;
-}
-verificarPaginaAReemplazar(frame);
-return frame;
+		frame = algoritmoClockModificado(pid);
+		break;
+	default:
+		return -1;
+	}
+	verificarPaginaAReemplazar(frame);
+	return frame;
 }
 void verificarPaginaAReemplazar(int frame) {
 //Busca ese frame para ver a que pagina esta asignado
-int posicion = 0;
-t_escribir *estructuraEscribirSwap = malloc(sizeof(t_escribir));
-t_mensajeHeader mensajeHeaderSwap;
+	int posicion = 0;
+	t_escribir *estructuraEscribirSwap = malloc(sizeof(t_escribir));
+	t_mensajeHeader mensajeHeaderSwap;
 //Busca la pagina que tenga el frame
-t_tablaDePaginas* pag = list_get(tablaDePaginas, posicion);
-while (pag->marco != frame || (pag->marco == frame && pag->presencia != 1)) {
+	t_tablaDePaginas* pag = list_get(tablaDePaginas, posicion);
+	while (pag->marco != frame || (pag->marco == frame && pag->presencia != 1)) {
 
-	posicion++;
-	if (posicion == list_size(tablaDePaginas)) {
-		posicion = -1; //termino de recorrer y no encontro
-		break;
-	}
-	pag = list_get(tablaDePaginas, posicion);
-
-}
-if (posicion != -1) {
-	pag = list_get(tablaDePaginas, posicion);
-	pag->presencia = 0;
-	pag->bitUso = 0;
-	if (pag->bitModificado == MODIFICADO) {
-
-		time_t t = time(NULL);
-		int ppf = busquedaPIDFramePorFrame(pag->marco);
-		if (ppf != -1) {
-			t_pidFrame * pf = list_get(listaDePidFrames, ppf);
-			pf->ultimaReferencia = t;
-			pf->frameAsignado = frame;
-			//pf->frameModificado = 0;
-			pf->frameUsado = 1;
-		} else if (list_size(busquedaListaFramesPorPid(pag->pid))
-				< configMemoria.maximoMarcosPorProceso) {
-			t_pidFrame *pf = malloc(sizeof(t_pidFrame));
-			pf->frameAsignado = pag->marco;
-			pf->pid = pag->pid;
-			pf->puntero = 0;
-			pf->ultimaReferencia = t;
-		//	pf->frameModificado = 1;
-			pf->frameUsado = 1;
-			list_add(listaDePidFrames, pf);
-
+		posicion++;
+		if (posicion == list_size(tablaDePaginas)) {
+			posicion = -1; //termino de recorrer y no encontro
+			break;
 		}
+		pag = list_get(tablaDePaginas, posicion);
 
-		//char* contenidoADevolver = buscarContenidoFrame(frame, pag->pid, pag->pagina);
-		estructuraEscribirSwap->pid = pag->pid;
-		estructuraEscribirSwap->pagina = pag->pagina;
-		memcpy(estructuraEscribirSwap->contenidoPagina,
-				buscarContenidoFrame(frame, pag->pid, pag->pagina, 0),
-				configMemoria.tamanioMarcos);
-		serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
-				sizeof(t_escribir), clienteSwap);
-		recv(clienteSwap, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
-		pag->bitModificado = NOMODIFICADO;
 	}
-}
+	if (posicion != -1) {
+		pag = list_get(tablaDePaginas, posicion);
+		pag->presencia = 0;
+		pag->bitUso = 0;
+		if (pag->bitModificado == MODIFICADO) {
+
+			time_t t = time(NULL);
+			int ppf = busquedaPIDFramePorFrame(pag->marco);
+			if (ppf != -1) {
+				t_pidFrame * pf = list_get(listaDePidFrames, ppf);
+				pf->ultimaReferencia = t;
+				pf->frameAsignado = frame;
+				//pf->frameModificado = 0;
+				pf->frameUsado = 1;
+			} else if (list_size(busquedaListaFramesPorPid(pag->pid))
+					< configMemoria.maximoMarcosPorProceso) {
+				t_pidFrame *pf = malloc(sizeof(t_pidFrame));
+				pf->frameAsignado = pag->marco;
+				pf->pid = pag->pid;
+				pf->puntero = 0;
+				pf->ultimaReferencia = t;
+				//	pf->frameModificado = 1;
+				pf->frameUsado = 1;
+				list_add(listaDePidFrames, pf);
+
+			}
+
+			//char* contenidoADevolver = buscarContenidoFrame(frame, pag->pid, pag->pagina);
+			estructuraEscribirSwap->pid = pag->pid;
+			estructuraEscribirSwap->pagina = pag->pagina;
+
+			memcpy(estructuraEscribirSwap->contenidoPagina,
+					buscarContenidoFrame(frame, pag->pid, pag->pagina, 0),
+					configMemoria.tamanioMarcos);
+			serializarEstructura(ESCRIBIR, (void *) estructuraEscribirSwap,
+					sizeof(t_escribir), clienteSwap);
+			recv(clienteSwap, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+			pag->bitModificado = NOMODIFICADO;
+		}
+	}
 //Actualiza TLB todo
-borrarEnLaTLB(pag->pid, pag->pagina);
-free(estructuraEscribirSwap);
+	borrarEnLaTLB(pag->pid, pag->pagina);
+	free(estructuraEscribirSwap);
 }
 void inicializarFrames() {
 
-log_info(logMemoria, "Inicializa frames \n");
-int x = 0;
-while (x < configMemoria.cantidadDeMarcos) {
-	agregarFrame(x);
-	x++;
-}
+	log_info(logMemoria, "Inicializa frames \n");
+	int x = 0;
+	while (x < configMemoria.cantidadDeMarcos) {
+		agregarFrame(x);
+		x++;
+	}
 
 }
 
 void agregarFrame(int frameID) {
-t_frames * frame = malloc(sizeof(t_frames));
-frame->frame = frameID;
-frame->ocupado = LIBRE;
-list_add(frames, frame);
+	t_frames * frame = malloc(sizeof(t_frames));
+	frame->frame = frameID;
+	frame->ocupado = LIBRE;
+	list_add(frames, frame);
 }
 
 t_frames * buscarFrame(int frameId) {
-int posicion = 0;
-t_frames * frame = list_get(frames, posicion);
-while (frame->frame != frameId) {
-	posicion++;
+	int posicion = 0;
+	t_frames * frame = list_get(frames, posicion);
+	while (frame->frame != frameId) {
+		posicion++;
+		if (posicion == list_size(frames))
+			break;
+		frame = list_get(frames, posicion);
+	}
 	if (posicion == list_size(frames))
-		break;
-	frame = list_get(frames, posicion);
-}
-if (posicion == list_size(frames))
-	frame = list_get(frames, posicion - 1);
-return frame;
+		frame = list_get(frames, posicion - 1);
+	return frame;
 
 }
 void liberarFrame(int idFrame) {
 
-int _is_frame(t_frames *p) {
-	return p->frame == idFrame;
-}
-pthread_mutex_lock(&mutexFrames);
-t_frames* frame = buscarFrame(idFrame); //list_find(frames, (void*) _is_frame);
-frame->ocupado = LIBRE; //actualizo su pid para que quede libre la cpu
-pthread_mutex_unlock(&mutexFrames);
+	int _is_frame(t_frames *p) {
+		return p->frame == idFrame;
+	}
+	pthread_mutex_lock(&mutexFrames);
+	t_frames* frame = buscarFrame(idFrame); //list_find(frames, (void*) _is_frame);
+	frame->ocupado = LIBRE; //actualizo su pid para que quede libre la cpu
+	pthread_mutex_unlock(&mutexFrames);
 
 }
 int seleccionarFrameLibre() {
 // Busca el primer frame libre, y lo marca como usado. Retorna -1 si no tiene ningun frame libre
-int _is_frame(t_frames *p) {
-	return p->ocupado == LIBRE;
-}
-pthread_mutex_lock(&mutexFrames);
-t_frames* libre = malloc(sizeof(t_frames));
-libre = list_find(frames, (void*) _is_frame);
+	int _is_frame(t_frames *p) {
+		return p->ocupado == LIBRE;
+	}
+	pthread_mutex_lock(&mutexFrames);
+	t_frames* libre = malloc(sizeof(t_frames));
+	libre = list_find(frames, (void*) _is_frame);
 
-pthread_mutex_unlock(&mutexFrames);
-if (libre != NULL) {
-	libre->ocupado = OCUPADO;
-	log_info(logMemoria, "FRAME LIBRE : %d \n", libre->frame);
-	return libre->frame;
-} else {
+	pthread_mutex_unlock(&mutexFrames);
+	if (libre != NULL) {
+		libre->ocupado = OCUPADO;
+		log_info(logMemoria, "FRAME LIBRE : %d \n", libre->frame);
+		return libre->frame;
+	} else {
 
-	return -1;
-	log_info(logMemoria, "NO HAY NINGUN FRAME LIBRE : %d \n");
-}
+		return -1;
+		log_info(logMemoria, "NO HAY NINGUN FRAME LIBRE : %d \n");
+	}
 
 }
 void leerFrame(int frame, int pid, int pagina, int socketCPU, int tlbPresente) {
 //ANTES DE USAR ESTA FUNCION SE VALIDA QUE EXISTA EN LA TLB, o en la TABLA DE PAGINAS, y despues se busca el contenido en la TABLA de paginas
 //porque si esta en la TLB, o en la tabla de paginas, TENGO EL CONTENIDO EN EL ADMINISTRADOR DE MEMORIA, sino debo pedirselo al swap
-char* contenidoADevolver = buscarContenidoFrame(frame, pid, pagina,
-		tlbPresente);
-t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
-int tamanio = configMemoria.tamanioMarcos;
+	char* contenidoADevolver = buscarContenidoFrame(frame, pid, pagina,
+			tlbPresente);
+	t_tablaDePaginas * paginaAAsignar = malloc(sizeof(t_tablaDePaginas));
+	int tamanio = configMemoria.tamanioMarcos;
 
 //aCTUALIZA BITS PAGINA
-int posicion = busquedaPIDEnLista(pid, pagina);
-if (posicion != -1) {
-	paginaAAsignar = list_get(tablaDePaginas, posicion);
-	paginaAAsignar->pid = pid;
-	paginaAAsignar->marco = frame;
-	paginaAAsignar->pagina = pagina;
-	//paginaAAsignar->bitModificado = 1;
-	//paginaAAsignar->bitModificado = NOMODIFICADO; //ver que no lo llame el ecrribit todo
-	paginaAAsignar->bitUso = 1;
-	paginaAAsignar->bitValidez = 1;
-	paginaAAsignar->presencia = 1;
+	int posicion = busquedaPIDEnLista(pid, pagina);
+	if (posicion != -1) {
+		paginaAAsignar = list_get(tablaDePaginas, posicion);
+		paginaAAsignar->pid = pid;
+		paginaAAsignar->marco = frame;
+		paginaAAsignar->pagina = pagina;
+		//paginaAAsignar->bitModificado = 1;
+		//paginaAAsignar->bitModificado = NOMODIFICADO; //ver que no lo llame el ecrribit todo
+		paginaAAsignar->bitUso = 1;
+		paginaAAsignar->bitValidez = 1;
+		paginaAAsignar->presencia = 1;
 
-	time_t t = time(NULL);
-	int ppf = busquedaPIDFramePorFrame(frame);
-	if (ppf != -1) {
-		t_pidFrame * pf = list_get(listaDePidFrames, ppf);
-		pf->ultimaReferencia = t;
-		pf->frameAsignado = frame;
-	//	pf->frameModificado = 0;
-		pf->frameUsado = 1;
-	} else if (list_size(busquedaListaFramesPorPid(pid))
-			< configMemoria.maximoMarcosPorProceso) {
-		t_pidFrame *pf = malloc(sizeof(t_pidFrame));
-		pf->frameAsignado = frame;
-		pf->pid = pid;
-		pf->puntero = 0;
-		pf->ultimaReferencia = t;
-		pf->frameModificado = 0;
-		pf->frameUsado = 1;
-		list_add(listaDePidFrames, pf);
+		time_t t = time(NULL);
+		int ppf = busquedaPIDFramePorFrame(frame);
+		if (ppf != -1) {
+			t_pidFrame * pf = list_get(listaDePidFrames, ppf);
+			pf->ultimaReferencia = t;
+			pf->frameAsignado = frame;
+			//	pf->frameModificado = 0;
+			pf->frameUsado = 1;
+		} else if (list_size(busquedaListaFramesPorPid(pid))
+				< configMemoria.maximoMarcosPorProceso) {
+			t_pidFrame *pf = malloc(sizeof(t_pidFrame));
+			pf->frameAsignado = frame;
+			pf->pid = pid;
+			pf->puntero = 0;
+			pf->ultimaReferencia = t;
+			pf->frameModificado = 0;
+			pf->frameUsado = 1;
+			list_add(listaDePidFrames, pf);
+
+		}
 
 	}
-
-}
-send(socketCPU, &tamanio, sizeof(configMemoria.tamanioMarcos), 0);
-send(socketCPU, contenidoADevolver, tamanio, 0);
+	send(socketCPU, &tamanio, sizeof(configMemoria.tamanioMarcos), 0);
+	send(socketCPU, contenidoADevolver, tamanio, 0);
 
 }
 char * buscarContenidoFrame(int frame, int pid, int pagina, int tlbPresente) {
@@ -1755,64 +1783,65 @@ char * buscarContenidoFrame(int frame, int pid, int pagina, int tlbPresente) {
 //		"OBTENIENDO CONTENIDO DE LA PAGINA,fue encontrada en la TLB o en la TABLA DE PAGINAS");
 
 //TODO
-if (tlbPresente == 0) {	//Si es 0 no esta presente en la tlb
-	AsignarEnTlb(pid, pagina, frame);
-}
-char * contenido = malloc(configMemoria.tamanioMarcos + 1);
+	if (tlbPresente == 0) {	//Si es 0 no esta presente en la tlb
+		AsignarEnTlb(pid, pagina, frame);
+	}
+	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
+	pthread_mutex_lock(&MEMORIAPPAL);
+	memcpy(contenido,
+			memoriaReservadaDeMemPpal + (frame * configMemoria.tamanioMarcos),
+			configMemoria.tamanioMarcos);
+	pthread_mutex_unlock(&MEMORIAPPAL);
+	contenido[configMemoria.tamanioMarcos] = '\0';
 
-memcpy(contenido,
-		memoriaReservadaDeMemPpal + (frame * configMemoria.tamanioMarcos),
-		configMemoria.tamanioMarcos);
-contenido[configMemoria.tamanioMarcos] = '\0';
-
-return contenido;
+	return contenido;
 
 }
 void iniciarFallosYAccesos() {
-int i;
-for (i = 0; i < MAXPROCESOS; i++) {
-	fallos[i] = 0;
-	accesos[i] = 0;
-}
+	int i;
+	for (i = 0; i < MAXPROCESOS; i++) {
+		fallos[i] = 0;
+		accesos[i] = 0;
+	}
 
 }
 
 void calcularTasaAciertos(void *ptr) {
-int tasa = 0;
-printf("en el hilo de la tlbbbbbb\n");
-while (true) {
-	sleep(60);
-	if (accesosTLB != 0) {
-		tasa = (aciertosTLB / accesosTLB) * 100;
-		log_info(logMemoria, "Tasa aciertos TLB : %d  %\n", tasa);
+	int tasa = 0;
+	printf("en el hilo de la tlbbbbbb\n");
+	while (true) {
+		sleep(60);
+		if (accesosTLB != 0) {
+			tasa = (aciertosTLB / accesosTLB) * 100;
+			log_info(logMemoria, "Tasa aciertos TLB : %d  %\n", tasa);
+		}
 	}
-}
 
 }
 void borrarEnLaTLB(int pid, int pagina) {
-int posicion = 0;
+	int posicion = 0;
 //	int encuentra = -1;
 
-bool buscarPagina(t_TLB * buscarTLB) {
-	return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
-}
-int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
-if (cantidad > 0) {
-	//  malloc(sizeof(t_TLB));
-
-	t_TLB * entradaTLB = list_get(tlb, posicion);
-
-	while ((entradaTLB->pagina != pagina || entradaTLB->pid != pid)) {
-
-		posicion++;
-		if (posicion == list_size(tablaDePaginas))
-			posicion = -1; // llego al finak de la lista y no encuentra
-		break;
-		entradaTLB = list_get(tablaDePaginas, posicion);
-
+	bool buscarPagina(t_TLB * buscarTLB) {
+		return buscarTLB->pid == pid && buscarTLB->pagina == pagina;
 	}
-	if (posicion != -1) {
-		entradaTLB = list_remove(tlb, posicion);
+	int cantidad = list_count_satisfying(tlb, (void*) buscarPagina);
+	if (cantidad > 0) {
+		//  malloc(sizeof(t_TLB));
+
+		t_TLB * entradaTLB = list_get(tlb, posicion);
+
+		while ((entradaTLB->pagina != pagina || entradaTLB->pid != pid)) {
+
+			posicion++;
+			if (posicion == list_size(tablaDePaginas))
+				posicion = -1; // llego al finak de la lista y no encuentra
+			break;
+			entradaTLB = list_get(tablaDePaginas, posicion);
+
+		}
+		if (posicion != -1) {
+			entradaTLB = list_remove(tlb, posicion);
+		}
 	}
-}
 }

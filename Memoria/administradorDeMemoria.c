@@ -91,11 +91,24 @@ int buscarPaginaEnTP(int frame) {
 	}
 	return -1;
 }
-void borrarMemoria() {
+int buscarPosicionPaginaEnTP(int frame) {
+	int posicion = 0;
+	t_tablaDePaginas * tp = list_get(tablaDePaginas, posicion);
+	while (posicion < list_size(tablaDePaginas)) {
+		tp = list_get(tablaDePaginas, posicion);
+		if (tp->marco == frame) {
+			return posicion;
+		} else {
+			posicion++;
+		}
+	}
+	return -1;
+}
+/*void borrarMemoria() {
 	t_escribir * escribir = malloc(sizeof(t_escribir));
 	int posicion = 0;
 	t_frames * frame = list_get(frames, posicion);
-	char * contenido = malloc(configMemoria.tamanioMarcos);
+	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
 	while (posicion < list_size(frames)) {
 		frame = list_get(frames, posicion);
 		int pagina = buscarPaginaEnTP(frame->frame);
@@ -114,14 +127,90 @@ void borrarMemoria() {
 			escribir->pagina = pagina;
 			strncpy(escribir->contenidoPagina, contenido, strlen(contenido));
 
-			serializarEstructura(ESCRIBIR, escribir, sizeof(escribir),
+			serializarEstructura(ESCRIBIR,(void *) escribir, sizeof(escribir),
 					clienteSwap);
 
 		}
 		posicion++;
 	}
-}
+}*/
+/*
+ * void borrarMemoria() {
+	t_escribir * escribir = malloc(sizeof(t_escribir));
+	int posicion = 0;
+	int posPagina = -1;
+	t_mensajeHeader mensajeHeaderSwap;
+	t_frames * frame;// = list_get(frames, posicion);
+	int pid = -1;
+	int pagina = -1;
+	t_tablaDePaginas * paginaPidFrame;
+	while (posicion < list_size(frames)) {
+		frame = list_get(frames, posicion);
 
+		if (frame->ocupado == OCUPADO) {
+			pthread_mutex_lock(&MEMORIAPPAL);
+			posPagina = buscarPosicionPaginaEnTP(frame->frame);
+			if(posPagina != -1){
+			paginaPidFrame = list_get(tablaDePaginas,posPagina);
+			pid = paginaPidFrame->pid;
+			pagina = paginaPidFrame->pagina;
+			pthread_mutex_unlock(&MEMORIAPPAL);
+			escribir->pid = pid;
+			escribir->pagina = pagina;
+			memcpy(escribir->contenidoPagina,
+								buscarContenidoFrame(frame, pid, pagina, 0),
+								configMemoria.tamanioMarcos);
+						serializarEstructura(ESCRIBIR, (void *) escribir,
+								sizeof(t_escribir), clienteSwap);
+						recv(clienteSwap, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+
+
+			}
+		}
+		posicion++;
+
+	}
+}
+*/
+void borrarMemoria() {
+	t_escribir * escribir = malloc(sizeof(t_escribir));
+	t_mensajeHeader mensajeHeaderSwap;
+	int posicion = 0;
+	t_frames * frame = list_get(frames, posicion);
+	char * contenido = malloc(configMemoria.tamanioMarcos + 1);
+	while (posicion < list_size(frames)) {
+		frame = list_get(frames, posicion);
+		int pagina = buscarPaginaEnTP(frame->frame);
+		t_pidFrame * pid = list_get(listaDePidFrames,
+				busquedaPIDFramePorFrame(frame->frame));
+
+		if (frame->ocupado == OCUPADO) {
+			pthread_mutex_lock(&MEMORIAPPAL);
+			memcpy(contenido,
+					memoriaReservadaDeMemPpal
+							+ (frame->frame * configMemoria.tamanioMarcos),
+					configMemoria.tamanioMarcos);
+			contenido[configMemoria.tamanioMarcos] = '\0';
+			pthread_mutex_unlock(&MEMORIAPPAL);
+			escribir->pid = pid->pid;
+			escribir->pagina = pagina;
+			strncpy(escribir->contenidoPagina, contenido, strlen(contenido));
+
+/*
+			serializarEstructura(ESCRIBIR,(void *) escribir, sizeof(escribir),
+					clienteSwap);
+*/
+			memcpy(escribir->contenidoPagina,
+											buscarContenidoFrame(frame->frame, pid->pid, pagina, 1),
+											configMemoria.tamanioMarcos);
+									serializarEstructura(ESCRIBIR, (void *) escribir,
+											sizeof(t_escribir), clienteSwap);
+									recv(clienteSwap, &mensajeHeaderSwap, sizeof(t_mensajeHeader), 0);
+
+		}
+		posicion++;
+	}
+}
 void inicioHiloSigUsr2() {
 	log_info(logMemoria, "HILO SIGUSR2");
 	int i = 1;
@@ -948,7 +1037,7 @@ void RealizarVolcadoMemoriaLog() {
 	log_info(logMemoria, "VOLCADO DE MEMORIA \n ");
 	int i = 0;
 
-	for (i = 0; i <= configMemoria.cantidadDeMarcos; i++) {
+	for (i = 0; i < configMemoria.cantidadDeMarcos; i++) {
 		pthread_mutex_lock(&MEMORIAPPAL);
 		memcpy(frameContenido,
 				memoriaReservadaDeMemPpal + (i * configMemoria.tamanioMarcos),

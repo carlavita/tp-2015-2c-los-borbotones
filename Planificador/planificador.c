@@ -617,6 +617,9 @@ t_pcb* planificarFifo() {
 	pthread_mutex_unlock(&mutexListas);
 	printf("eliminó el pid : % d de listos \n", pcb->pid);
 	pcb->status = EJECUTA;
+	if(pcb->cantidadLineas <= pcb->proxInst){
+		pcb->proxInst = pcb->cantidadLineas - 1;
+	}
 	pthread_mutex_lock(&mutexListas);
 	list_add(EJECUTANDO, pcb);
 	double tiempoActual = obtenerTiempoActual();

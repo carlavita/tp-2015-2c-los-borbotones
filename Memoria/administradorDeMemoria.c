@@ -186,6 +186,7 @@ void borrarMemoria() {
 
 		if (frame->ocupado == OCUPADO) {
 			pthread_mutex_lock(&MEMORIAPPAL);
+			frame->ocupado = LIBRE;
 			memcpy(contenido,
 					memoriaReservadaDeMemPpal
 							+ (frame->frame * configMemoria.tamanioMarcos),
@@ -219,8 +220,17 @@ void inicioHiloSigUsr2() {
 		log_info(logMemoria, "FLUSH de la tabla de paginas");
 		borrarMemoria();
 
-		list_destroy(tablaDePaginas);
-		tablaDePaginas = list_create(tablaDePaginas);
+		/*list_destroy(tablaDePaginas);
+		tablaDePaginas = list_create(tablaDePaginas);*/
+		t_tablaDePaginas * entradaPaginas = malloc (sizeof(t_tablaDePaginas));
+		int var = 0;
+		for (var = 0; var < list_size(tablaDePaginas); ++var) {
+			entradaPaginas = list_get(tablaDePaginas, var);
+			entradaPaginas->presencia = 0;
+			entradaPaginas->bitUso = 0;
+			entradaPaginas->bitModificado = 0;
+		}
+
 		pthread_mutex_unlock(&mutexsenial);
 	}
 }

@@ -475,8 +475,9 @@ void handle(int newsock, fd_set *set) {
 						"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
 			} else {
 
-				pcbProc->proxInst = pcbProc->proxInst
-						+ finQuantum.instrucciones + 1;
+				pcbProc->proxInst = pcbProc->proxInst + finQuantum.instrucciones ;
+				//		+ finQuantum.instrucciones + 1;
+
 				log_info(logger, " actualiza prox instrucción: %d\n",
 						pcbProc->proxInst );
 			}
@@ -762,7 +763,8 @@ void ejecutarIO(int socketCPU) {
 				"no se actualiza prox instruccion porque  se ejecuto antes el finalizar por consola \n");
 	} else {
 
-		pcb->proxInst = pcb->proxInst + infoIO->instrucciones + 1;
+		pcb->proxInst = pcb->proxInst + infoIO->instrucciones;
+		//pcb->proxInst = pcb->proxInst + infoIO->instrucciones + 1;
 		log_info(logger, " actualiza prox instrucción: %d\n", pcb->proxInst);
 	}
 	pcb->status = BLOQUEADO;

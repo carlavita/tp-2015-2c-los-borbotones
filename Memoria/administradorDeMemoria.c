@@ -585,7 +585,9 @@ int buscarEnTablaDePaginas(int pid, int pagina) {
 	log_info(logMemoria, "INICIO BUSQUEDA EN TABLA DE PAGINAS");
 
 	t_list * paginasEncontradas = list_create();
+
 	int posicion = busquedaPIDEnLista(pid, pagina);
+
 	if (posicion >= 0) { //encontro la pagina, es valida y esta presente
 		entrada = list_get(tablaDePaginas, posicion);
 		list_add(paginasEncontradas, entrada);
@@ -790,6 +792,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			leerFrame(resultadoBusquedaTLB, pid, pagina, socketCPU, 1);
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina);
+			usleep(configMemoria.retardoMemoria);
 			if (resultadoBusquedaTP >= 0) {
 				leerFrame(resultadoBusquedaTP, pid, pagina, socketCPU, 0);
 			} else {
@@ -808,6 +811,7 @@ void leerPagina(t_leer estructuraLeerSwap, int socketSwap, int socketCPU,
 			break;
 			case 0:
 			resultadoBusquedaTablaPaginas = buscarEnTablaDePaginas(pid, pagina);
+			usleep(configMemoria.retardoMemoria);
 			if (resultadoBusquedaTablaPaginas >= 0) {
 				leerFrame(resultadoBusquedaTablaPaginas, pid, pagina, socketCPU,
 						0);
@@ -882,10 +886,10 @@ void imprimirBit(int pid) {
 	pidFrame = list_get(listaDePidFrames, contador);
 	while (contador < list_size(listaDePidFrames)) {
 		if (pidFrame->pid == pid) {
-			log_info(logMemoria,
+			/*log_info(logMemoria,
 					"FRAME:%d,MODIFICADO: %d, USO: %d , PUNTERO %d\n",
 					pidFrame->frameAsignado, pidFrame->frameModificado,
-					pidFrame->frameUsado, pidFrame->puntero);
+					pidFrame->frameUsado, pidFrame->puntero);*/
 			//list_add(listaFramesPid, pidFrame);
 		}
 		contador++;
@@ -1379,6 +1383,7 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 
 		} else {
 			int resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
+			usleep(configMemoria.retardoMemoria);
 			if (resultadoBusquedaTP >= 0) {
 				escribirContenido(estructuraEscribir, resultadoBusquedaTP, 1);
 			} else {
@@ -1390,6 +1395,7 @@ void escribir(t_escribir * estructuraEscribir, int socketSwap) {
 		break;
 	case 0:
 		resultadoBusquedaTP = buscarEnTablaDePaginas(pid, pagina); //resultadoBusquedaTP = frame
+		usleep(configMemoria.retardoMemoria);
 		if (resultadoBusquedaTP >= 0) {
 			escribirContenido(estructuraEscribir, resultadoBusquedaTP, 1);
 		} else {
@@ -1483,6 +1489,7 @@ char * pedirLecturaAlSwapEscribir(int cliente, int pid, int pagina) {
 	recv(cliente, &tamanioLeido, sizeof(int), 0);
 
 	char* contenidoLeido = malloc(tamanioLeido);
+	//memset(contenidoLeido,'\0',tamanioLeido);
 
 	recv(cliente, contenidoLeido, tamanioLeido, 0);
 

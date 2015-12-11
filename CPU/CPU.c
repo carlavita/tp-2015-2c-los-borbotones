@@ -105,7 +105,7 @@ void calcularPorcentaje(void *param){
 		//calcula el porcentaje de uso del último minuto de cada cpu
 	//	var->porcentajeCPU = (total* 100) / 60 ;
 		if(configuracionCPU.Retardo != 0)
-		var->porcentajeCPU = (var->contadorEjecutadas*100)/(60/configuracionCPU.Retardo);
+		var->porcentajeCPU = (var->contadorEjecutadas*100)/(60000000/configuracionCPU.Retardo);
 		else
 			var->porcentajeCPU = (var->contadorEjecutadas*100)/60;
 		printf("el porcentaje de uso es:%lf de la cpu: %d \n", var->porcentajeCPU,var->id);
@@ -348,7 +348,7 @@ char *iniciar(int cpu,FILE * fid, int paginas, int mProcID,int serverSocket,int 
 	if (mensajeCpu.idmensaje == FINALIZAPROCOK) {
 		log_info(logCPU, "El proceso %d inició su ejecucion correctamente\n",
 				mProcID);
-		sleep(configuracionCPU.Retardo);
+		usleep(configuracionCPU.Retardo);
 
 		string_append(&comienzo,"mProc-");
 
@@ -406,7 +406,7 @@ char *escribir(int pagina, char *texto, int mProcID, int serverSocket, int serve
 			texto);
 
 
-	sleep(configuracionCPU.Retardo);
+	usleep(configuracionCPU.Retardo);
 
 	string_append(&comienzo,"mProc-");
 	string_append(&comienzo,id);
@@ -448,7 +448,7 @@ char *leer(int pagina, int mProcID, int serverSocket, int serverMemoria) {
 
 	log_info(logCPU, "El contenido es: %s \n", contenido);
 
-	sleep(configuracionCPU.Retardo);
+	usleep(configuracionCPU.Retardo);
 
 	string_append(&comienzo,"mProc-");
 	string_append(&comienzo,id);
@@ -509,7 +509,7 @@ char *finalizar(int cpu, int mProcID, int instrucciones, int serverSocket,int se
 	t_mensajeHeader rta;
 	recv(serverMemoria, &rta, sizeof(t_mensajeHeader), 0);
 
-	sleep(configuracionCPU.Retardo);
+	usleep(configuracionCPU.Retardo);
 
 	t_finalizarPID *rtaFin = malloc(sizeof(t_finalizarPID));
 	rtaFin->pid = mProcID;

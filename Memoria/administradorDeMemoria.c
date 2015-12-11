@@ -710,7 +710,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			imprimirBit(pid);
 			pthread_mutex_unlock(&BLOQUEAR);
 
-			usleep(configMemoria.retardoMemoria);
+			//usleep(configMemoria.retardoMemoria);
 
 			//TODO
 			char * contenido = malloc(strlen(contenidoPedidoAlSwap));
@@ -728,7 +728,7 @@ void AsignarContenidoALaPagina(int pid, int pagina,
 			//todo revisar esta asignacion//>reemplazarla por la de arriba si falla
 			paginaAAsignar->direccion = memoriaReservadaDeMemPpal;
 
-			usleep(configMemoria.retardoMemoria);
+			//usleep(configMemoria.retardoMemoria);
 		}
 		time_t t = time(NULL);
 		int ppf = busquedaPIDFramePorFrame(paginaAAsignar->marco);

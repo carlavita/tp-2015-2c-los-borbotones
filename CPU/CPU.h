@@ -52,6 +52,7 @@ typedef struct __attribute__((packed))
 	double porcentajeCPU;
 	time_t valori;
 	time_t valorf;
+	//double latencia;
 	int contadorEjecutadas;
 	int serverSocket;
 }t_envio;
